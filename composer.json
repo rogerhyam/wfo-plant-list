@@ -1,0 +1,7 @@
+{
+    "require": {
+        "easyrdf/easyrdf": "*",
+        "ml/json-ld": "*",
+        "webonyx/graphql-php": "*"
+    }
+}
