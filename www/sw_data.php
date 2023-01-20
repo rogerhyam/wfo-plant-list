@@ -2,7 +2,7 @@
 
 /*
 
-Calls are 303 redirect here by the semantic web content negotiation in index.php
+Calls are 303 redirected here by the semantic web content negotiation in index.php
 
 Responds to calls of the form
 
@@ -233,6 +233,6 @@ function add_references($references, $resource, $graph){
         $ref_resource->add('dc:title', $ref['label']);
         $ref_resource->add('dc:type', $ref['kind']);
         if($ref['comment']) $ref_resource->add('dc:description', $ref['comment']);
-        if($ref['thumbnail_uri']) $ref_resource->add('og:image', $ref['thumbnail_uri']);
+        if($ref['thumbnail_uri']) $ref_resource->add('og:image', $graph->resource($ref['thumbnail_uri']));
     }
 }

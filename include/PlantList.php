@@ -8,7 +8,7 @@
 class PlantList{
 
 
-    public function getCurlHandle($uri){
+    public static function getCurlHandle($uri){
         $ch = curl_init($uri);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_USERAGENT, 'WFO Plant List');
@@ -21,7 +21,7 @@ class PlantList{
      * Run the cURL requests in one place 
      * so we can catch errors etc
      */
-    function runCurlRequest($curl){
+    public static function runCurlRequest($curl){
     
         $out['response'] = curl_exec($curl);  
         $out['error'] = curl_errno($curl);
@@ -29,7 +29,7 @@ class PlantList{
         if(!$out['error']){
             // no error
             $out['info'] = curl_getinfo($curl);
-            $out['headers'] = $this->getHeadersFromCurlResponse($out);
+            $out['headers'] = PlantList::getHeadersFromCurlResponse($out);
             $out['body'] = trim(substr($out['response'], $out['info']["header_size"]));
 
         }else{
@@ -44,12 +44,12 @@ class PlantList{
         
     }
 
-    function curlPostJson($uri, $json){
-        $ch = $this->getCurlHandle($uri);
+    public static function curlPostJson($uri, $json){
+        $ch = PlantList::getCurlHandle($uri);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json')); 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-        $response = $this->runCurlRequest($ch);
+        $response = PlantList::runCurlRequest($ch);
         return $response;
     }
 
@@ -57,7 +57,7 @@ class PlantList{
      * cURL returns headers as sting so we need to chop them into
      * a useable array - even though the info is in the 
      */
-    function getHeadersFromCurlResponse($out){
+    public static function getHeadersFromCurlResponse($out){
         
         $headers = array();
         
@@ -82,11 +82,20 @@ class PlantList{
         return trim(substr($response, strpos($response, "\r\n\r\n")));
     }
 
-    function runSolrQuery($query){
-        $solr_query_uri = SOLR_QUERY_URI . '/query';
-        $response = $this->curlPostJson($solr_query_uri, json_encode($query));
-        $data = json_decode($response->body);
+    /**
+     * 
+     * 
+     */
+    public static function getSolrDocs($query){
+        $data = PlantList::getSolrResponse($query);
         return $data->response->docs;
+    }
+
+    public static function getSolrResponse($query){
+        $solr_query_uri = SOLR_QUERY_URI . '/query';
+        $response = PlantList::curlPostJson($solr_query_uri, json_encode($query));
+        $data = json_decode($response->body);
+        return $data;
     }
 
 }

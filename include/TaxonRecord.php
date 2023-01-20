@@ -28,8 +28,8 @@ class TaxonRecord extends PlantList{
 
             // load it by id
             $solr_query_uri = SOLR_QUERY_URI . '/get?id=' . $init_val;
-            $ch = $this->getCurlHandle($solr_query_uri);
-            $response = $this->runCurlRequest($ch);
+            $ch = PlantList::getCurlHandle($solr_query_uri);
+            $response = PlantList::runCurlRequest($ch);
             if(isset($response->body)){
                 $body = json_decode($response->body);
                 if(isset($body->doc)){
@@ -307,7 +307,7 @@ class TaxonRecord extends PlantList{
 
         $records = array();
 
-        $docs = $this->runSolrQuery($query);
+        $docs = PlantList::getSolrDocs($query);
         foreach($docs as $doc){
             $records[] = new TaxonRecord($doc);
         }
