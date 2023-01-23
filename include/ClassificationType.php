@@ -55,7 +55,8 @@ class ClassificationType extends ObjectType
                         'description' => "The total number of accepted taxa (TaxonConcepts) in this classification"
                     ]
                     /*
-                    ,
+                    , 
+                    FIXME - when taxon concept is implemented
                     'phyla' => [
                         'type' => Type::listOf(TypeRegister::taxonConceptType()),
                         'resolve' => function($classification){

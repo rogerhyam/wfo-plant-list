@@ -97,7 +97,7 @@ if(preg_match('/^[0-9]{4}-[0-9]{2}$/', $wfo)){
     $graph = new \EasyRdf\Graph();
 
     // fields depending on if it is a name or a taxon
-    if($record->isName()){
+    if($record->getIsName()){
        $root_resource = get_name_resource($graph, $record);
     }else{
        $root_resource = get_taxon_resource($graph, $record);
@@ -135,7 +135,7 @@ function get_name_resource($graph, $record){
     $name_resource->add('wfo:rank', $graph->resource('wfo:' . $record->getRank()));
 
     // 'full_name_string_plain_s' => 'wfo:fullName'
-    $name_resource->add('wfo:fullName', $record->getNameStringPlain());
+    $name_resource->add('wfo:fullName', $record->getFullNameStringPlain());
 
     // 'authors_string_s' => 'wfo:authorship',
     $name_resource->add('wfo:authorship', $record->getAuthorsString());
@@ -228,11 +228,11 @@ function get_taxon_resource($graph, $record){
 function add_references($references, $resource, $graph){
     foreach($references as $ref){
 
-        $ref_resource = $graph->resource($ref['uri']);
+        $ref_resource = $graph->resource($ref->uri);
         $resource->add('dc:references',  $ref_resource);
-        $ref_resource->add('dc:title', $ref['label']);
-        $ref_resource->add('dc:type', $ref['kind']);
-        if($ref['comment']) $ref_resource->add('dc:description', $ref['comment']);
-        if($ref['thumbnail_uri']) $ref_resource->add('og:image', $graph->resource($ref['thumbnail_uri']));
+        $ref_resource->add('dc:title', $ref->label);
+        $ref_resource->add('dc:type', $ref->kind);
+        if($ref->comment) $ref_resource->add('dc:description', $ref->comment);
+        if($ref->thumbnailUri) $ref_resource->add('og:image', $graph->resource($ref->thumbnailUri));
     }
 }

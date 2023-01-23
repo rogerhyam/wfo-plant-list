@@ -17,7 +17,7 @@ use GraphQL\Error\DebugFlag;
 require_once('../include/PlantList.php');
 require_once('../include/Classification.php');
 require_once('../include/TypeRegister.php');
-//require_once('include/TaxonRecord.php');
+require_once('../include/TaxonRecord.php');
 
 
 $typeReg = new TypeRegister();
@@ -53,20 +53,6 @@ $schema = new Schema([
                     return $b;
                 }
             ],
-            /*
-            'taxonConceptById' => [
-                'type' => TypeRegister::taxonConceptType(),
-                'description' => 'Returns a TaxonConcept by its ID',
-                'args' => [
-                    'taxonId' => [
-                        'type' => Type::string(),
-                        'description' => 'The qualified id of the TaxonConcept'
-                    ]
-                ],
-                'resolve' => function($rootValue, $args, $context, $info) {
-                    return TaxonConcept::getById( $args['taxonId'] );
-                }
-            ],
             'taxonNameById' => [
                 'type' => TypeRegister::taxonNameType(),
                 'description' => 'Returns a TaxonName by its ID',
@@ -77,9 +63,23 @@ $schema = new Schema([
                     ]
                 ],
                 'resolve' => function($rootValue, $args, $context, $info) {
-                    return TaxonName::getById( $args['nameId'] );
+                    return new TaxonRecord($args['nameId']);
                 }
             ],
+            'taxonConceptById' => [
+                'type' => TypeRegister::taxonConceptType(),
+                'description' => 'Returns a TaxonConcept by its ID',
+                'args' => [
+                    'taxonId' => [
+                        'type' => Type::string(),
+                        'description' => 'The qualified id of the TaxonConcept'
+                    ]
+                ],
+                'resolve' => function($rootValue, $args, $context, $info) {
+                    return new TaxonRecord($args['taxonId']);
+                }
+            ]
+   /*
             'taxonNameMatch' => [
                 'type' => Type::listOf(TypeRegister::taxonNameType()),
                 'description' => 'Returns Taxon Names matching the supplied string(s)',
