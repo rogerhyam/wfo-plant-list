@@ -1,4 +1,5 @@
 seed/*
 vendor/
+matching_cache/*
 composer.phar
 composer.lock
