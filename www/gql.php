@@ -18,6 +18,7 @@ require_once('../include/PlantList.php');
 require_once('../include/Classification.php');
 require_once('../include/TypeRegister.php');
 require_once('../include/TaxonRecord.php');
+require_once('../include/NameMatcher.php');
 
 
 $typeReg = new TypeRegister();
@@ -78,96 +79,35 @@ $schema = new Schema([
                 'resolve' => function($rootValue, $args, $context, $info) {
                     return new TaxonRecord($args['taxonId']);
                 }
-            ]
-   /*
-            'taxonNameMatch' => [
-                'type' => Type::listOf(TypeRegister::taxonNameType()),
-                'description' => 'Returns Taxon Names matching the supplied string(s)',
-                'args' => [
-                    'name' => [
-                        'type' => Type::string(),
-                        'description' => "
-                            The name of the taxon without authority string.
-                            Could be one word - names of genus and above.
-                            Could be two words - species.
-                            Could be three words - subspecific taxa without rank abbreviation.
-                            Could be four words - subspecific taxa, third word is assumed the rank and will be ignored for matching.                       
-                        "
-                    ],
-                    'authors' => [
-                        'type' => Type::string(),
-                        'description' => 'The complete author string using standard author abbreviations where available.
-                        The author string is a further filter on the name string. You can not look for names just based on author string.'
-                    ],
-                ],
-                'resolve' => function($rootValue, $args, $context, $info) {
-                    $name_string = isset($args['name']) ? $args['name'] : "";
-                    $authors_string = isset($args['authors']) ? $args['authors'] : "";
-                    return TaxonName::getByMatching( $name_string, $authors_string );
-                }
             ],
-            'taxonConceptSuggestion' => [
-                'type' => Type::listOf(TypeRegister::taxonConceptType()),
-                'description' => 'Suggests a taxon from the preferred (most recent) taxonomy when given a partial name string.
-                    Designed to be useful in providing suggestions when identifying specimens. Note this returns accepted taxa only not names.
-                    The search string may match a synonym in which case the accepted taxon for that synonym is returned (which may have a name that doesn\'t match the search terms).
-                    You may need to navigate the synonyms of the returned taxon to find the string that was submitted.
-                    ',
-                'args' => [
-                    'termsString' => [
-                        'type' => Type::string(),
-                        'description' => 'The string to search on.'
-                    ],
-                    'byRelevance' => [
-                        'type' => Type::boolean(),
-                        'description' => 'If true then a search is across all fields and results are by relevance. If false (the default) then taxa are returned by the name starting with the letters supplied.'
-                    ],
-                    'limit' => [
-                        'type' => Type::int(),
-                        'description' => 'Maximum number of results to return. Default is 30'
-                    ],
-                    'offset' => [
-                        'type' => Type::int(),
-                        'description' => 'How far into the results set to start returning items, so you can implement paging. Default is 0'
-                    ]
-                ],
-                'resolve' => function($rootValue, $args, $context, $info) {            
-                        $by_relevance = isset($args['byRelevance']) ?  $args['byRelevance'] : false;
-                        $limit = isset($args['limit']) ? $args['limit'] : 30;
-                        $offset = isset($args['offset']) ? $args['offset'] : 0;
-                        return  TaxonConcept::getTaxonConceptSuggestion( $args['termsString'], $by_relevance, $limit, $offset);
-                    }
-                ],
             'taxonNameSuggestion' => [
                 'type' => Type::listOf(TypeRegister::taxonNameType()),
-                'description' => 'Suggests a name from the preferred (most recent) taxonomy when given a partial name string.
-                    Note this returns NAMEs only (c.f. taxonConceptSuggest). To get the current status of the name (if it is the name of a taxon) you need to look at the currentPreferredUsage property of the name.',
-                'args' => [
+                'description' => 'Suggests a name from the preferred (most recent) taxonomy when given a partial name string using a simple alphabetical lookup. Good for type ahead.',
+                 'args' => [
                         'termsString' => [
                             'type' => Type::string(),
                             'description' => 'The string to search on.'
                         ],
-                        'byRelevance' => [
-                            'type' => Type::boolean(),
-                            'description' => 'If true then a search is across all fields and results are by relevance. If false (the default) then taxa are returned by the name starting with the letters supplied.'
-                        ],
                         'limit' => [
                             'type' => Type::int(),
-                            'description' => 'Maximum number of results to return. Default is 30'
-                        ],
-                        'offset' => [
-                            'type' => Type::int(),
-                            'description' => 'How far into the results set to start returning items, so you can implement paging. Default is 0'
-                        ],
+                            'description' => 'Maximum number of results to return.',
+                            'defaultValue' => 100
+                        ]
                     ],
                 'resolve' => function($rootValue, $args, $context, $info) {
-                        $by_relevance = isset($args['byRelevance']) ?  $args['byRelevance'] : false;
-                        $limit = isset($args['limit']) ? $args['limit'] : 30;
-                        $offset = isset($args['offset']) ? $args['offset'] : 0;
-                        return  TaxonName::getTaxonNameSuggestion( $args['termsString'], $by_relevance, $limit, $offset);
+
+                        $matcher = new NameMatcher((object)array('limit' => $args['limit'], 'method' => 'alpha'));
+                        $response = $matcher->match($args['termsString']);
+
+                        if($response->match){
+                            return array($response->match); // we have a perfect match
+                        }else{
+                            return $response->candidates;
+                        }
+
                     }
             ] // taxonNameSuggestion
-            */
+   
         ]// fields
     ]) // object type
     ]); // schema
