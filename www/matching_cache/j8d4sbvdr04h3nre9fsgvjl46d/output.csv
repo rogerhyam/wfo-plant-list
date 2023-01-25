@@ -1,0 +1,39 @@
+wfo_id,wfo_full_name,wfo_check,name,scientificName,taxonRank,parentNameUsageID,scientificNameAuthorship
+,,,"Sphaerosepalaceae Tiegh.",Sphaerosepalaceae,family,wfo-9000000312,Tiegh.
+,,,"Dialyceras Capuron",Dialyceras,genus,wfo-7000000575,Capuron
+,,,"Dialyceras coriaceum (Capuron) J.-F.Leroy","Dialyceras coriaceum",species,wfo-4000011292,"(Capuron) J.-F.Leroy"
+,,,"Dialyceras parvifolium var. coriaceum Capuron","Dialyceras parvifolium var. coriaceum",variety,,Capuron
+,,,"Dialyceras discolor (Capuron) J.-F.Leroy","Dialyceras discolor",species,wfo-4000011292,"(Capuron) J.-F.Leroy"
+,,,"Dialyceras parvifolium f. discolor Capuron","Dialyceras parvifolium f. discolor",form,,Capuron
+,,,"Dialyceras parvifolium Capuron","Dialyceras parvifolium",species,wfo-4000011292,Capuron
+,,,"Rhopalocarpus Bojer",Rhopalocarpus,genus,wfo-7000000575,Bojer
+,,,"Rhopalocarpus alternifolius (Baker) Capuron","Rhopalocarpus alternifolius",species,wfo-4000033082,"(Baker) Capuron"
+,,,"Rhopalocarpus coriaceus var. crassinervius Capuron","Rhopalocarpus coriaceus var. crassinervius",variety,,Capuron
+,,,"Rhopalocarpus binervius Capuron","Rhopalocarpus binervius",species,wfo-4000033082,Capuron
+,,,"Rhopalocarpus coriaceus (Scott-Elliot) Capuron","Rhopalocarpus coriaceus",species,wfo-4000033082,"(Scott-Elliot) Capuron"
+,,,"Rhopalocarpus crassinervius (Capuron) G.E.Schatz, Lowry & A.-E.Wolf","Rhopalocarpus crassinervius",species,wfo-4000033082,"(Capuron) G.E.Schatz, Lowry & A.-E.Wolf"
+,,,"Rhopalocarpus coriaceus var. trichopetalus Capuron","Rhopalocarpus coriaceus var. trichopetalus",variety,,Capuron
+,,,"Rhopalocarpus excelsus Capuron","Rhopalocarpus excelsus",species,wfo-4000033082,Capuron
+,,,"Rhopalocarpus coriaceus var. coriaceus ","Rhopalocarpus coriaceus var. coriaceus",variety,,
+,,,"Rhopalocarpus longipetiolatus Hemsl.","Rhopalocarpus longipetiolatus",species,wfo-4000033082,Hemsl.
+,,,"Rhopalocarpus louvelii var. parvifolius Capuron","Rhopalocarpus louvelii var. parvifolius",variety,,Capuron
+,,,"Rhopalocarpus louvelii (Danguy) Capuron","Rhopalocarpus louvelii",species,wfo-4000033082,"(Danguy) Capuron"
+,,,"Rhopalocarpus lucidus Bojer","Rhopalocarpus lucidus",species,wfo-4000033082,Bojer
+,,,"Rhopalocarpus macrorhamnifolius Capuron","Rhopalocarpus macrorhamnifolius",species,wfo-4000033082,Capuron
+,,,"Rhopalocarpus macrorhamnifolius f. occidentalis Capuron","Rhopalocarpus macrorhamnifolius f. occidentalis",form,,Capuron
+,,,"Rhopalocarpus madagascariense Danguy","Rhopalocarpus madagascariense",species,,Danguy
+,,,"Rhopalocarpus molli G.E.Schatz & Lowry","Rhopalocarpus molli",species,wfo-4000033082,"G.E.Schatz & Lowry"
+,,,"Rhopalocarpus alternifolius var. sambiranensis Capuron","Rhopalocarpus alternifolius var. sambiranensis",variety,,Capuron
+,,,"Rhopalocarpus parvifolius (Capuron) G.E.Schatz, Lowry & A.-E.Wolf","Rhopalocarpus parvifolius",species,wfo-4000033082,"(Capuron) G.E.Schatz, Lowry & A.-E.Wolf"
+,,,"Rhopalocarpus pseudothouarsianus Capuron","Rhopalocarpus pseudothouarsianus",species,,Capuron
+,,,"Rhopalocarpus similis subsp. velutinus Capuron","Rhopalocarpus similis subsp. velutinus",subspecies,,Capuron
+,,,"Rhopalocarpus randrianaivoi G.E.Schatz & Lowry","Rhopalocarpus randrianaivoi",species,wfo-4000033082,"G.E.Schatz & Lowry"
+,,,"Rhopalocarpus similis Hemsl.","Rhopalocarpus similis",species,wfo-4000033082,Hemsl.
+,,,"Rhopalocarpus suarezensis Capuron ex Bosser","Rhopalocarpus suarezensis",species,wfo-4000033082,"Capuron ex Bosser"
+,,,"Rhopalocarpus thouarsianus Baill.","Rhopalocarpus thouarsianus",species,wfo-4000033082,Baill.
+,,,"Rhopalocarpus triplinervius Baill.","Rhopalocarpus triplinervius",species,wfo-4000033082,Baill.
+,,,"Rhopalocarpus undulatus Capuron","Rhopalocarpus undulatus",species,wfo-4000033082,Capuron
+,,,"Sphaerosepalum alternifolius Baker","Sphaerosepalum alternifolius",species,,Baker
+,,,"Sphaerosepalum coriaceum Scott-Elliot","Sphaerosepalum coriaceum",species,wfo-4000033082,Scott-Elliot
+,,,"Sphaerosepalum louvelii Danguy","Sphaerosepalum louvelii",species,,Danguy
+,,,"Sphaerosepalum madagascariense Danguy","Sphaerosepalum madagascariense",species,,Danguy

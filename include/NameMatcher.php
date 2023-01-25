@@ -8,7 +8,6 @@ class NameMatcher extends PlantList{
 
     private $params;
 
-
     /**
      * Create a matcher with configured behaviour
      * for matching using the match() method.

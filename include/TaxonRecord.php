@@ -17,7 +17,6 @@ class TaxonRecord extends PlantList{
     private ?String $classificationId = null;
     private ?String $stableUri = null;
     
-
     private ?String $fullNameStringHtml = null;
     private ?String $fullNameStringPlain = null;
     private ?String $fullNameStringNoAuthorsPlain = null;
@@ -45,6 +44,8 @@ class TaxonRecord extends PlantList{
     private ?TaxonRecord $parent = null;
     private ?Array $synonyms = null;
     private int $childCount = -1; 
+
+    private ?String $wfoPath = null;
 
     /**
      * Create a new wrapper around a SOLR doc
@@ -140,6 +141,25 @@ class TaxonRecord extends PlantList{
             $this->isName = false;
             $this->classificationId = $this->solrDoc->classification_id_s;
             $this->stableUri = 'https://list.worldfloraonline.org/' . $this->id;
+        }
+
+        // we have wfo path which is a useful hint for where this name might be
+        switch ($this->role) {
+            case 'deprecated':
+                $this->wfoPath = 'DEPRECATED';
+                break;
+            case 'unplaced':
+                $this->wfoPath = 'UNPLACED';
+                break;
+            case 'synonym':
+                $this->wfoPath = $this->solrDoc->name_path_s . "$" . str_replace(' ', '/', $this->solrDoc->full_name_string_alpha_s);
+                break;
+            case 'accepted':
+                $this->wfoPath = $this->solrDoc->name_path_s;
+                break;
+            default:
+                $this->wfoPath = '';
+                break;
         }
 
     }
@@ -525,5 +545,9 @@ class TaxonRecord extends PlantList{
         return $this->nameString;
     }
 
+    public function getWfoPath()
+    {
+        return $this->wfoPath;
+    }
 
 }
