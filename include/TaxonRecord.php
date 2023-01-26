@@ -550,4 +550,12 @@ class TaxonRecord extends PlantList{
         return $this->wfoPath;
     }
 
+
+    /**
+     * Get the value of nomenclaturalStatus
+     */ 
+    public function getNomenclaturalStatus()
+    {
+        return $this->nomenclaturalStatus;
+    }
 }

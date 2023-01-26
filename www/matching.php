@@ -1,6 +1,11 @@
 <?php
 include('config.php');
+include('../include/PlantList.php');
+include('../include/TaxonRecord.php');
 include('../include/NameMatcher.php');
+
+// we don't time out this script because it might get busy
+set_time_limit(60*5); // for 5 minutes
 
 $messages = array();
 
@@ -26,6 +31,7 @@ if($_POST){
 // they are deleting the data
 if(isset($_GET['delete_data']) && $_GET['delete_data'] == 'true'){
     unlink($input_file_path);
+    unlink($output_file_path);
     unset($_SESSION['data_type']);
 }
 
@@ -44,6 +50,63 @@ if(isset($_GET['update_matching_params']) && $_GET['update_matching_params'] = '
         );
     }
 }
+
+// they have posted the results of a choice
+// we do this almost like it is a separate page 
+// so we can redirect and keep things simple
+if(@$_GET['chosen_wfo']){
+
+    // read in the whole file.
+    $rows = array();
+    $in = fopen($output_file_path, 'r');
+    while($row = fgetcsv($in))$rows[] = $row;
+    fclose($in);
+
+    for($i = 1; $i < count($rows); $i++){
+
+        $row = $rows[$i];
+
+        // work through till we find the marker we left
+        if($row[0] != 'CHOICE') continue;
+
+        if($_GET['chosen_wfo'] == 'SKIP'){
+
+            // they are skipping this one
+            $row[0] = 'SKIPPED';
+            $row[1] = '';
+            $row[2] = '';
+
+        }else{
+
+            // they have sent a wfo id
+            if($_GET['chosen_wfo'] == 'CUSTOM'){
+                $chosen_name = new TaxonRecord($_GET['custom_wfo']);
+            }else{
+                $chosen_name = new TaxonRecord($_GET['chosen_wfo']);
+            }
+
+            $row[0] = $chosen_name->getWfoId();
+            $row[1] = $chosen_name->getFullNameStringPlain();
+            $row[2] = $chosen_name->getWfoPath();
+            
+        }
+
+        $rows[$i] = $row;
+
+
+    }
+
+    // write the rows back to file
+    $out = fopen($output_file_path, 'w');
+    foreach($rows as $row) fputcsv($out, $row);
+    fclose($out);
+
+    // redirect to continued matching.
+    header('Location: matching.php?matching_mode=' . $_GET['matching_mode']);
+    exit;
+        
+
+} 
 
 ?>
 <!DOCTYPE html>
@@ -81,7 +144,6 @@ if(isset($_GET['update_matching_params']) && $_GET['update_matching_params'] = '
 <?php
 if(@$_GET['matching_mode']){
     echo '<div>';
-    echo '<h2>Matching in progress.</h2>';
     
     // does the output file exist?
     if(!file_exists($output_file_path)){
@@ -119,69 +181,49 @@ if(@$_GET['matching_mode']){
     while($row = fgetcsv($in))$rows[] = $row;
     fclose($in);
 
-    // work through the rows (skipping the header)
-    $written_choice = false; // whether we have written the results of a choice box yet
-    
     // which column is the name in?
     $name_index = $_SESSION['data_type'] == 'CSV' ? $_SESSION['matching_params']['name_col_index'] + 3 : 3;
 
     // some stats to display 
     $total_rows = count($rows) -1; 
-    $matched = 0;
-    $skipped = 0; 
     
     for($i = 1; $i < count($rows); $i++){
 
         $row = $rows[$i];
 
-        if(preg_match('/^wfo-[0-9]{10}$/', $row[0])) $matched++;
-        if($row[0] == 'SKIPPED') $skipped++;
-
-        // we might be being called with results of a choice box
-        // in which case we skip through till we get to the marker in the row
-        // and fill in the values there before continuing
-        if(@$_GET['chosen_wfo'] && !$written_choice){
-            if($row[0] == 'CHOICE'){
-                $row[0] = $_GET['chosen_wfo'];
-                $row[1] = $_GET['chosen_name'];
-                $row[2] = $_GET['chosen_check'];
-                $rows[$i] = $row;
-                $written_choice = true;
-            }
-            continue; // haven't reached the choice row yet
-        } 
-
         if(
             !$row[0] // no wfo id yet
             ||
             ($_GET['matching_mode'] == 'skipped' && $row[0] == 'SKIPPED')
-            ||
-            $_GET['matching_mode'] == 'all'
         ){
 
             $config = new class{}; // matching configuration object
+            $config->method = "full";
+            $config->includeDeprecated = true;
             $matcher = new NameMatcher($config);
 
             $response = $matcher->match($row[$name_index]);
 
+//            echo "<pre>"; print_r($response); echo "</pre>";
+
             if($response->match && !$response->candidates){
                 // we have an exact match with no ambiguity
-                $row[0] = $reponse->match->getWfoId();
-                $row[1] = $reponse->match->getFullNameStringPlain();
-                $row[2] = $reponse->match->getWfoPath();
+                $row[0] = $response->match->getWfoId();
+                $row[1] = $response->match->getFullNameStringPlain();
+                $row[2] = $response->match->getWfoPath();
             }elseif($response->match && $response->candidates){
                 // we have an exact match AND some ambiguity
                 // this will be homonyms or ranks based
                 if(@$_SESSION['matching_params']['interactive']){
+                    $row[0] = 'CHOICE';
                     render_choices($response);
-                    break;
                 }
             }elseif(!$response->match && $response->candidates){
                 // no exact match but some candidates to look at
                 if(@$_SESSION['matching_params']['interactive']){
                     // render some choice boxes
+                    $row[0] = 'CHOICE';
                     render_choices($response);
-                    break;
                 }else{
                     // not interactive and no precise match found
                     $row[0] = '';
@@ -199,15 +241,28 @@ if(@$_GET['matching_mode']){
             $rows[$i] = $row;
 
             // what we do depends on the value returned
-            if(preg_match('/^wfo-[0-9]{10}$/', $new_row[0])) $matched++;
-            if($new_row[0] == 'SKIPPED') $skipped++;
-            if($new_row[0] == 'CHOICE') break; // stop! We have rendered a choice box
+            if($row[0] == 'CHOICE') break; // stop! We have rendered a choice box
 
         }
     
-    }
+    } // working through rows
 
     // write out some stats on how we are doing
+    $total_rows = count($rows) -1;
+    $matched = 0;
+    $skipped = 0;
+    foreach($rows as $row){
+        if($row[0] == 'SKIPPED') $skipped++;
+        if(preg_match('/^wfo-[0-9]{10}$/', $row[0])) $matched++;
+    }
+
+    if($matched == $total_rows){
+        echo '<h2 style="color: green;">Matching complete.</h2>';        
+    }else{
+        echo '<h2>Matching in progress.</h2>';
+    }
+    
+
     echo "<p>[Total rows: $total_rows | Matched: $matched | Skipped: $skipped ]</p>";
 
     // rows are now updated - write them to the file.
@@ -314,12 +369,6 @@ if(file_exists($input_file_path)){
     <td style="text-align: center"><input type="checkbox" name="ranks" value="true" <?php echo @$_SESSION['matching_params']['ranks'] ? 'checked' : '' ?>/></td>
     <td>If a precise match of name and author string is found and it is possible to extract the rank from the name but the rank doesn't match then stop/skip.</td>
 </tr>
-
-<tr>
-    <th style="text-align: right">Fangle with "ex" authors:</th>
-    <td style="text-align: center"><input type="checkbox" name="ex" value="true" <?php echo @$_SESSION['matching_params']['ex'] ? 'checked' : '' ?>/></td>
-    <td>WFO Plant List does not use ex in author strings. Try and do something sensible by comparing the strings before and after the ex in the supplied authors.</td>
-</tr>
 <tr>
     <td colspan="3" style="text-align: right"><input type="submit" value="Set Parameters" name="submit"></td>
 </tr>
@@ -344,11 +393,6 @@ if(file_exists($input_file_path)){
     <th style="text-align: right">Skipped and unmatched:</th>
     <td><input type="radio" name="matching_mode" value="skipped" /></td>
     <td>Try and match rows that haven't been attempted and those that were previously skipped.</td>
-</tr>
-<tr>
-    <th style="text-align: right">Start again:</th>
-    <td><input type="radio" name="matching_mode" value="all" /></td>
-    <td>Rematch everything, even if it already has a WFO ID associated with it.</td>
 </tr>
 <tr>
     <td colspan="3" style="text-align: right">
@@ -387,8 +431,75 @@ if(file_exists($input_file_path)){
 <?php
 
 function render_choices($response){
-    echo "Choices";
-    print_r($response);
+    
+    echo "<h3>Interactive Mode: Choice</h3>";
+    echo "<p>Pick one of the candidate names to match or skip this name for now.</p>";
+
+    echo '<form method="GET" action="matching.php" >';
+    echo '<input type="hidden" name="matching_mode" value="'. @$_GET['matching_mode'] .'" />' ;
+
+    echo '<table style="width: 100%">';
+    echo "<tr>";
+    echo '<th style="text-align: right" >Names String:</th>';
+    echo "<td>{$response->searchString}</td>";
+    echo '<td style="text-align: right" >Skip <input type="radio" name="chosen_wfo" value="SKIP" checked /></td>';
+    echo "</tr>";
+
+    //echo "<pre>"; print_r($response->narrative); echo "</pre>"; 
+
+    for($i = 0; $i < count($response->candidates); $i++){
+        $candidate = $response->candidates[$i];
+        if(!$candidate) continue;
+        echo "<tr>";
+        echo '<th style="text-align: right; vertical-align: top;" >Candidate ' . ($i +1) . ':</th>';
+        echo "<td>";
+        echo "<a href=\"https://list.worldfloraonline.org/{$candidate->getWfoId()}\" target=\"wfo\">{$candidate->getFullNameStringHtml()}</a>";
+        echo " [{$candidate->getNomenclaturalStatus()}]";
+        echo "<br/>";
+        echo $candidate->getCitationMicro();
+        
+        // put in some nomenclatural references
+        foreach($candidate->getNomenclaturalReferences() as $ref){
+            // we suppress plantlist links!
+            if(preg_match('/www.theplantlist.org/', $ref->uri)) continue;
+            $flag = ucfirst($ref->kind);
+            echo "<br/>$flag: <a href=\"{$ref->uri}\" target=\"{$ref->kind}\">{$ref->label}</a>";
+        }
+
+        echo "</td>";
+        echo '<td style="text-align: right" >'. $candidate->getWfoId() .' <input type="radio" name="chosen_wfo" value="'. $candidate->getWfoId() . '" /></td>';
+        echo "</tr>";
+    }
+
+    // paste in wfo
+    echo "<tr>";
+    echo "<td colspan=\"2\" style=\"text-align: right; vertical-align: top;\">Paste in a WFO ID you found by searching some other way</td>";
+    echo '<td style="text-align: right" >
+        <input type="text" name="custom_wfo"  /> 
+        <input type="radio" name="chosen_wfo" value="CUSTOM" />
+    </td>';
+    echo "</tr>";
+
+    // submit form
+    echo "<tr>";
+    echo '<td colspan="3" style="text-align: right" >
+        <input type="submit" value="Submit"  /> 
+    </td>';
+    echo "</tr>";
+
+    echo "</table>";
+    echo "</form>";
+
+    // print out the matching narrative to explain what we have
+    echo "<h3>Matching Narrative</h3>";
+    echo "<ol>";
+    foreach($response->narrative as $story){
+        echo "<li>$story</li>";
+    }
+    echo "</ol>";
+
+
+    
 }
 
 ?>
