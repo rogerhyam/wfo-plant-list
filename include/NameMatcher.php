@@ -94,6 +94,8 @@ class NameMatcher extends PlantList{
 
             $word = $parts[$i];
 
+            if(!$word) continue;
+
             // is this a rank?
             if(PlantList::isRankWord($word)){
 
@@ -130,9 +132,15 @@ class NameMatcher extends PlantList{
                     $final_word_part = $i;
                     $response->narrative[] = "Word is found in index and so is part of name: '$word'.";
                 }else{
-                    $response->narrative[] = "Word is NOT found in index and so start of authors: '$word'.";
-                    $final_word_part = $i-1;
-                    break;
+                    if($i == 1 && preg_match('/^[a-z]+/', $word)){
+                        $canonical_parts[] = $word;
+                        $final_word_part = $i;
+                        $response->narrative[] = "Word is NOT found in index BUT is second and has lowercase first letter so most probably novel/erroneous epithet: '$word'.";
+                    }else{
+                        $response->narrative[] = "Word is NOT found in index and so start of authors: '$word'.";
+                        $final_word_part = $i-1;
+                        break;
+                    }
                 }
             }else{
                 echo "<p>SOLR Issues</p>";
@@ -219,11 +227,23 @@ class NameMatcher extends PlantList{
             $response->narrative[] = "Homonyms (same name different authors) are considered OK and we have a match so removing candidates.";
         }
 
-        // Have we go anything?
+        // Have we got anything?
+        if(!$response->match && !$response->candidates){
 
+            $response->narrative[] = "No candidates found so moving to relevance searching.";
 
+            $query = array(
+                'query' => "_text_:$searchString",
+                'filter' => 'classification_id_s:' . $this->params->classificationVersion,
+                'limit' => $this->params->limit
+            );
 
+            $docs = PlantList::getSolrDocs($query);
+            foreach($docs as $doc){
+                $response->candidates[] = new TaxonRecord($doc);
+            }
 
+        }
 
         return $response;
     }
@@ -252,8 +272,6 @@ class NameMatcher extends PlantList{
             'sort' => 'full_name_string_alpha_t_sort asc',
             'limit' => $this->params->limit
         );
-
-       //error_log(print_r($query, true));
 
         $docs  = $this->getSolrDocs($query);
 

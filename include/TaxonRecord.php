@@ -52,7 +52,6 @@ class TaxonRecord extends PlantList{
      */
     public function __construct($init_val){
 
-
         if(is_object($init_val)){
 
             // we have been given the solr doc (probably from a search)

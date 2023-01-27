@@ -102,7 +102,7 @@ if(@$_GET['chosen_wfo']){
     fclose($out);
 
     // redirect to continued matching.
-    header('Location: matching.php?matching_mode=' . $_GET['matching_mode']);
+    header('Location: matching.php?matching_mode=' . $_GET['matching_mode'] . '&offset=' . $_GET['offset']);
     exit;
         
 
@@ -135,6 +135,7 @@ if(@$_GET['chosen_wfo']){
             border: solid 1px gray; 
             padding: 1em;
         }
+
     </style>
 </head>
 <body>
@@ -147,6 +148,9 @@ if(@$_GET['matching_mode']){
     
     // does the output file exist?
     if(!file_exists($output_file_path)){
+
+        // FIXME: if the input file already has the wfo_ fields don't create them
+
         // no output file so create it
         $in = fopen($input_file_path, 'r');
         $out = fopen($output_file_path, 'w');
@@ -184,10 +188,11 @@ if(@$_GET['matching_mode']){
     // which column is the name in?
     $name_index = $_SESSION['data_type'] == 'CSV' ? $_SESSION['matching_params']['name_col_index'] + 3 : 3;
 
-    // some stats to display 
-    $total_rows = count($rows) -1; 
+    $offset = @$_GET['offset'] ? @$_GET['offset'] : 1;
+    $page_end = $offset + 100;
+    $stopped_for_choice = false;
     
-    for($i = 1; $i < count($rows); $i++){
+    for($i = $offset; $i < count($rows); $i++){
 
         $row = $rows[$i];
 
@@ -200,11 +205,10 @@ if(@$_GET['matching_mode']){
             $config = new class{}; // matching configuration object
             $config->method = "full";
             $config->includeDeprecated = true;
+            $config->limit = 10;
             $matcher = new NameMatcher($config);
 
             $response = $matcher->match($row[$name_index]);
-
-//            echo "<pre>"; print_r($response); echo "</pre>";
 
             if($response->match && !$response->candidates){
                 // we have an exact match with no ambiguity
@@ -241,10 +245,18 @@ if(@$_GET['matching_mode']){
             $rows[$i] = $row;
 
             // what we do depends on the value returned
-            if($row[0] == 'CHOICE') break; // stop! We have rendered a choice box
+            if($row[0] == 'CHOICE'){
+                $stopped_for_choice = true;
+                break; // stop! We have rendered a choice box
+            } 
 
         }
     
+        $offset = $i;
+
+        // paging 
+        if($i > $page_end) break;
+
     } // working through rows
 
     // write out some stats on how we are doing
@@ -256,14 +268,48 @@ if(@$_GET['matching_mode']){
         if(preg_match('/^wfo-[0-9]{10}$/', $row[0])) $matched++;
     }
 
-    if($matched == $total_rows){
-        echo '<h2 style="color: green;">Matching complete.</h2>';        
+
+    if($offset == $total_rows){
+        
+        if($matched == $total_rows){
+           echo '<h2 style="color: green;">Matching complete.</h2>'; 
+           echo "<p>You can download the results now.</p>";       
+        }else{
+           echo '<h2>End of table reached.</h2>';
+           echo "<p>You haven't matched all the names. You could try and run matching again with different parameters.</p>"; 
+           echo "<p>You can download the results anytime so you don't lose your work.</p>";
+        }
+        echo "<p><a href=\"$output_file_path\">Download Results</a></p>";
+
     }else{
         echo '<h2>Matching in progress.</h2>';
+        // progress bar
+        $percent = round( ($offset/$total_rows)*100 );
+        echo "<div style=\"background-color: white; height: 7px; width: 100%; padding:0px; border: solid black 1px;\">";
+        echo "<div style=\"background-color: blue; height: 7px; width: $percent%; padding:0px; border: none;\"></div>";
+        echo "</div>";
+        echo '<p style="color: red; text-align: right;"><a href="matching.php"  >Stop</a></p>';
     }
     
+    echo "<p>[ Total rows: " 
+        . number_format($total_rows, 0) 
+        . " | Offset: "
+        . number_format($offset, 0) 
+        . " | Matched: " 
+        .  number_format($matched,0) 
+        . " | Skipped: " 
+        . number_format($skipped, 0) 
+        . " ]</p>";
 
-    echo "<p>[Total rows: $total_rows | Matched: $matched | Skipped: $skipped ]</p>";
+
+
+
+    if($offset + 1 < count($rows) && !$stopped_for_choice){
+        // we need to call again
+        $uri = "matching.php?matching_mode=" . @$_GET['matching_mode'] . "&offset=$offset";
+        echo "<script>window.location = \"$uri\"</script>";
+        //echo "<a href=\"$uri\">Next Page $offset - " . count($rows) ." - $stopped_for_choice</a>";
+    }
 
     // rows are now updated - write them to the file.
     // ready for the next call
@@ -272,7 +318,8 @@ if(@$_GET['matching_mode']){
     fclose($out);
 
     echo '</div>';
-}
+
+} // we are in matching mode
 ?>
 
 <h2>1. Data Upload</h2>
@@ -381,7 +428,7 @@ if(file_exists($input_file_path)){
 <p>Actually run the matching process.</p>
 <p>
 <form action="matching.php" method="GET">
-
+    <input type="hidden" name="offset" value="<?php echo @$_GET['offset'] ?>" />
 <table>
 
 <tr>
@@ -413,7 +460,6 @@ if(file_exists($input_file_path)){
 ?>
     <span style="color: red;"><?php echo $message ?></span>
     <input type="submit" value="Run Matching" name="submit" <?php echo $disabled ?> />
-
     </td>
 </tr>
 </table>
@@ -436,6 +482,7 @@ function render_choices($response){
     echo "<p>Pick one of the candidate names to match or skip this name for now.</p>";
 
     echo '<form method="GET" action="matching.php" >';
+    echo '<input type="hidden" name="offset" value="' . @$_GET['offset'] .'" />';
     echo '<input type="hidden" name="matching_mode" value="'. @$_GET['matching_mode'] .'" />' ;
 
     echo '<table style="width: 100%">';
@@ -444,7 +491,6 @@ function render_choices($response){
     echo "<td>{$response->searchString}</td>";
     echo '<td style="text-align: right" >Skip <input type="radio" name="chosen_wfo" value="SKIP" checked /></td>';
     echo "</tr>";
-
     //echo "<pre>"; print_r($response->narrative); echo "</pre>"; 
 
     for($i = 0; $i < count($response->candidates); $i++){
@@ -480,13 +526,14 @@ function render_choices($response){
     </td>';
     echo "</tr>";
 
+
+
     // submit form
     echo "<tr>";
     echo '<td colspan="3" style="text-align: right" >
         <input type="submit" value="Submit"  /> 
     </td>';
     echo "</tr>";
-
     echo "</table>";
     echo "</form>";
 
