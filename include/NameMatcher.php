@@ -29,22 +29,32 @@ class NameMatcher extends PlantList{
     /**
      * Called on a configured NameMatcher
      */
-    public function match($searchString){
+    public function match($inputString){
 
         $response = new class{};
-        $response->searchString = $searchString;
+        $response->inputString = $inputString; // raw string submitted
+        $response->searchString = $inputString;  // sanitized string we actually search on
         $response->params = $this->params;
         $response->match = null;
         $response->candidates = array();
         $response->error = false;
         $response->errorMessage = null;
 
+        // we do some common sanitizing at this level
+        
+        // hybrid symbols be gone
+        $json = '["\u00D7","\u2715","\u2A09"]';
+        $hybrid_symbols = json_decode($json);
+        foreach ($hybrid_symbols as $symbol) {
+            $response->searchString = str_replace($symbol, '', $response->searchString);
+        }
+
         switch ($this->params->method) {
             case 'alpha':
-                return $this->alphaMatch($searchString, $response);
+                return $this->alphaMatch($response);
                 break;
             case 'full':
-                return $this->fullMatch($searchString, $response);
+                return $this->fullMatch($response);
                 break;
             default:
                 throw new ErrorException("Unrecognized matching method {$this->params->method}");
@@ -58,14 +68,12 @@ class NameMatcher extends PlantList{
      * A comprehensive search.
      * 
      */
-    private function fullMatch($searchString, $response){
+    private function fullMatch($response){
 
         global $ranks_table;
 
         $response->parsedName = new class{};
         $response->narrative = array();
-
-        // FIXME: sanitize the name of hybrid symbols
 
         /*
             - possible name structures.
@@ -79,7 +87,7 @@ class NameMatcher extends PlantList{
         */
 
         // lets parse the name out
-        $parts = explode(" ", $searchString);
+        $parts = explode(" ", $response->searchString);
         $canonical_parts = array(); // this is just the name parts - up to 3 words
         $response->parsedName->rank = null; // if we can find one
         $authors = null;
@@ -233,7 +241,7 @@ class NameMatcher extends PlantList{
             $response->narrative[] = "No candidates found so moving to relevance searching.";
 
             $query = array(
-                'query' => "_text_:$searchString",
+                'query' => "_text_:$$response->searchString",
                 'filter' => 'classification_id_s:' . $this->params->classificationVersion,
                 'limit' => $this->params->limit
             );
@@ -252,16 +260,16 @@ class NameMatcher extends PlantList{
      * A simple alphabetical lookup of names
      * 
      */
-    private function alphaMatch($searchString, $response){
+    private function alphaMatch($response){
 
         // we only do it if we have more than 3 characters?
-        if(strlen($searchString) < 4){
+        if(strlen($response->searchString) < 4){
             $response->error = true;
             $response->errorMessage = "Search string must be more than 3 characters long.";
             return $response;
         }
 
-        $name = trim(strtolower($searchString));
+        $name = trim(strtolower($response->searchString));
         $name = ucfirst($name); // all names start with an upper case letter
         $name = str_replace(' ', '\ ', $name);
         $name = $name . "*";

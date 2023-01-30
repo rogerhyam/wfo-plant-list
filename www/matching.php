@@ -108,39 +108,11 @@ if(@$_GET['chosen_wfo']){
 
 } 
 
+require_once('header.php');
 ?>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>WFO Plant List: Name Matching</title>
-    <style>
-        body{
-            font-family: sans-serif;
-            padding: 2em;
-        }
-        table, td, th{
-            text-align:left;
-            border: 1px solid black;
-            border-collapse: collapse;
-            padding: 0.5em;
-        }
-        table{
-            width: 60em;
-        }
-        th{
-            white-space: nowrap;
-        }
-        div{
-            width: 58em;
-            border: solid 1px gray; 
-            padding: 1em;
-        }
 
-    </style>
-</head>
-<body>
 
-<h1>WFO Plant List: Name Matching Tool</h1>
+<h1>Name Matching Tool</h1>
 
 <?php
 if(@$_GET['matching_mode']){
@@ -471,10 +443,9 @@ if(file_exists($input_file_path)){
 <p><a href="<?php echo $output_file_path ?>">Download Results</a></p>
 
 
-</body>
-</html>
-
 <?php
+
+require_once('footer.php');
 
 function render_choices($response){
     
@@ -487,8 +458,8 @@ function render_choices($response){
 
     echo '<table style="width: 100%">';
     echo "<tr>";
-    echo '<th style="text-align: right" >Names String:</th>';
-    echo "<td>{$response->searchString}</td>";
+    echo '<th style="text-align: right" >Name String:</th>';
+    echo "<td>{$response->inputString}</td>";
     echo '<td style="text-align: right" >Skip <input type="radio" name="chosen_wfo" value="SKIP" checked /></td>';
     echo "</tr>";
     //echo "<pre>"; print_r($response->narrative); echo "</pre>"; 
@@ -513,7 +484,7 @@ function render_choices($response){
         }
 
         echo "</td>";
-        echo '<td style="text-align: right" >'. $candidate->getWfoId() .' <input type="radio" name="chosen_wfo" value="'. $candidate->getWfoId() . '" /></td>';
+        echo '<td style="text-align: right" >'. $candidate->getWfoId() .'&nbsp;<input type="radio" name="chosen_wfo" value="'. $candidate->getWfoId() . '" /></td>';
         echo "</tr>";
     }
 
