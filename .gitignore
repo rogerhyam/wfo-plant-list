@@ -1,7 +1,5 @@
 seed/*
 vendor/
-matching_cache/*
-matching_cache/*/*
+www/matching_cache/*
 composer.phar
 composer.lock
-www/matching_cache/*/output.csv
