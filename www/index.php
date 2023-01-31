@@ -15,7 +15,7 @@ require_once('header.php');
     A new version is released every six months.
 </p>
 <p>
-    This site provides techies with access to World Flora Online Plant List data.
+    This site provides techies with access to WFO Plant List data.
     It is intended for those who are comfortable working with simple (not pretty) HTML forms or who want to exploit
     the REST or GraphQL APIs.
 </p>
@@ -25,17 +25,20 @@ require_once('header.php');
 <ol>
     <li><a href="http://www.worldfloraonline.org">WFO Portal</a>: The main entry point for the WFO including all the description, distribution, image and other data. This is where you go to find out more about a plant.</li>
     <li><a href="http://www.wfoplantlist.org">WFO Plant List</a>: Human friendly access to the WFO Plant List in all its versions as soon as they are released. It forms part of the main portal.</li>
-    <li><a href="https://list.worldfloraonline.org/rhakhis/ui/index.html" >Rhakhis Taxonomic Editor</a>: A tool for taxonomist preparing the next WFO Plant List data release.</li>
-    <li><strong>Plant List API</strong> This site. Gives access to the same data as available from 2 above but via APIs and specialist tools.</li>
+    <li><a href="https://list.worldfloraonline.org/rhakhis/ui/index.html" >Rhakhis Taxonomic Editor</a>: A tool for taxonomists preparing the next WFO Plant List data release.</li>
+    <li><strong>Plant List API:</strong> This site. Gives access to the same data as available from 2 above but via APIs and specialist tools.</li>
 </ol>
 
 <h2>What is here?</h2>
 
 <ul>
-    <li>Matching</li>
-    <li>Trees</li>
-    <li>Stable URIs</li>
-    <li>GraphQL API</li>
+    <li><a href="sw_index.php"/>Stable URIs</a>: Semantic Web compatible stable HTTP URIs that you can use to link to Names and Taxa as well as in triple stores and other technologies.</li>
+    <li><a href="gql_index.php"/>GraphQL API</a>: A GraphQL API giving access to all the data releases of the WFO Plant List through a flexible, widely used, cross platform technology.</li>
+    <li><a href="matching.php"/>Matching Tool</a>: A form based online tool to match lists of names either cut and pasted into a form or uploaded as a CSV file.</li>
+    <li><a href="matching.php"/>Matching API</a>: A simple REST API to match name strings. This is a subset of what is available through the GraphQL interface.</li>
+    <li><a href="trees.php">Trees</a> A service to generate tree files from lists of WFO ID - looking for partners!</li>
+    
+    
 </ul>
 
 <h2>Data Model</h2>
@@ -62,7 +65,7 @@ require_once('header.php');
     It is therefore necessary to refer to taxa in different classifications using unique identifiers rather than their calculated names.
 </p>
 
-<h2>Identifiers</h2>
+<a id="identifiers" ><h2>Identifiers</h2></a>
 
 <p>
     All name records have a single, prescribed ID which is of the form <code>wfo-0000615907</code>. The lowercase letters "wfo" followed by a hyphen followed by ten digits.
@@ -80,12 +83,12 @@ require_once('header.php');
 
 <p>
     With each data release a new set of IDs are created that are of the form <code>wfo-0000615907-2022-12</code>. 
-    That is for each name the year and month of the data release are appended. 
+    For each name the year and month of the data release are appended. 
     A regular expression similar to <code>'/^wfo-[0-9]{10}-[0-9]{10}-[4]{2}$/'</code> will match a versioned WFO ID (depending on your precise regex implementation). 
 </p>
 
 <p>
-    Within the data release names play one of four roles and the meaning of the sixteen digit WFO ID depends on role the name is playing. 
+    Within a data release names play one of four roles and the meaning of the sixteen digit WFO ID depends on role the name is playing. 
 </p>
 
 <ol>
@@ -109,6 +112,21 @@ require_once('header.php');
     This isn't guaranteed to be stable.
 </p>
 
+<h2>Scalability and Performance</h2>
+
+<p>
+    Currently no API keys are required for these services. They are open for anyone to use. 
+    If we find that service is being degraded we may introduce IP based throttling or access tokens to ensure availability for all.
+</p>  
+
+<p>
+    This whole application can be installed on a server or personal machine by anyone with appropriate technical skills.
+    If you are likely to require heavy use of the service or which to embed it within a production workflow you are encouraged to 
+    install a local copy of the application.
+    The code and instructions are <a href="https://github.com/rogerhyam/wfo-plant-list">available on GitHub</a>.
+    The data can be <a href="https://zenodo.org/record/7467360">downloaded from Zenodo</a>.
+    Any questions please contact <a href="mailto:rhyam@rbge.org.uk">Roger Hyam</a>.
+</p>
     
 
 <?php

@@ -28,6 +28,8 @@ if($_POST){
     }
 }
 
+// FIXME. does the datatype get forgotten but the session id carry on? Sometimes get an error that the index is out.
+
 // they are deleting the data
 if(isset($_GET['delete_data']) && $_GET['delete_data'] == 'true'){
     unlink($input_file_path);
