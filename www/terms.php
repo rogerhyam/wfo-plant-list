@@ -1,5 +1,6 @@
 <?php
-
+    require_once('config.php');
+    
     $graph = new \EasyRdf\Graph();
 
     $classificationClass = $graph->resource(\EasyRdf\RdfNamespace::get('wfo') . 'Classification', 'rdfs:Class');
@@ -125,5 +126,29 @@
 rank. [Not defined] – used for the relative position of a taxon in the taxonomic hierarchy (Art. 2.1). For suprageneric names published on or after 1 January 1887, the rank is indicated by the termination of the name (see Art. 37.2 and footnote). For names published on or after 1 January 1953, a clear indication of the rank is required for valid publication (Art. 37.1).
 */
 
-    output($graph, 'svg');
+    // no graph no go
+    if(!$graph){
+        http_response_code(500);
+        echo "Internal Server Error: Unable to generate graph for $wfo";
+        exit;
+    }
+
+    // what are they asking for?
+    $format_string = @$_GET['format'];
+    if(!$format_string) $format_string = 'svg';
+
+
+    // actually return the graph as requested
+    $format = \EasyRdf\Format::getFormat($format_string);
+    $serialiserClass  = $format->getSerialiserClass();
+    $serialiser = new $serialiserClass();
+        
+    // if we are using GraphViz then we add some parameters 
+    // to make the images nicer
+    if(preg_match('/GraphViz/', $serialiserClass)){
+        $serialiser->setAttribute('rankdir', 'LR');
+    }
+    $data = $serialiser->serialise($graph, $format_string);
+    header('Content-Type: ' . $format->getDefaultMimeType());
+    echo $data;
 

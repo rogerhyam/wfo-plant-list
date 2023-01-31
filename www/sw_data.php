@@ -44,15 +44,26 @@ if(
 // check format is recognized
 $format = null;
 $formats = \EasyRdf\Format::getFormats();
+$formats_supported = array();
 
+// also check we have a class loadable for that format
 foreach($formats as $key => $value){
-    if($key == $format_string) $format = $value;
+    $serialiserClass  = $value->getSerialiserClass();
+    if($serialiserClass){
+        $formats_supported[$key] = $value;
+    }
+}
+
+foreach($formats_supported as $key => $value){
+    if($key == $format_string){
+        $format = $value;
+    } 
 }
 
 if(!$format){
     http_response_code(400);
     echo "HTTP 400 Bad Request: '$format_string' is not supported.";
-    echo " Available formats are: " . implode(', ', array_keys($formats));
+    echo " Available formats are: " . implode(', ', array_keys($formats_supported));
     exit;
 }
 
@@ -112,8 +123,6 @@ if(!$graph){
     exit;
 }
 
-// actually return the graph as requested
-$serialiserClass  = $format->getSerialiserClass();
 $serialiser = new $serialiserClass();
     
 // if we are using GraphViz then we add some parameters 

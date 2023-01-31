@@ -59,16 +59,64 @@ A WFO stable URI is created by prepending "https://list.worldfloraonline.org/" t
 
 <p>This might sound complicated at first but it is transparent to a user of the data. Just refer to things by their URIs and the system routes calls to the right place!</p>
 
+<h3>Supported formats</h3>
 
+<?php
+    $formats = \EasyRdf\Format::getFormats();
+    $formats_supported = array();
 
+    // also check we have a class loadable for that format
+    foreach($formats as $key => $value){
+        $serialiserClass  = $value->getSerialiserClass();
+        if($serialiserClass){
+            $formats_supported[$key] = $value;
+        }
+    }
+
+?>
+
+<p>
+    Data can be returned in the <?php echo count($formats_supported) ?> formats listed in the table below.
+    These include graphical representations of the data.
 </p>
+<table>
+<tr>
+    <th>Name</th>
+    <th>Recommended Mime Type</th>
+    <th>Recognized Mime Types</th>
+    <th>Example</th>
+</tr>
+<?php
+
+
+
+foreach($formats_supported as $format_name => $format){
+    echo "<tr>";
+    echo "<td>$format_name</td>";
+    echo "<td>". $format->getDefaultMimeType() . "</td>";
+    echo "<td>" . implode( ', ', array_keys($format->getMimeTypes()) ) . "</td>";
+    echo "<td><a href=\"/sw_data.php?wfo=wfo-4000000718&format=$format_name\">$format_name</a></td>"; 
+    echo "</tr>";
+}
+
+?>
+</table>
+
+<p>An example graph for a TaxonConcept</p>
+<a href="/sw_data.php?wfo=wfo-4000000718-2022-12&format=svg"><img src="/sw_data.php?wfo=wfo-4000000718-2022-12&format=svg" style="width: 50em"/></a>
+
+<p>An example graph for a TaxonName</p>
+<a href="/sw_data.php?wfo=wfo-4000000718&format=svg"><img src="/sw_data.php?wfo=wfo-4000000718&format=svg" style="width: 50em"/></a>
+
+
+
 <h3>Properties</h3>
 <p>
 The diagram below shows the property relationships in the semantic web data model. Further documentation on these can be found either by dereferencing the URIs of the terms in the RDF responses. 
 The GraphQL API uses a very similar data model and you can access its documentation using an IDE.
 </p>
 
-<a href="terms/png"><img src="terms/png" style="width: 100%"/></a>
+<a href="terms/png"><img src="terms/png" style="width: 50em"/></a>
 
 <p></p>
 

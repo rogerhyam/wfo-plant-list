@@ -13,6 +13,7 @@ if(
     preg_match('/^wfo-[0-9]{10}$/', $wfo) // name wfo
     || preg_match('/^wfo-[0-9]{10}-[0-9]{4}-[0-9]{2}$/', $wfo) // taxon wfo
     || preg_match('/^[0-9]{4}-[0-9]{2}$/', $wfo) // classification
+    || preg_match('/^terms/', $wfo)
   ){
 
     $format_string = null;
@@ -48,6 +49,13 @@ if(
             }
             if($format_string) break;
         }
+    }
+
+    // if they are asking for the vocabulary send them that way
+    if(preg_match('/^terms/', $wfo)){
+        header("Location: /terms.php?format=$format_string",TRUE,303);
+        echo "Found: Redirecting to data";
+        exit;
     }
 
     // whatever happens they are asking for a record

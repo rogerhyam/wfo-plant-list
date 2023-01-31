@@ -143,22 +143,26 @@ class TaxonRecord extends PlantList{
         }
 
         // we have wfo path which is a useful hint for where this name might be
-        switch ($this->role) {
-            case 'deprecated':
-                $this->wfoPath = 'DEPRECATED';
-                break;
-            case 'unplaced':
-                $this->wfoPath = 'UNPLACED';
-                break;
-            case 'synonym':
-                $this->wfoPath = $this->solrDoc->name_path_s . "$" . str_replace(' ', '/', $this->solrDoc->full_name_string_alpha_s);
-                break;
-            case 'accepted':
-                $this->wfoPath = $this->solrDoc->name_path_s;
-                break;
-            default:
-                $this->wfoPath = '';
-                break;
+        if(isset($this->solrDoc->name_path_s)){
+            switch ($this->role) {
+                case 'deprecated':
+                    $this->wfoPath = 'DEPRECATED';
+                    break;
+                case 'unplaced':
+                    $this->wfoPath = 'UNPLACED';
+                    break;
+                case 'synonym':
+                    $this->wfoPath = $this->solrDoc->name_path_s . "$" . str_replace(' ', '/', $this->solrDoc->full_name_string_alpha_s);
+                    break;
+                case 'accepted':
+                    $this->wfoPath = $this->solrDoc->name_path_s;
+                    break;
+                default:
+                    $this->wfoPath = '';
+                    break;
+            }
+        }else{
+            $this->wfoPath = '';
         }
 
     }
