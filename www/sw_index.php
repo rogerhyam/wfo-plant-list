@@ -116,7 +116,7 @@ The diagram below shows the property relationships in the semantic web data mode
 The GraphQL API uses a very similar data model and you can access its documentation using an IDE.
 </p>
 
-<a href="terms/png"><img src="terms/png" style="width: 50em"/></a>
+<a href="terms.php?format=svg"><img src="terms.php?format=svg" style="width: 50em"/></a>
 
 <p></p>
 
