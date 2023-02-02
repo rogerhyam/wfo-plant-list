@@ -208,10 +208,22 @@ class TaxonRecord extends PlantList{
 
         if(!$this->exists()) return null;
 
-        // are we the current usage?
-        if($this->solrDoc->classification_id_s == WFO_DEFAULT_VERSION) return $this;
+        // are we at the current level of things?
+        if($this->solrDoc->classification_id_s == WFO_DEFAULT_VERSION){
+            $current_me = $this;
+        }else{
+            $current_me = new TaxonRecord($this->solrDoc->wfo_id_s . "-" . WFO_DEFAULT_VERSION);
+        }
 
-        return new TaxonRecord($this->solrDoc->wfo_id_s . "-" . WFO_DEFAULT_VERSION);
+        if($current_me->solrDoc->accepted_id_s){
+            // we are a synonym - return the accepted name we belong to
+            return new TaxonRecord($current_me->solrDoc->accepted_id_s);
+        }elseif($current_me->getRole() == 'accepted'){
+            // we are an accepted name of a taxon
+            return $current_me;
+        }else{
+            return null;
+        }
 
     }
 

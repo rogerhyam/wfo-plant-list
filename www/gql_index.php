@@ -41,7 +41,8 @@ require_once('header.php');
         */
 
         // hard code the api uri - shouldn't change
-        const graphQlUri = "https://list.worldfloraonline.org/gql";
+        // const graphQlUri = "https://list.worldfloraonline.org/gql";
+        const graphQlUri = "<?php echo get_uri("gql.php") ?>";
 
         /**
          * This calls the Plant List API and returns JSON data 
@@ -71,14 +72,14 @@ require_once('header.php');
         }
 
         function getLinkForName($name) {
-            return `<a target="wfo_portal" href="${$name.guid}">${$name.fullNameString}</a>`;
+            return `<a target="wfo_portal" href="${$name.stableUri}">${$name.fullNameStringHtml}</a>`;
         }
 
 
     </script>
 
-        <h1>WFO Plant List API Demo Page</h1>
-        <p>This is a demonstration page that shows how data from the <a href="/">WFO
+        <h2>WFO Plant List API Demos</h2>
+        <p>Here are some examples that show how data from the <a href="/">WFO
                 Plant
                 List API</a> can easily be embedded in a web page.</p>
         <p>This one file contains all the code needed to access the API and render the examples below. The code
@@ -86,7 +87,7 @@ require_once('header.php');
             can use
             "view
             source" to look at it the full working code or view it on <a
-                href="https://github.com/rogerhyam/wfo-norm-solr/blob/master/demo/index.html">GitHub</a>. There are no
+                href="https://github.com/rogerhyam/wfo-plant-list/blob/main/www/gql_index.php">GitHub</a>. There are no
             external
             library dependencies. The code is heavily
             commented.</p>
@@ -141,11 +142,11 @@ require_once('header.php');
     let query =
     `query{
         taxonNameById(nameId: "wfo-0001048766"){
-        fullNameString
+        fullNameStringHtml
         }
     }`;
     runGraphQuery(query, {}, (response) => document.getElementById("example-01").innerHTML =
-    response.data.taxonNameById.fullNameString);
+    response.data.taxonNameById.fullNameStringHtml);
         </pre>
 
         <script>
@@ -155,7 +156,7 @@ require_once('header.php');
             let query =
                 `query{
                     taxonNameById(nameId: "wfo-0001048766"){
-                        fullNameString
+                        fullNameStringHtml
                     }
                 }`;
 
@@ -165,7 +166,7 @@ require_once('header.php');
             // an empty object as the query isn't parametised
             // an arrow function (could be any function) that receives the data 
             // here we just write one field to a named node in the DOM, a <p> tag just below here
-            runGraphQuery(query, {}, (response) => document.getElementById("example-01").innerHTML = response.data.taxonNameById.fullNameString);
+            runGraphQuery(query, {}, (response) => document.getElementById("example-01").innerHTML = response.data.taxonNameById.fullNameStringHtml);
         </script>
 
         <p class="output" id="example-01">Loading ...</p>
@@ -187,7 +188,7 @@ require_once('header.php');
                 `query{
                         taxonNameById(nameId: "wfo-0001048766"){
                             id
-                            fullNameString,
+                            fullNameStringHtml,
                             currentPreferredUsage{
                                 hasName{
                                     id
@@ -206,12 +207,12 @@ require_once('header.php');
 
                 if (name.currentPreferredUsage) {
                     if (name.currentPreferredUsage.hasName.id == name.id) {
-                        target.innerHTML = "<strong>Accepted: </strong>" + name.fullNameString;
+                        target.innerHTML = "<strong>Accepted: </strong>" + name.fullNameStringHtml;
                     } else {
-                        target.innerHTML = "<strong>Synonym: </strong>" + name.fullNameString;
+                        target.innerHTML = "<strong>Synonym: </strong>" + name.fullNameStringHtml;
                     }
                 } else {
-                    target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameString;
+                    target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameStringHtml;
                 }
 
             }
@@ -238,11 +239,11 @@ require_once('header.php');
                 `query{
                     taxonNameById(nameId: "wfo-0001048766"){
                         id
-                        fullNameString,
+                        fullNameStringHtml,
                         currentPreferredUsage{
                             hasName{
                                 id,
-                                fullNameString
+                                fullNameStringHtml
                             }
                         }
                     }
@@ -258,13 +259,13 @@ require_once('header.php');
 
                 if (name.currentPreferredUsage) {
                     if (name.currentPreferredUsage.hasName.id == name.id) {
-                        target.innerHTML = "<strong>name.fullNameString</strong>";
+                        target.innerHTML = `<strong>${name.fullNameStringHtml}</strong>`;
                     } else {
                         let accepted_name = name.currentPreferredUsage.hasName;
-                        target.innerHTML = `<strong>${accepted_name.fullNameString}</strong><br/>&nbsp;&nbsp;&nbsp;<strong>syn: </strong>${name.fullNameString}`;
+                        target.innerHTML = `<strong>${accepted_name.fullNameStringHtml}</strong><br/>&nbsp;&nbsp;&nbsp;<strong>syn: </strong>${name.fullNameStringHtml}`;
                     }
                 } else {
-                    target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameString;
+                    target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameStringHtml;
                 }
 
             }
@@ -282,21 +283,21 @@ require_once('header.php');
         <script>
 
             // define the GraphQL query string.
-            // we use the guid property to create the links
+            // we use the stableUri property to create the links
             // this will be a redirect via the API for any human web browser but offers full
             // semantic web support if a machine resolves the link.
             query =
                 `query{
                             taxonNameById(nameId: "wfo-0001048766"){
                                 id,
-                                guid,
-                                fullNameString,
+                                stableUri,
+                                fullNameStringHtml,
                                 currentPreferredUsage{
-                                    guid,
+                                    stableUri,
                                     hasName{
                                         id,
-                                        guid,
-                                        fullNameString
+                                        stableUri,
+                                        fullNameStringHtml
                                     }
                                 }
                             }
@@ -319,7 +320,7 @@ require_once('header.php');
                         target.innerHTML = `<strong>${accepted_link}</strong><br/>&nbsp;&nbsp;&nbsp;<strong>syn: </strong>${name_link}`;
                     }
                 } else {
-                    target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameString;
+                    target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameStringHtml;
                 }
 
             }
@@ -358,14 +359,14 @@ require_once('header.php');
                         limit: 100
                     ) {
                         id
-                        guid
-                        name
-                        fullNameString,
+                        stableUri
+                        fullNameStringPlain,
+                        fullNameStringHtml,
                         currentPreferredUsage{
                         hasName{
                             id,
-                            guid,
-                            fullNameString
+                            stableUri,
+                            fullNameStringHtml
                         }
                         }
                     }
@@ -391,7 +392,7 @@ require_once('header.php');
                         });
                         response.data.taxonNameSuggestion.forEach(name => {
                             const opt = document.createElement("option");
-                            opt.innerHTML = name.id + ": " + name.fullNameString;
+                            opt.innerHTML = name.id + ": " + name.fullNameStringHtml;
                             opt.setAttribute('value', name.id);
                             opt.wfo_data = name; // pop the name object on the dom element so we can grab it later
                             select.appendChild(opt);
@@ -428,7 +429,7 @@ require_once('header.php');
                                 target.innerHTML = `<strong>${accepted_link}</strong><br/>&nbsp;&nbsp;&nbsp;<strong>syn: </strong>${name_link}`;
                             }
                         } else {
-                            target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameString;
+                            target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameStringHtml;
                         }
                     }
                 });
@@ -445,7 +446,6 @@ require_once('header.php');
         <p>Showing the full taxonomic path to a name from a WFO ID, in this case from our example synonym:
             wfo-0001048766</p>
 
-
         <script>
 
             // define the GraphQL query string.
@@ -454,14 +454,14 @@ require_once('header.php');
                 `query{
                         taxonNameById(nameId: "wfo-0001048766"){
                             id,
-                            guid,
-                            fullNameString,
+                            stableUri,
+                            fullNameStringHtml,
                             currentPreferredUsage{
                                 id,
                                 hasName{
                                     id,
-                                    guid,
-                                    fullNameString
+                                    stableUri,
+                                    fullNameStringHtml
                                 }
                             }
                         }
@@ -484,12 +484,13 @@ require_once('header.php');
                         target.innerHTML = `<strong>${accepted_link}</strong><br/>&nbsp;&nbsp;&nbsp;<strong>syn: </strong>${name_link}`;
                     }
                 } else {
-                    target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameString;
+                    target.innerHTML = "<strong>Unplaced: </strong>" + name.fullNameStringHtml;
                 }
             });
 
             function addAncestor(taxon, node) {
 
+                console.log(taxon);
                 // here we use a call for the taxon object
                 // also not bothering to parameterize the query just write it in
                 const query =
@@ -500,12 +501,14 @@ require_once('header.php');
                                 id,
                                 hasName{
                                     id,
-                                    guid,
-                                    fullNameString
+                                    stableUri,
+                                    fullNameStringHtml
                                 }
                             } 
                             }
                         }`;
+
+                        console.log(query);
 
                 runGraphQuery(query, {}, (response) => {
                     const ancestor = response.data.taxonConceptById.isPartOf;
@@ -519,8 +522,8 @@ require_once('header.php');
                         }
 
                         const a = document.createElement("a");
-                        a.setAttribute("href", ancestor.hasName.guid);
-                        a.innerHTML = ancestor.hasName.fullNameString;
+                        a.setAttribute("href", ancestor.hasName.stableUri);
+                        a.innerHTML = ancestor.hasName.fullNameStringHtml;
                         node.prepend(a);
                         addAncestor(ancestor, node);
                     }
@@ -547,21 +550,21 @@ require_once('header.php');
             query = `query{
                 taxonNameById(nameId: "wfo-4000003485"){
                     id,
-                    guid,
-                    fullNameString
+                    stableUri,
+                    fullNameStringHtml
                     currentPreferredUsage{
                         id,
                         hasPart{
                             id,
                             hasName{
                                 id,
-                                guid,
-                                fullNameString
+                                stableUri,
+                                fullNameStringHtml
                             }
                             hasSynonym{
                                 id,
-                                guid,
-                                fullNameString
+                                stableUri,
+                                fullNameStringHtml
                             }
                         }
                     }
@@ -574,7 +577,7 @@ require_once('header.php');
                 let name = response.data.taxonNameById;
 
                 // just set the root name as a title
-                document.getElementById("example-07-name").innerHTML = name.fullNameString;
+                document.getElementById("example-07-name").innerHTML = name.fullNameStringHtml;
 
                 // work through the children
                 let kid_list = document.getElementById("example-07-children");

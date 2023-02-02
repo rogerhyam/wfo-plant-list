@@ -133,6 +133,14 @@ class TaxonNameType extends ObjectType
                         'type' => Type::listOf(TypeRegister::referenceType()),
                         'description' => "References to other resources on the internet.",
                         'resolve' => function($record){return $record->getNomenclaturalReferences();}
+                    ],
+                    'currentPreferredUsage' => [
+                        'type' => TypeRegister::taxonConceptType(),
+                        'resolve' => function($record){
+                            return $record->getCurrentUsage();
+                        },
+                        'description' => 'The TaxonConcept to which this TaxonName is assigned 
+                        (either as the accepted name or a synonym) in the currently preferred (most recent) version of the WFO classification.'
                     ]
 
 /*
@@ -150,14 +158,7 @@ class TaxonNameType extends ObjectType
                         currentPreferredUsage will return the TaxonConcept in which this is considered a'
 
                     ],
-                    'currentPreferredUsage' => [
-                        'type' => TypeRegister::taxonConceptType(),
-                        'resolve' => function($name){
-                            return $name->getCurrentPreferredUsage();
-                        },
-                        'description' => 'The TaxonConcept to which this TaxonName is assigned 
-                        (either as the accepted name or a synonym) in the currently preferred (most recent) vesion of the WFO classification.'
-                    ],
+
 
                     'currentPreferredUsageIsSynonym' =>[
                         'type' => Type::boolean(),
