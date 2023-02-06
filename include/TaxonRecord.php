@@ -215,7 +215,7 @@ class TaxonRecord extends PlantList{
             $current_me = new TaxonRecord($this->solrDoc->wfo_id_s . "-" . WFO_DEFAULT_VERSION);
         }
 
-        if($current_me->solrDoc->accepted_id_s){
+        if(isset($current_me->solrDoc->accepted_id_s)){
             // we are a synonym - return the accepted name we belong to
             return new TaxonRecord($current_me->solrDoc->accepted_id_s);
         }elseif($current_me->getRole() == 'accepted'){
