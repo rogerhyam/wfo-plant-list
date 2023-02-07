@@ -56,6 +56,6 @@
         |
         <a href="matching_rest.php">Matching API</a>
         |
-        <a href="trees.php">Trees</a>
+        <a href="trees.php">Trees Tool</a>
     </div>
 <!-- end header.php -->

@@ -115,6 +115,7 @@ require_once('header.php');
 
 
 <h1>Name Matching Tool</h1>
+<p><a href="#instructions">Instructions are below</a></p>
 
 <?php
 if(@$_GET['matching_mode']){
@@ -330,8 +331,8 @@ if(file_exists($input_file_path)){
 
 <?php }else{ // no input file present ?>
 
-<p>You need to upload some data to work with. This can either be via cut and paste or file upload.</p>
-<h3>1.1 Cut'n'Paste Data</h3>
+<p>You need to submit some data to work with. This can either be via cut and paste or file upload.</p>
+<h3><span style="color: green">EITHER</span> Cut'n'Paste Data</h3>
 <p>Each name should be on a new line. Try cutting and pasting a column from a spreadsheet if you like.</p>
 <p>
 <form action="matching.php" method="POST">
@@ -341,7 +342,7 @@ if(file_exists($input_file_path)){
 </form>
 </p>
 
-<h3>1.2 Upload a CSV File</h3>
+<h3><span style="color: green">OR</span> Upload a CSV File</h3>
 <p>The first row of the CSV file will be taken as the column headers for the file.</p>
 <p>
 <form action="matching.php" method="POST" enctype="multipart/form-data">
@@ -462,6 +463,117 @@ if(file_exists($input_file_path)){
 <h2>4. Download</h2>
 <p><a href="<?php echo $output_file_path ?>">Download Results</a></p>
 
+<div>
+<a name="instructions"><h2>Instructions</h2></a>
+<p>
+    This tool is for attaching WFO name IDs to your data based on the name string you have.
+    You submit your data,
+    run the matching process
+    and download a CSV file with three additional columns in:
+</p>
+<ol>
+    <li><strong>wfo_id</strong> The unique 10 digit WFO ID for the name.</li>
+    <li><strong>wfo_full_name</strong> The full version of the name as it occurs in the WFO Plant list as plain text.</li>
+    <li><strong>wfo_check</strong>
+        If the name is placed in the current classification then the full path to the name.
+        If name hasn't been placed in the classification then either 
+        UNPLACED (An expert has not expressed an opinion on the taxonomy yet.)
+        of
+        DEPRECATED (Can't be placed in the classification - do not use.)
+
+    </li>
+</ol>
+
+<h3>Name strings</h3>
+<p>
+     The names you submit must be complete and include the authors.
+     They should have one, two or three "name words".
+     You will get unreliable results if you include varieties of subspecies (four name words).
+     Ranks (either in full or using common abbreviations) are OK to include.
+     Hybrid symbols will be stripped out at the start of the process.
+</p>
+
+<h3>Submitting data</h3>
+
+<p>
+    The easiest way to get started is to cut and paste a 
+    column of names into the text box in the form and click "Submit Data".
+    If you have the authors in a second column then it is OK to copy the two columns into the text box.
+    The matching process will merge them.
+</p>
+
+<p>
+    Once you have tried it out with a few names cut and paste into the text box you could
+    try uploading a CSV file. All the columns in the CSV file will be returned to you in 
+    the results so this technique can be used to bind WFO IDs to your local IDs 
+    and other data. If you have the name and authors in separate columns you 
+    must combine them into a single column before upload.
+</p>
+
+<h3>Setting parameters</h3>
+
+<p>
+    The matching process can be parametised. 
+    The default values are usually OK to start with but if you have uploaded a CSV file
+    you need to specify the column that contains the name strings at a minimum.
+</p>
+
+
+<p> 
+    Recommendation: Do not turn on interactive mode the first time you run the matching
+    process. This will give an idea of how dirty the data is and how much work is needed 
+    to get to 100% matching using interactive mode.
+</p>
+
+<h3>Doing a matching run</h3>
+
+<p>
+    Once you have submitted data and set the parameters you can do a matching run.
+    If you have submitted a large file then the page may refresh multiple times 
+    so be patient.
+</p>
+
+<p>
+    You can do multiple matching runs on the same data, perhaps one with interactive mode off
+    followed by a run with it turned on.
+</p>
+
+<h3>Downloading data</h3>
+
+<p>
+    You can download the results of the matching at any time after you first run the matching process.
+    <strong>To avoid data loss download your data frequently. </strong> Data is only stored as long
+    as your session lasts. If you walk away and come back later it may be gone!
+    You can upload the file you have downloaded if you want to continue an earlier session.
+</p>
+
+<h3>Big datasets</h3>
+
+<p>
+    No limit is set on the number of names that can be matched in one go, beyond the filesize upload limit.
+    The process works well with CSV files with tens of thousands of rows.
+    The process will probably fail with more than one hundred thousand rows.
+</p>
+
+<p>
+    If you have a large number of names to match it is highly recommend you break your work into 
+    batches of a few tens of thousands of names. This is worth doing because of the human
+    element alone. The larger the dataset the more ambiguous names that will have to be resolved
+    manually and a human do that task will get tired.
+</p>
+
+<p>
+    If you frequently need to rematch many thousands of names please consider installing a local
+    copy of this matching service (see <a href="index.php#scale">Scalability and Performance</a>). This is a shared resource and if the server is stressed 
+    it will slow down access to other users.
+</p>
+
+<p>
+
+</p>
+
+
+</ol>
 
 <?php
 

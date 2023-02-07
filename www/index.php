@@ -112,7 +112,7 @@ require_once('header.php');
     This isn't guaranteed to be stable.
 </p>
 
-<h2>Scalability and Performance</h2>
+<a name="scale"><h2>Scalability and Performance</h2></a>
 
 <p>
     Currently no API keys are required for these services. They are open for anyone to use. 
@@ -121,7 +121,7 @@ require_once('header.php');
 
 <p>
     This whole application can be installed on a server or personal machine by anyone with appropriate technical skills.
-    If you are likely to require heavy use of the service or which to embed it within a production workflow you are encouraged to 
+    If you are likely to require heavy use of the service or wish to embed it within a production workflow you are encouraged to 
     install a local copy of the application.
     The code and instructions are <a href="https://github.com/rogerhyam/wfo-plant-list">available on GitHub</a>.
     The data can be <a href="https://zenodo.org/record/7467360">downloaded from Zenodo</a>.

@@ -60,9 +60,10 @@ require_once('header.php');
     The most powerful way to query the name matching service is via the <a href="gql_index.php">GraphQL API</a> 
     however for some application a very simple <a href="https://en.wikipedia.org/wiki/Representational_state_transfer">REST</a> service is sufficient.
     That is what is provided here.
-    This is service should be seen as a chopped down version of the GraphQL API. 
+    This service should be seen as a chopped down version of the <a href="gql_index.php">GraphQL API</a>. 
     Behind the scenes it uses the same code.
-    If you need more complex behaviour you are encouraged to explore the GraphQL API which can be called without the use of client side libraries if necessary.
+    If you need more complex behaviour you are encouraged to explore the <a href="gql_index.php">GraphQL API</a>
+    which can be called without the use of client side libraries if necessary.
 </p>
 
 <h2>Requests and Responses</h2>
