@@ -20,10 +20,12 @@ class NameMatcher extends PlantList{
 
         // override with some defaults if they haven't been set
         if(!isset($this->params->method)) $this->params->method = 'alpha';
-        if(!isset($this->params->includeDeprecated)) $this->params->includeDeprecated = false;
+        //if(!isset($this->params->includeDeprecated)) $this->params->includeDeprecated = false;
         if(!isset($this->params->limit)) $this->params->limit = 100;
         if(!isset($this->params->classificationVersion)) $this->params->classificationVersion = WFO_DEFAULT_VERSION;
-
+        if(!isset($this->params->checkHomonyms)) $this->params->checkHomonyms = false;
+        if(!isset($this->params->checkRank)) $this->params->checkRank = false;
+    
     }
 
     /**
@@ -223,14 +225,14 @@ class NameMatcher extends PlantList{
         }
 
         // they care about ranks so remove the match if the ranks don't match
-        if($response->match && @$_GET['rank'] && $response->parsedName->rank != $name->getRank()){
+        if($response->match && $this->params->checkRank && $response->parsedName->rank != $name->getRank()){
             // they want the ranks to match and they don't so demote it
             $response->match = null;
             $response->narrative[] = "Checked ranks and they didn't match.";
         }
 
         // they don't care about homonyms so we can scrub any candidates if we have a match
-        if($response->match && !@$GET['homonyms']){
+        if($response->match && !$this->params->checkHomonyms){
             $response->candidates = array();
             $response->narrative[] = "Homonyms (same name different authors) are considered OK and we have a match so removing candidates.";
         }

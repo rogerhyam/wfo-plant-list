@@ -106,7 +106,35 @@ $schema = new Schema([
                         }
 
                     }
+            ], // taxonNameSuggestion
+
+            'taxonNameMatch' => [
+                'type' => TypeRegister::nameMatchResponseType(),
+                'description' => 'Find a name record for a supplied name string or list of candidate names.',
+                 'args' => [
+                        'inputString' => [
+                            'type' => Type::string(),
+                            'description' => 'The name string to search on, including the author string.'
+                        ],
+                        'checkHomonyms' => [
+                            'type' => Type::boolean(),
+                            'description' => 'Consider matches to be ambiguous if there are other names with the same words but different author strings.',
+                            'defaultValue' => false
+                        ],
+                        'checkRank' => [
+                            'type' => Type::boolean(),
+                            'description' => 'Consider matches to be ambiguous if it is possible to estimate rank from the search string and the rank does not match that in the name record.',
+                            'defaultValue' => false
+                        ]
+                    ],
+                'resolve' => function($rootValue, $args, $context, $info) {
+
+                        $matcher = new NameMatcher((object)array('checkHomonyms' => $args['checkHomonyms'], 'checkRank' => $args['checkRank'], 'method' => 'full'));
+                        return $matcher->match($args['inputString']);
+
+                    }
             ] // taxonNameSuggestion
+
    
         ]// fields
     ]) // object type

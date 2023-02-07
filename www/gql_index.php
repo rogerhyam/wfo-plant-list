@@ -11,7 +11,7 @@ require_once('header.php');
 
 <h1>GraphQL API</h1>
 
-<p>The <a href="https://graphql.org/">GraphQL</a> endpoint is <a href="<?php echo get_uri('gql') ?>"><?php echo get_uri('gql') ?></a>.</p>
+<p>The <a href="https://graphql.org/">GraphQL</a> endpoint is <a href="<?php echo get_uri('gql.php') ?>"><?php echo get_uri('gql.php') ?></a>.</p>
 
 <p>
     There are many resources on the web about use of GraphQL. It enables self documenting APIs and all the objects and properties available here have been documented. 

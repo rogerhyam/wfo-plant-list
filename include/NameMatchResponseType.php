@@ -13,9 +13,13 @@ class NameMatchResponseType extends ObjectType
             'description' => "An identifier for a name and taxon bound to its kind",
             'fields' => function(){
                 return [
-                    'searchString' => [
+                    'inputString' => [
                         'type' => Type::string(),
                         'description' => "The string submitted for matching"
+                    ],
+                    'searchString' => [
+                        'type' => Type::string(),
+                        'description' => "The string used for searching. A cleaned version of the inputString"
                     ],
                     'match' => [
                         'type' => TypeRegister::taxonNameType(),
@@ -37,6 +41,10 @@ class NameMatchResponseType extends ObjectType
                         'type' => Type::string(),
                         'description' => "The method used to match the name",
                         'resolve' => function($matches){ return $matches->params->method; }
+                    ],
+                    'narrative' => [
+                        'type' => Type::listOf(Type::string()),
+                        'description' => "Description of steps taken during matching"
                     ]
                 ];
             }

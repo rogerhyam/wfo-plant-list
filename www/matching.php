@@ -180,6 +180,8 @@ if(@$_GET['matching_mode']){
             $config->method = "full";
             $config->includeDeprecated = true;
             $config->limit = 10;
+            $config->checkHomonyms = @$_GET['homonyms'] == 'true' ? true : false;
+            $config->checkRank = @$_GET['ranks'] == 'true' ? true : false;
             $matcher = new NameMatcher($config);
 
             $response = $matcher->match($row[$name_index]);
