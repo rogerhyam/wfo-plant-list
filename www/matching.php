@@ -128,18 +128,34 @@ if(@$_GET['matching_mode']){
         // no output file so create it
         $in = fopen($input_file_path, 'r');
         $out = fopen($output_file_path, 'w');
+        $is_re_upload = false;
 
         if($_SESSION['data_type'] == 'CSV'){
+            
             $header = fgetcsv($in);
+
+            // add the first three rows if they are not already there
+            if(preg_match('/wfo_id$/', $header[0])){ // use odd regex to avoid odd excel chars at start of file
+                $is_re_upload = true;
+            }else{
+                array_unshift($header, 'wfo_id', 'wfo_full_name', 'wfo_check');
+            }
+
         }else{
-            $header = array('input_name_string');
+            $header = array('wfo_id', 'wfo_full_name', 'wfo_check', 'input_name_string');
         }
-        array_unshift($header, 'wfo_id', 'wfo_full_name', 'wfo_check');
+        
         fputcsv($out, $header);
 
         if($_SESSION['data_type'] == 'CSV'){
             while($line = fgetcsv($in)){
-                array_unshift($line, '', '', '');
+
+                if(!$is_re_upload){
+                    // they haven't uploaded a file with the three cols 
+                    // already in it so shift the cols across
+                    array_unshift($line, '', '', '');
+                }
+                
                 fputcsv($out, $line);
             }
         }else{
