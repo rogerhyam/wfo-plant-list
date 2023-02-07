@@ -114,9 +114,12 @@ require_once('header.php');
 
 <?php
     $example_1 = get_uri('matching_rest.php?input_string=Rhopalocarpus+alternifolius+(Baker)+Capuron');
-
+    echo '<p>Perfect match</p>';
     echo "<p><a href=\"$example_1\"><code>$example_1</code></a></p>";
 
+    $example_2 = get_uri('matching_rest.php?input_string=Rhopalocarpus+alternifolia+(Baker)+Capuron');
+    echo '<p>Imperfect match</p>';
+    echo "<p><a href=\"$example_2\"><code>$example_1</code></a></p>";
 ?>
 
 
