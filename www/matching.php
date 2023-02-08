@@ -476,7 +476,7 @@ if(file_exists($input_file_path)){
     <li><strong>wfo_full_name</strong> The full version of the name as it occurs in the WFO Plant list as plain text.</li>
     <li><strong>wfo_check</strong>
         If the name is placed in the current classification then the full path to the name.
-        If name hasn't been placed in the classification then either 
+        If the name hasn't been placed in the classification then either 
         UNPLACED (An expert has not expressed an opinion on the taxonomy yet.)
         of
         DEPRECATED (Can't be placed in the classification - do not use.)
@@ -557,9 +557,8 @@ if(file_exists($input_file_path)){
 
 <p>
     If you have a large number of names to match it is highly recommend you break your work into 
-    batches of a few tens of thousands of names. This is worth doing because of the human
-    element alone. The larger the dataset the more ambiguous names that will have to be resolved
-    manually and a human do that task will get tired.
+    batches of logical batches of a few tens of thousands of names each. This is worth doing for the human
+    factor alone. A large dataset may contain more ambiguous names than a human is able to disambiguate in one session.
 </p>
 
 <p>
@@ -567,13 +566,6 @@ if(file_exists($input_file_path)){
     copy of this matching service (see <a href="index.php#scale">Scalability and Performance</a>). This is a shared resource and if the server is stressed 
     it will slow down access to other users.
 </p>
-
-<p>
-
-</p>
-
-
-</ol>
 
 <?php
 

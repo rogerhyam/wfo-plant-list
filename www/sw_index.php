@@ -37,7 +37,8 @@ A WFO stable URI is created by prepending "https://list.worldfloraonline.org/" t
 <p>
     The behaviour of the URIs differs depending on how they are resolved, by a human (with a web browser) or by a machine requesting data in a particular format.
     This is called content negotiation. 
-    Here is an example:
+    Below is an example.
+    It might seem complicated but it is transparent to a user of the data. Just refer to things by their URIs and the system routes calls to the right place!
 </p>
 
 <ul>
@@ -57,7 +58,6 @@ A WFO stable URI is created by prepending "https://list.worldfloraonline.org/" t
     <li>On the other hand calling for <strong>data</strong> for a versioned name that is the accepted name of a taxon will return the taxon JSON object with the name embedded in it.
 </ul>
 
-<p>This might sound complicated at first but it is transparent to a user of the data. Just refer to things by their URIs and the system routes calls to the right place!</p>
 
 <h3>Supported formats</h3>
 

@@ -70,14 +70,14 @@ require_once('header.php');
 
 <p>
     Only GET requests are supported. All parameters are optional. Calling without the "input_string" parameter will return this page.
-    All requests that provide a value in the "q" parameter will be responded to with a JSON object equivalent to the matching response object provided by the 
+    All requests that provide a value in the "input_string" parameter will be responded to with a JSON object equivalent to the taxonNameMatch response object provided by the 
     GraphQL API.
 </p>
 
 <h2>Request Parameters</h2>
 
 <ul>
-    <li><strong>search_string</strong> The name string to be searched for. It should contain a single botanical name. This should include the authors of the name if available. It should be URL encoded.</li>
+    <li><strong>input_string</strong> The name string to be searched for. It should contain a single botanical name. This should include the authors of the name if available. It should be URL encoded.</li>
     <li><strong>check_homonyms</strong> If present with the value "true" then homonyms will be checked for. If a single, exact match of name and author string is found but there are other names with the same letters but a different author strings present the match won't be considered unambiguous. </li>
     <li><strong>check_rank</strong> If present with the value "true" then the rank will be checked for. If a precise match of name and author string is found and it is possible to extract the rank from the name string but the rank isn't the same the match won't be considered unambiguous.</li>
 </ul>
@@ -122,6 +122,35 @@ require_once('header.php');
     echo '<p>Imperfect match</p>';
     echo "<p><a href=\"$example_2\"><code>$example_1</code></a></p>";
 ?>
+
+<h2>GraphQL equivalent</h2>
+<p>
+    This is an example of a similar matching call using a GraphQL query.
+    It could be extended to include appropriate parts of the graph of 
+    TaxonName and TaxonConcept objects as required.
+</p>
+<code>
+<pre>
+query {
+  taxonNameMatch(inputString: "Rhopalocarpus alternifolium (Baker) Capuro") {
+    inputString
+    searchString
+    match {
+      wfoId
+      fullNameStringPlain
+      fullNameStringHtml
+    }
+    candidates {
+      wfoId
+      fullNameStringPlain
+      fullNameStringHtml
+    }
+    narrative
+  }
+}
+</pre>
+</code>
+
 
 
 

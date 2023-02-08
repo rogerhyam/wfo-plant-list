@@ -24,9 +24,10 @@ require_once('header.php');
 
 <ol>
     <li><a href="http://www.worldfloraonline.org">WFO Portal</a>: The main entry point for the WFO including all the description, distribution, image and other data. This is where you go to find out more about a plant.</li>
-    <li><a href="http://www.wfoplantlist.org">WFO Plant List</a>: Human friendly access to the WFO Plant List in all its versions as soon as they are released. It forms part of the main portal.</li>
+    <li><a href="http://www.wfoplantlist.org">WFO Plant List</a>: Human friendly access to the WFO Plant List in all its versions as soon as they are released. It forms part of 1, the main portal.</li>
+    <li><a href="https://doi.org/10.5281/zenodo.7467360" >WFO Plant List Download [doi:10.5281/zenodo.7467360]</a>: Gives access to the same data as available from 2 above to download in multiple formats and citable via a DOI.</li>
+    <li><strong>WFO Plant List API:</strong> This site. Gives access to the same data as available from 2 above but via APIs and specialist tools.</li>
     <li><a href="https://list.worldfloraonline.org/rhakhis/ui/index.html" >Rhakhis Taxonomic Editor</a>: A tool for taxonomists preparing the next WFO Plant List data release.</li>
-    <li><strong>Plant List API:</strong> This site. Gives access to the same data as available from 2 above but via APIs and specialist tools.</li>
 </ol>
 
 <h2>What is here?</h2>
@@ -35,17 +36,15 @@ require_once('header.php');
     <li><a href="sw_index.php"/>Stable URIs</a>: Semantic Web compatible stable HTTP URIs that you can use to link to Names and Taxa as well as in triple stores and other technologies.</li>
     <li><a href="gql_index.php"/>GraphQL API</a>: A GraphQL API giving access to all the data releases of the WFO Plant List through a flexible, widely used, cross platform technology.</li>
     <li><a href="matching.php"/>Matching Tool</a>: A form based online tool to match lists of names either cut and pasted into a form or uploaded as a CSV file.</li>
-    <li><a href="matching.php"/>Matching API</a>: A simple REST API to match name strings. This is a subset of what is available through the GraphQL interface.</li>
-    <li><a href="trees.php">Trees</a> A service to generate tree files from lists of WFO ID - looking for partners!</li>
-    
-    
-</ul>
+    <li><a href="matching_rest.php"/>Matching API</a>: A simple REST API to match name strings. This is a subset of what is available through the GraphQL interface.</li>
+ </ul>
 
 <h2>Data Model</h2>
 
 <p>
-    For each major update of the classification in the main WFO database a snapshot of the taxonomic backbone (names and their statuses) is taken and added to this service. 
-    The data available here therefore represents multiple classifications of the plant kingdom showing how our understanding has changed through time.
+    Every six months, on the solstices, a snapshot of the data in the Rhakhis editor is taken and added to this service. 
+    The data available here therefore represents multiple classifications of the 
+    plant kingdom showing how our understanding has changed through time.
 </p>
 <p>
     In order to represent multiple classifications in a single dataset it is necessary to adopt the TaxonConcept model which differentiates between taxa (TaxonConcepts)
@@ -55,14 +54,15 @@ require_once('header.php');
 <p class="aside">
     <strong>Taxon name/concept background: </strong>
     A good analogy for those unfamiliar with the TaxonConcept model is that of polygons and points within a geospatial model.
-    A classification divides a plane into contiguous map of nested polygons (like counties, regions, countries, continents).
+    A classification is like a map of contiguous, nested polygons (like counties, regions, countries, continents).
     These are the taxa.
-    The names are points on the plane.
-    The name used for a polygon is the oldest point that occurs within it.
-    Other names that fall in that polygon are referred to as synonyms.
-    Different taxonomic classifications are like the different maps of the same plane with different polygons but with points that are the same on all maps.
+    The names are like fixed points on the map. They never move.
+    Each polygon might contain multiple points.
+    The name used for a polygon is based on the oldest point that occurs within it.
+    Other names that fall in the polygon are referred to as synonyms.
+    Different taxonomic classifications are like different maps of the same terrain with different polygons but with the same points.
     Polygons on two maps might have the same calculated name but different boundaries and different synonyms.
-    It is therefore necessary to refer to taxa in different classifications using unique identifiers rather than their calculated names.
+    It is therefore necessary to refer to taxa in different classifications using unique identifiers rather than just their calculated names.
 </p>
 
 <a id="identifiers" ><h2>Identifiers</h2></a>
@@ -108,8 +108,8 @@ require_once('header.php');
 </p>
 
 <p>
-    To link to a WFO name it is recommended to always use the <a href="sw_index.php">Stable HTTP URI</a> form and not to reverse engineer the URL that appears in a browser bar.
-    This isn't guaranteed to be stable.
+    To link to a WFO name it is recommended to always use the <a href="sw_index.php">Stable HTTP URI</a> form and not to reverse engineer the URL that appears in a browser bar 
+    which isn't guaranteed to be stable.
 </p>
 
 <a name="scale"><h2>Scalability and Performance</h2></a>
