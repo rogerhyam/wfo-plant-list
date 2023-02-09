@@ -73,6 +73,34 @@ class ReconciliationService{
             $candidate->id = $name->getWfoId();
             $candidate->name =  $name->getFullNameStringPlain();
             $candidate->match = $is_match;
+            $candidate->type = 'TaxonName';
+            $candidate->score = $score;
+            $candidate->features = array();
+
+            $candidate->features[] = (object)array(
+                'id' => 'fullNameStringPlain',
+                'name' => 'The full name including authors but without any markup',
+                'value' => $name->getFullNameStringPlain()
+            );
+
+            $candidate->features[] = (object)array(
+                'id' => 'fullNameStringHtml',
+                'name' => 'The full name including authors with HTML tags',
+                'value' => $name->getFullNameStringHtml()
+            );
+
+            $candidate->features[] = (object)array(
+                'id' => 'rank',
+                'name' => 'The taxonomic rank of this name',
+                'value' => $name->getRank()
+            );
+
+            $candidate->features[] = (object)array(
+                'id' => 'nomenclaturalStatus',
+                'name' => 'The nomenclatural status of this name',
+                'value' => $name->getNomenclaturalStatus()
+            );
+
             return $candidate;
     }
     
