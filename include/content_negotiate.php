@@ -9,6 +9,17 @@ $path_parts = explode('/', $_SERVER["REQUEST_URI"]);
 array_shift($path_parts); // lose the first blank one
 $wfo = $path_parts[0];
 
+// are they are asking for reconciliation service?
+if(preg_match('/^reconcile/', $wfo)){
+    require_once('../include/ReconciliationService.php');
+    if(isset($_REQUEST['queries'])) $queries = json_decode($_REQUEST['queries']);
+    else $queries = null;
+    $service = new ReconciliationService($queries);
+    header('Content-Type: application/json');
+    echo json_encode($service->getResponse(), JSON_PRETTY_PRINT);
+    exit;
+}
+
 if(
     preg_match('/^wfo-[0-9]{10}$/', $wfo) // name wfo
     || preg_match('/^wfo-[0-9]{10}-[0-9]{4}-[0-9]{2}$/', $wfo) // taxon wfo
