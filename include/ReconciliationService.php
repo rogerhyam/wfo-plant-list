@@ -30,14 +30,13 @@ class ReconciliationService{
 
     private function getQueriesResponse(){
         
-        $response = new stdClass();
-        $response->results = array();
+        $response = array();
 
         foreach($this->queries as $id => $query){
-            $response->results = $this->getQueryResponse($query);
+            $response[$id] = $this->getQueryResponse($query);
         }
 
-        return $response;
+        return (object)$response;
 
     }
 
@@ -46,10 +45,11 @@ class ReconciliationService{
         // actually run the query!
 
         $response = new stdClass();
-        $response->candidates = array();
+        $response->result = array();
 
         $config = new stdClass();
         $config->method = 'full';
+        $config->limit = 10;
         
         // FIXME: add homonyms and/or rank flags    
         
@@ -58,12 +58,12 @@ class ReconciliationService{
 
         if($matches->match){
             // we have a single hit
-            $response->candidates[] = $this->getCandidate($matches->match, 100, true);
+            $response->result[] = $this->getCandidate($matches->match, 100, true);
         }else{
             // we have multiple candidates
             for ($i=0; $i < count($matches->candidates); $i++) { 
                 $candi = $matches->candidates[$i];
-                $response->candidates[] = $this->getCandidate($candi, count($matches->candidates) - $i ,false);
+                $response->result[] = $this->getCandidate($candi, count($matches->candidates) - $i ,false);
             }
 
         }
