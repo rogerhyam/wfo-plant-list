@@ -1,0 +1,16 @@
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Origin "*"
+</IfModule>
+
+# redirect root calls to the human interface
+# RedirectMatch ^/$ /ui/
+
+# turn off multiviews in the virtual host or /terms won't work
+
+RewriteEngine on
+RewriteCond %{REQUEST_URI} !^/edit/
+RewriteCond %{REQUEST_URI} !^/demo/
+RewriteCond %{REQUEST_URI} !^/download
+RewriteCond %{REQUEST_URI} !^/index.php$
+RewriteCond %{REQUEST_URI} !^/lookup_authors_test.php
+RewriteRule ^(.+)$ /index.php?url=$1 [NC,L]
