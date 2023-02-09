@@ -5,6 +5,10 @@ require_once('../include/NameMatcher.php');
 /*
     Implementation of this
     https://reconciliation-api.github.io/specs/latest/
+
+http://localhost:2001/reconcile?queries=%7B%22q0%22%3A%7B%22query%22%3A%22Agropyron+unilaterale+Cassidy%22%7D%7D
+https://list-dev.rbge.info/reconcile?queries=%7B%22q0%22%3A%7B%22query%22%3A%22Agropyron+unilaterale+Cassidy%22%7D%7D
+
 */
 
 class ReconciliationService{
