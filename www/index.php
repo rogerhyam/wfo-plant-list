@@ -30,6 +30,10 @@ require_once('header.php');
     <li><a href="https://list.worldfloraonline.org/rhakhis/ui/index.html" >Rhakhis Taxonomic Editor</a>: A tool for taxonomists preparing the next WFO Plant List data release.</li>
 </ol>
 
+<p>
+    The services here only cover names governed by the International Coded of Nomenclature for Algae, Fungi and Plants as curated by the WFO.
+    If your data includes names from the Zoological code or you wish to query other sources then you may be better served by the <a href="http://gni.globalnames.org/">Global Names Verifier</a>.</p>
+
 <h2>What is here?</h2>
 
 <ul>
@@ -37,7 +41,14 @@ require_once('header.php');
     <li><a href="gql_index.php"/>GraphQL API</a>: A GraphQL API giving access to all the data releases of the WFO Plant List through a flexible, widely used, cross platform technology.</li>
     <li><a href="matching.php"/>Matching Tool</a>: A form based online tool to match lists of names either cut and pasted into a form or uploaded as a CSV file.</li>
     <li><a href="matching_rest.php"/>Matching API</a>: A simple REST API to match name strings. This is a subset of what is available through the GraphQL interface.</li>
+    <li><a href="reconcile_index.php"/>Reconciliation API</a>: An implementation of the <a href="https://reconciliation-api.github.io/specs/latest/">W3C Reconciliation Service API</a> for use in <a href="https://openrefine.org/">OpenRefine</a> and other tools.</li>
  </ul>
+
+<p>
+    For our purposes, matching/reconciling is the process or binding your data to a WFO Name record (represented by a WFO ID) on the basis of a string of characters you supply.
+    This differentiates between a Name (capital 'N') and a string of characters that represent the Name in a particular context and thus avoids us getting into a semantic/philosophical tangle.
+</p>
+
 
 <h2>Data Model</h2>
 

@@ -79,6 +79,8 @@ class ReconciliationService{
             $candidate->match = $is_match;
             $candidate->type = 'TaxonName';
             $candidate->score = $score;
+
+            /*
             $candidate->features = array();
 
             $candidate->features[] = (object)array(
@@ -104,6 +106,7 @@ class ReconciliationService{
                 'name' => 'The nomenclatural status of this name',
                 'value' => $name->getNomenclaturalStatus()
             );
+            */
 
             return $candidate;
     }
