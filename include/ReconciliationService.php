@@ -77,7 +77,7 @@ class ReconciliationService{
             $candidate->id = $name->getWfoId();
             $candidate->name =  $name->getFullNameStringPlain();
             $candidate->match = $is_match;
-            $candidate->type = 'TaxonName';
+            $candidate->types = array('TaxonName');
             $candidate->score = $score;
 
             /*
