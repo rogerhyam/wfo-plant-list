@@ -77,7 +77,7 @@ class ReconciliationService extends PlantList{
             $candidate = new stdClass();
             $candidate->id = $name->getWfoId();
             $candidate->name =  $name->getFullNameStringPlain();
-            $candidate->description =  $name->getCitationMicro();
+            $candidate->description =  $name->getCitationMicro() ? $name->getCitationMicro(): '';
             $candidate->match = $is_match;
             $candidate->types = array('TaxonName');
             $candidate->score = $score;
