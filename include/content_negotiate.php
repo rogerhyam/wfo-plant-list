@@ -11,13 +11,32 @@ $wfo = $path_parts[0];
 
 // are they are asking for reconciliation service?
 if(preg_match('/^reconcile/', $wfo)){
+
+    // set up a reconciliation service object
     require_once('../include/ReconciliationService.php');
     if(isset($_REQUEST['queries'])) $queries = json_decode($_REQUEST['queries']);
     else $queries = null;
     $service = new ReconciliationService($queries);
-    header('Content-Type: application/json');
-    echo json_encode($service->getResponse(), JSON_PRETTY_PRINT);
-    exit;
+    
+    
+    if(!$queries && @$_GET['preview']){
+        // They are just asking for a preview
+        header('Content-Type: text/html');
+        echo $service->getPreview($_GET['preview']);
+        exit;
+    }elseif(!$queries && @$_GET['prefix']){
+        // they are doing a suggest search
+        header('Content-Type: application/json');
+        echo json_encode($service->getSuggestions($_GET['prefix']), JSON_PRETTY_PRINT);
+        exit;
+
+    }else{
+        // They want a full response
+        header('Content-Type: application/json');
+        echo json_encode($service->getResponse(), JSON_PRETTY_PRINT);
+        exit;
+    }
+
 }
 
 if(
@@ -30,7 +49,6 @@ if(
     $format_string = null;
     $formats = \EasyRdf\Format::getFormats();
     
-//print_r($formats);
 
     // we are being called as a stable URI
     // redirect to an appropriate place

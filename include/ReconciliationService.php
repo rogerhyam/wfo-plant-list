@@ -1,6 +1,7 @@
 <?php
 
 require_once('../include/NameMatcher.php');
+require_once('../include/TaxonRecord.php');
 
 /*
     Implementation of this
@@ -11,7 +12,7 @@ https://list-dev.rbge.info/reconcile?queries=%7B%22q0%22%3A%7B%22query%22%3A%22A
 
 */
 
-class ReconciliationService{
+class ReconciliationService extends PlantList{
 
     private $queries;
 
@@ -80,19 +81,12 @@ class ReconciliationService{
             $candidate->types = array('TaxonName');
             $candidate->score = $score;
 
-            /*
             $candidate->features = array();
 
             $candidate->features[] = (object)array(
                 'id' => 'fullNameStringPlain',
                 'name' => 'The full name including authors but without any markup',
                 'value' => $name->getFullNameStringPlain()
-            );
-
-            $candidate->features[] = (object)array(
-                'id' => 'fullNameStringHtml',
-                'name' => 'The full name including authors with HTML tags',
-                'value' => $name->getFullNameStringHtml()
             );
 
             $candidate->features[] = (object)array(
@@ -106,7 +100,12 @@ class ReconciliationService{
                 'name' => 'The nomenclatural status of this name',
                 'value' => $name->getNomenclaturalStatus()
             );
-            */
+
+            $candidate->features[] = (object)array(
+                'id' => 'citationMicro',
+                'name' => 'The place of publication as a micro citation',
+                'value' => $name->getCitationMicro()
+            );
 
             return $candidate;
     }
@@ -150,9 +149,89 @@ class ReconciliationService{
 
         $manifest->batchSize = 100;
 
+        // preview the names
+        $manifest->preview = (object)array(
+            'url' => get_uri('reconcile?preview={{id}}'),
+            'width' => 300,
+            'height' => 100
+        );
+
+        // suggest based on first few characters
+        $manifest->suggest = new stdClass();
+
+        $manifest->suggest->entity = (object)array(
+            'service_url' => get_uri('reconcile'),
+            'service_path' => ''
+        );
+
         return $manifest;
 
 
+    }
+
+    /**
+     * returns a small preview of the 
+     * name for use as a popup
+     */
+    public function getPreview($wfo){
+
+        if(!preg_match('/^wfo-[0-9]{10}$/', $wfo)){
+            $out = "Malformed WFO ID: '$wfo'";
+        }else{
+            $name = new TaxonRecord($wfo);
+
+            if($name->exists()){
+
+                $out = "<p>";
+                $out = "<strong>" . $name->getFullNameStringHtml() . "</strong>";
+                $out .= "<br/>";
+                $out .= $name->getCitationMicro();
+                $out .= "<br/>";
+                $out .= $name->getNomenclaturalStatus();
+                $out .= ":&nbsp;";
+                $out .= $name->getRank();
+                $out .= "</p>";
+
+            }else{
+                // name couldn't be loaded
+                $out = "Couldn't load name";
+            }
+
+        }
+
+        return "
+            <html>
+            <head><meta charset=\"utf-8\" /></head>
+            <body>$out</body>
+            </html>
+        ";
+
+    }
+
+    public function getSuggestions($input_string){
+
+        $matcher = new NameMatcher((object)array('limit' => 30, 'method' => 'alpha'));
+        $match_response = $matcher->match($input_string);
+
+        if($match_response->match){
+            $candidates = array($match_response->match); // we have a perfect match
+        }else{
+            $candidates = $match_response->candidates;
+        }
+
+        $output_response = new stdClass();
+        $output_response->result = array();
+        
+        foreach($candidates as $candidate){
+            $output_response->result[] = (object)array(
+                'id' => $candidate->getWfoId(),
+                'name' => $candidate->getFullNameStringPlain(),
+                'description' => $candidate->getCitationMicro()
+            );
+        }
+
+        return $output_response;
+        
     }
 
 
