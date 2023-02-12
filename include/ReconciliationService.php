@@ -77,35 +77,10 @@ class ReconciliationService extends PlantList{
             $candidate = new stdClass();
             $candidate->id = $name->getWfoId();
             $candidate->name =  $name->getFullNameStringPlain();
+            $candidate->description =  $name->getCitationMicro();
             $candidate->match = $is_match;
             $candidate->types = array('TaxonName');
             $candidate->score = $score;
-
-            $candidate->features = array();
-
-            $candidate->features[] = (object)array(
-                'id' => 'fullNameStringPlain',
-                'name' => 'The full name including authors but without any markup',
-                'value' => $name->getFullNameStringPlain()
-            );
-
-            $candidate->features[] = (object)array(
-                'id' => 'rank',
-                'name' => 'The taxonomic rank of this name',
-                'value' => $name->getRank()
-            );
-
-            $candidate->features[] = (object)array(
-                'id' => 'nomenclaturalStatus',
-                'name' => 'The nomenclatural status of this name',
-                'value' => $name->getNomenclaturalStatus()
-            );
-
-            $candidate->features[] = (object)array(
-                'id' => 'citationMicro',
-                'name' => 'The place of publication as a micro citation',
-                'value' => $name->getCitationMicro()
-            );
 
             return $candidate;
     }
