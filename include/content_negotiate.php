@@ -125,7 +125,7 @@ if(
                     break;
                 case 'synonym':
                     $syn_wfo = substr($record->getId(), 0, 14);
-                    $redirect_url = "https://wfoplantlist.org/plant-list/taxon/{$record->getAcceptedId}?matched_id={$syn_wfo}";
+                    $redirect_url = "https://wfoplantlist.org/plant-list/taxon/{$record->getAcceptedId()}?matched_id={$syn_wfo}";
                     break;
                 case 'unplaced':
                     $redirect_url = "https://wfoplantlist.org/plant-list/taxon/{$record->getId()}";
