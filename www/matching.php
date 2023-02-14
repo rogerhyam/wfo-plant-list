@@ -177,7 +177,29 @@ if(@$_GET['matching_mode']){
     fclose($in);
 
     // which column is the name in?
-    $name_index = $_SESSION['data_type'] == 'CSV' ? $_SESSION['matching_params']['name_col_index'] + 3 : 3;
+    // they chose the number from the input
+    if($_SESSION['data_type'] == 'CSV'){
+
+        // they picked a column from the uploaded file
+        // we may or may not have added three columns to the start of that
+        // file depending on if it already had them 
+        $in = fopen($input_file_path, 'r');
+        $in_header = fgetcsv($in);
+        fclose($in);
+
+        if(preg_match('/wfo_id$/', $in_header[0])){
+            // we didn't add cols so it is just what the picked
+            $name_index = $_SESSION['matching_params']['name_col_index'];
+        }else{
+            // we added cols
+            $name_index = 3 + $_SESSION['matching_params']['name_col_index'];
+        }
+
+    }else{
+        // it was a form submit so it is always the third
+        $name_index = 3;
+    }
+
 
     $offset = @$_GET['offset'] ? @$_GET['offset'] : 1;
     $page_end = $offset + 100;

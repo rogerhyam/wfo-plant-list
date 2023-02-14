@@ -1,5 +1,7 @@
 seed/*
 vendor/
 www/matching_cache/*
+www/matching_cache/*/*
 composer.phar
 composer.lock
+www/matching_cache/id0rm2l62pedggfgds5d1jghnb/input.csv
