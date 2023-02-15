@@ -484,6 +484,15 @@ if(file_exists($input_file_path)){
 
 <h2>4. Download</h2>
 <p><a href="<?php echo $output_file_path ?>">Download Results</a></p>
+<p><strong>Note on Encoding:</strong>
+    UTF-8 encoding is assumed throughout.
+    This should work seemlessly apart from in one situation.
+    <br/>If you download a file and open it with Microsoft Excel by double clicking 
+    on the file itself Excel may assume the wrong encoding.
+    <br/>To preserve the encoding import the file via File > Import > CSV and choose Unicode (UTF-8) from the
+    "File origin" dropdown.
+    <br/>Files saved as CSV from Excel are UTF-8 encoded by default.
+</p>
 
 <div>
 <a name="instructions"><h2>Instructions</h2></a>
