@@ -600,15 +600,14 @@ if(file_exists($input_file_path)){
 
 <p>
    If an unambiguous match is not made for a name in your data then the near matches (candidates) are 
-   written to a file call candidates.csv. For each candidate name your input row is repeated along with a
+   written to a file called candidates.csv. For each candidate name your input row is repeated along with a
    relative matching score.
    This occurs both in interactive and non-interactive modes.
    You can download this file if you would like to resolve issues with matching locally.
    <strong>The candidates.csv file is deleted at the beginning of each matching run.
     i.e. when you click the "Run Matching" button.
    </strong>
-   Unlike the main results file you can't do multiple matching runs and download a combined file
-   at the end because the file is just logging the output of the matching processes as it happens.
+   The file is just logging the output of the matching processes as it happens and not updated.
 </p>
 <p>
     Recommendation: If you have 10% unmatched names and you'd like to work on them somewhere else
