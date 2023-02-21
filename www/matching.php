@@ -607,7 +607,7 @@ if(file_exists($input_file_path)){
    <strong>The candidates.csv file is deleted at the beginning of each matching run.
     i.e. when you click the "Run Matching" button.
    </strong>
-   The file is just logging the output of the matching processes as it happens and not updated.
+   The file is just logging the output of the matching process as it happens and not updated.
 </p>
 <p>
     Recommendation: If you have 10% unmatched names and you'd like to work on them somewhere else
