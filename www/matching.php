@@ -13,6 +13,7 @@ $file_dir = 'matching_cache/' . session_id() . "/";
 if(!file_exists($file_dir)) mkdir($file_dir);
 $input_file_path = $file_dir . "input.csv";
 $output_file_path = $file_dir . "output.csv";
+$candidates_file_path = $file_dir . "candidates.csv";
 
 // are they posting some data?
 if($_POST){
@@ -32,8 +33,9 @@ if($_POST){
 
 // they are deleting the data
 if(isset($_GET['delete_data']) && $_GET['delete_data'] == 'true'){
-    unlink($input_file_path);
-    unlink($output_file_path);
+    if(file_exists($input_file_path)) unlink($input_file_path);
+    if(file_exists($output_file_path)) unlink($output_file_path);
+    if(file_exists($candidates_file_path)) unlink($candidates_file_path);
     unset($_SESSION['data_type']);
 }
 
@@ -90,6 +92,7 @@ if(@$_GET['chosen_wfo']){
             $row[0] = $chosen_name->getWfoId();
             $row[1] = $chosen_name->getFullNameStringPlain();
             $row[2] = $chosen_name->getWfoPath();
+            if(!$row[2]) $row[2] = $chosen_name->getRole();
             
         }
 
@@ -123,8 +126,6 @@ if(@$_GET['matching_mode']){
     
     // does the output file exist?
     if(!file_exists($output_file_path)){
-
-        // FIXME: if the input file already has the wfo_ fields don't create them
 
         // no output file so create it
         $in = fopen($input_file_path, 'r');
@@ -175,6 +176,12 @@ if(@$_GET['matching_mode']){
     $in = fopen($output_file_path, 'r');
     while($row = fgetcsv($in))$rows[] = $row;
     fclose($in);
+
+    // set up the candidates file
+    if(@$_GET['new_run'] == 'true' && file_exists($candidates_file_path)){
+        // remove it if this is a fresh run
+        unlink($candidates_file_path);
+    }
 
     // which column is the name in?
     // they chose the number from the input
@@ -230,6 +237,7 @@ if(@$_GET['matching_mode']){
                 $row[0] = $response->match->getWfoId();
                 $row[1] = $response->match->getFullNameStringPlain();
                 $row[2] = $response->match->getWfoPath();
+                if(!$row[2]) $row[2] = $response->match->getRole();
             }elseif($response->match && $response->candidates){
                 // we have an exact match AND some ambiguity
                 // this will be homonyms or ranks based
@@ -237,6 +245,7 @@ if(@$_GET['matching_mode']){
                     $row[0] = 'CHOICE';
                     render_choices($response);
                 }
+                record_choices($row, $repsonse, $rows[0], $candidates_file_path);
             }elseif(!$response->match && $response->candidates){
                 // no exact match but some candidates to look at
                 if(@$_SESSION['matching_params']['interactive']){
@@ -249,6 +258,7 @@ if(@$_GET['matching_mode']){
                     $row[1] = '';
                     $row[2] = count($response->candidates) . ' candidates found.';
                 }
+                record_choices($row, $response, $rows[0], $candidates_file_path);
             }else{
                 // nothing at all! Not a squib?
                 $row[0] = '';
@@ -294,7 +304,9 @@ if(@$_GET['matching_mode']){
            echo "<p>You haven't matched all the names. You could try and run matching again with different parameters.</p>"; 
            echo "<p>You can download the results anytime so you don't lose your work.</p>";
         }
-        echo "<p><a href=\"$output_file_path\">Download Results</a></p>";
+        echo "<p><a href=\"$output_file_path\">Download Results</a>";
+        if(file_exists($candidates_file_path)) echo " (<a href=\"$candidates_file_path\">Candidates</a>)";
+        echo "</p>";
 
     }else{
         echo '<h2>Matching in progress.</h2>';
@@ -315,9 +327,6 @@ if(@$_GET['matching_mode']){
         . " | Skipped: " 
         . number_format($skipped, 0) 
         . " ]</p>";
-
-
-
 
     if($offset + 1 < count($rows) && !$stopped_for_choice){
         // we need to call again
@@ -444,6 +453,7 @@ if(file_exists($input_file_path)){
 <p>
 <form action="matching.php" method="GET">
     <input type="hidden" name="offset" value="<?php echo @$_GET['offset'] ?>" />
+    <input type="hidden" name="new_run" value="true" />
 <table>
 
 <tr>
@@ -483,7 +493,15 @@ if(file_exists($input_file_path)){
 </p>
 
 <h2>4. Download</h2>
-<p><a href="<?php echo $output_file_path ?>">Download Results</a></p>
+<p><a href="<?php echo $output_file_path ?>">Download Results</a>
+
+<?php
+    if(file_exists($candidates_file_path)) echo " (<a href=\"$candidates_file_path\">Candidates</a>)";
+?>
+
+</p>
+
+
 <p><strong>Note on Encoding:</strong>
     UTF-8 encoding is assumed throughout.
     This should work seemlessly apart from in one situation.
@@ -577,6 +595,27 @@ if(file_exists($input_file_path)){
     as your session lasts. If you walk away and come back later it may be gone!
     You can upload the file you have downloaded if you want to continue an earlier session.
 </p>
+
+<h3>Candidates</h3>
+
+<p>
+   If an unambiguous match is not made for a name in your data then the near matches (candidates) are 
+   written to a file call candidates.csv. For each candidate name your input row is repeated along with a
+   relative matching score.
+   This occurs both in interactive and non-interactive modes.
+   You can download this file if you would like to resolve issues with matching locally.
+   <strong>The candidates.csv file is deleted at the beginning of each matching run.
+    i.e. when you click the "Run Matching" button.
+   </strong>
+   Unlike the main results file you can't do multiple matching runs and download a combined file
+   at the end because the file is just logging the output of the matching processes as it happens.
+</p>
+<p>
+    Recommendation: If you have 10% unmatched names and you'd like to work on them somewhere else
+    turn off interactive mode and run the matching one last time then download the candidates.csv 
+    file. It will contain the candidates for all your unmatchned names and only your unmatched names.
+</p>
+
 
 <h3>Big datasets</h3>
 
@@ -673,6 +712,44 @@ function render_choices($response){
 
 
     
+}
+
+function record_choices($row, $response, $header, $candidates_file_path){
+
+    if(!file_exists($candidates_file_path)){
+        // create it if it isn't there
+        $out = fopen($candidates_file_path, 'w');
+        $new_header = $header;
+        array_unshift($new_header, 'score');
+        fputcsv($out, $new_header); // add the header
+    }else{
+        // it exists so we append to it
+        $out = fopen($candidates_file_path, 'a');
+    }
+
+    for($i = 0; $i < count($response->candidates); $i++){
+        $candidate = $response->candidates[$i];
+        if(!$candidate) continue;
+        
+        $new_row = $row;
+        
+        // add the score
+        array_unshift($new_row, count($response->candidates) - $i);
+
+        // add name values
+        $new_row[1] = $candidate->getWfoId();
+        $new_row[2] = $candidate->getFullNameStringPlain();
+        $new_row[3] = $candidate->getWfoPath();
+        if(!$new_row[3]) $new_row[3] = $candidate->getRole();
+
+        // actually write the row.
+        fputcsv($out, $new_row);
+
+    }
+
+    // close it down
+    fclose($out);
+
 }
 
 ?>
