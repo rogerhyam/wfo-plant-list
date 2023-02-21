@@ -612,7 +612,7 @@ if(file_exists($input_file_path)){
 <p>
     Recommendation: If you have 10% unmatched names and you'd like to work on them somewhere else
     turn off interactive mode and run the matching one last time then download the candidates.csv 
-    file. It will contain the candidates for all your unmatchned names and only your unmatched names.
+    file. It will contain the candidates for all your unmatched names and only your unmatched names.
 </p>
 
 
