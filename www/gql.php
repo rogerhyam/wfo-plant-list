@@ -64,7 +64,9 @@ $schema = new Schema([
                     ]
                 ],
                 'resolve' => function($rootValue, $args, $context, $info) {
-                    return new TaxonRecord($args['nameId']);
+                    $record = new TaxonRecord($args['nameId']);
+                    if(!$record->getId() || !$record->getIsName()) return null;
+                    return $record;
                 }
             ],
             'taxonConceptById' => [
@@ -77,7 +79,9 @@ $schema = new Schema([
                     ]
                 ],
                 'resolve' => function($rootValue, $args, $context, $info) {
-                    return new TaxonRecord($args['taxonId']);
+                    $record = new TaxonRecord($args['taxonId']);
+                    if(!$record->getId() || $record->getIsName()) return null;
+                    return $record;
                 }
             ],
             'taxonNameSuggestion' => [

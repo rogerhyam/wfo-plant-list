@@ -19,18 +19,13 @@ class TaxonNameType extends ObjectType
                 return [
                     'id' => [
                         'type' => Type::string(),
-                        'description' => "A locally identifier for this Name (actually the WFO ID with year qualifier)",
+                        'description' => "A locally identifier for this Name (actually the WFO ID for the name)",
                         'resolve'=>function($record, $args, $context, $info) {return $record->getId();}
                     ],
                     'title' => [
                         'type' => Type::string(),
                         'description' => 'Needed by some GraphQL libraries this is a string rendering of he object probably only useful in development',
                         'resolve'=>function($record, $args, $context, $info) {return $record->getTitle();}
-                    ],
-                    'wfoId' => [
-                        'type' => Type::string(),
-                        'description' => "The prescribed WFO ID for this Name. There may be other deduplicated WFO IDs that shouldn't be used.",
-                        'resolve'=>function($record, $args, $context, $info) {return $record->getWfoId();}
                     ],
                     'stableUri' => [
                         'type' => Type::string(),

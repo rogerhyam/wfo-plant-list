@@ -1,30 +1,61 @@
-wfo_id,wfo_full_name,wfo_check,input_name_string
-,,1 candidates found.,Trichocereus (A. Berger) Riccob.
-,,10 candidates found.,Hesperis pendula subsp. goerzii (O. E. Schulz) F. Dvořák
-wfo-0000437108,Sempervivum brevipilum Muirhead,Code/Angiosperms/Saxifragales/Crassulaceae/Sempervivum/brevipilum,Sempervivum brevipilum Muirhead
-,,1 candidates found.,Erysimum rhaeticum (Schleich. ex Hornem.) DC.
-,,1 candidates found.,Centaurea lacerata (Hausskn.) Halácsy
-wfo-0000444337,Limonium brutium Brullo,,Limonium brutium Brullo
-wfo-0000534918,Androsace villosa  subsp. taurica (Ovcz.) Fed.,Code/Angiosperms/Ericales/Primulaceae/Androsace/villosa/taurica,Androsace villosa subsp. taurica (Ovcz.) Fed.
-wfo-0000107483,Carduus onopordioides  subsp. furiosus (Tamamsch.) Greuter,Code/Angiosperms/Asterales/Asteraceae/Carduus/onopordioides/furiosus,Carduus onopordioides subsp. furiosus (Tamamsch.) Greuter
-wfo-0000993596,Rubus vicarius Sudre,,Rubus vicarius Sudre
-,,1 candidates found.,Thymelaea coridifolia (Lam.) Endl.
-wfo-0001011079,Alchemilla polessica Tretjakov,Code/Angiosperms/Rosales/Rosaceae/Alchemilla/polessica,Alchemilla polessica Tretjakov
-wfo-0000473231,Parietaria officinalis L.,Code/Angiosperms/Rosales/Urticaceae/Parietaria/officinalis,Parietaria officinalis L.
-wfo-0000360800,Commelina rupicola Font Quer,Code/Angiosperms/Commelinales/Commelinaceae/Commelina/rupicola,Commelina rupicola Font Quer
-wfo-0000461499,Ranunculus adunans (Markl.) Ericsson,Code/Angiosperms/Ranunculales/Ranunculaceae/Ranunculus/adunans,Ranunculus adunans (Markl.) Ericsson
-wfo-0000642747,Deverra triradiata  subsp. intermedia (Chevall.) Pfisterer & Podlech,Code/Angiosperms/Apiales/Apiaceae/Deverra/triradiata/intermedia,Deverra triradiata subsp. intermedia (Chevall.) Pfisterer & Podlech
-wfo-0000727433,Hypericum bupleuroides Griseb.,Code/Angiosperms/Malpighiales/Hypericaceae/Hypericum/bupleuroides,Hypericum bupleuroides Griseb.
-wfo-0000844653,Agrostis tileni Nieto Fel. & Castrov.,Code/Angiosperms/Poales/Poaceae/Agrostis/tileni,Agrostis tileni Nieto Fel. & Castrov.
-wfo-0000894761,Polypogon viridis (Gouan) Breistr.,Code/Angiosperms/Poales/Poaceae/Polypogon/viridis,Polypogon viridis (Gouan) Breistr.
-wfo-0001345565,Erysimum apenninum Peccenini & Polatschek,Code/Angiosperms/Brassicales/Brassicaceae/Erysimum/apenninum,Erysimum apenninum Peccenini & Polatschek
-wfo-0000069337,Hieracium attractum Arv.-Touv.,Code/Angiosperms/Asterales/Asteraceae/Hieracium/attractum,Hieracium attractum Arv.-Touv.
-wfo-0000737369,Malope malacoides  subsp. stipulacea (Cav.) Maire,Code/Angiosperms/Malvales/Malvaceae/Malope/malacoides/stipulacea,Malope malacoides subsp. stipulacea (Cav.) Maire
-wfo-0000100635,Hieracium jordanii  subsp. pseudotomentosum (Nägeli & Peter) Zahn,Code/Angiosperms/Asterales/Asteraceae/Hieracium/jordanii/pseudotomentosum,Hieracium jordanii subsp. pseudotomentosum (Nägeli & Peter) Zahn
-,,1 candidates found.,Hieracium plantagineum (Arv.-Touv.) Arv.-Touv. subsp. plantagineum
-,,1 candidates found.,Bromus hordeaceus subsp. bicuspis Hohla & H. Scholz
-,,1 candidates found.,Scorzonera tuzgoluensis A. Duran & al.
-,,1 candidates found.,Taraxacum splendidum G. E. Haglund
-,,1 candidates found.,Polygala alpina subsp. somedana M. Laínz
-wfo-0001366884,Myosotis scorpioides  subsp. praecox (Hülph.) Dickoré,Code/Angiosperms/Boraginales/Boraginaceae/Myosotis/scorpioides/praecox,Myosotis scorpioides subsp. praecox (Hülph.) Dickoré
-wfo-0001217921,Peltaria aucheri Boiss.,Code/Angiosperms/Brassicales/Brassicaceae/Ricotia/aucheri$Peltaria/aucheri,Peltaria aucheri Boiss.
+Acrostemon equisetoides Klotzsch
+Acrostemon eriocephalus (Klotzsch) N.E.Br.
+Acrostemon fourcadei L.Guthrie
+Acrostemon glandulosus Rach
+Acrostemon hirsutus (Thunb.) Klotzsch
+Acrostemon incanus Klotzsch
+Acrostemon incurvus (Klotzsch) Benth.
+Acrostemon schlechteri N.E.Br.
+Acrostemon stokoei L.Guthrie
+Acrostemon thunbergii (G.Don) Alm & T.C.E.Fr.
+Acrostemon viscidus N.E.Br.
+Acrostemon xeranthemifolius (Salisb.) E.G.H.Oliv.
+Acrothamnus Quinn
+Acrothamnus colensoi (Hook.f.) Quinn
+Acrothamnus hookeri (Sond.) Quinn
+Acrothamnus maccrraei (F.Muell.) Quinn
+Acrothamnus melaleucoides (A.Cunn. ex DC.) Quinn
+Acrothamnus montanus (R.Br.) Quinn
+Acrothamnus spathaceus (Pedley) Quinn
+Acrothamnus suaveolens (Hook.f.) Quinn
+Acrotriche R.Br.
+Acrotriche affinis DC.
+Acrotriche aggregata R.Br.
+Acrotriche aristata Benth.
+Acrotriche baileyana (Domin) J.M.Powell
+Acrotriche cordata (Labill.) R.Br.
+Acrotriche depressa R.Br.
+Acrotriche divaricata R.Br.
+Acrotriche dura (Benth.) Quinn
+Acrotriche fasciculiflora (Regel) Benth.
+Acrotriche halmaturina B.R.Paterson
+Acrotriche lancifolia Hislop
+Acrotriche latifolia A.Cunn. ex DC.
+Acrotriche leucocarpa Jobson & Whiffin
+Acrotriche manglesii Sond.
+Acrotriche orbicularis Hislop
+Acrotriche ovalifolia R.Br.
+Acrotriche parviflora (Stschegl.) Hislop
+Acrotriche patula R.Br.
+Acrotriche patula Hook.f.
+Acrotriche plurilocularis Jackes
+Acrotriche prostrata F.Muell.
+Acrotriche ramiflora R.Br.
+Acrotriche ramiflora Sond.
+Acrotriche rigida B.R.Paterson
+Acrotriche serrulata R.Br.
+Acrotriche subcordata DC.
+Acrotriche var. loddigesii DC.
+Acrotriche var. oblongifolia Benth.
+Acrotriche var. ventricosa Ewart
+Actinocyclus Klotzsch
+Actinocyclus secundus (L.) Klotzsch
+Actinocyclus secundus var. elatior Lange
+Acunna Ruiz & Pav.
+Acunna dependens (G.Don) Kuntze
+Acunna dumosa (Torr. & A.Gray) Kuntze
+Acunna fasciculata (Gardner) Kuntze
+Acunna lanceolata Ruiz & Pav.
+Acunna lanceolata Cav. ex DC.
+Acunna oblonga Ruiz & Pav.
+Acunna oleifolia (Dunal) Kuntze

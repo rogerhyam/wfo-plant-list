@@ -52,7 +52,9 @@ class TaxonConceptType extends ObjectType
 
                     'hasName' => [
                         'type' => TypeRegister::taxonNameType(),
-                        'resolve' => function($record){ return $record; }, // yes the same object just in another wrapper!
+                        'resolve' => function($record){ 
+                            return $record->getName(); 
+                        }, // yes the same object just in another wrapper!
                         'description' => "The name that should be used for this taxon according to the International Code of Botanical Nomenclature"
                     ],
                     'hasSynonym' => [

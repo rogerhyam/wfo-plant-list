@@ -57,12 +57,27 @@ class TaxonRecord extends PlantList{
             // we have been given the solr doc (probably from a search)
             $this->solrDoc = $init_val;
 
+            // there is a flag to say if we are supposed to be a name
+            // or a taxon on loading.
+            if(isset($this->solrDoc->asName) && $this->solrDoc->asName){
+                // we are a name
+                $this->isName = true;
+            }else{
+                // we are a taxon
+                $this->isName = false;
+            }
+
         }else{
 
             // if we are passed an unqualified WFO (getting name) then we qualify it with the 
             // current version 
-            if(preg_match('/^wfo-[0-9]{10}$/', $init_val)) $init_val_full = $init_val . '-' . WFO_DEFAULT_VERSION;
-            else $init_val_full = $init_val;
+            if(preg_match('/^wfo-[0-9]{10}$/', $init_val)){
+                $init_val_full = $init_val . '-' . WFO_DEFAULT_VERSION;
+                $this->isName = true;
+            }else{
+                $init_val_full = $init_val;
+                $this->isName = false;
+            }
 
             // load it by id
             $solr_query_uri = SOLR_QUERY_URI . '/get?id=' . $init_val_full;
@@ -76,8 +91,8 @@ class TaxonRecord extends PlantList{
             }
 
             // if we haven't got it yet try and load it by it being a deduplicated wfo ID
+            // it will be a name
             if(!$this->solrDoc && preg_match('/^wfo-[0-9]{10}$/', $init_val)){
-
                 $query = array( 
                     'query' => "wfo_id_deduplicated_ss:$init_val",
                     'filter' => ['classification_id_s:' . WFO_DEFAULT_VERSION ],
@@ -88,16 +103,27 @@ class TaxonRecord extends PlantList{
                 }
             }
 
+
         }
 
         if(!$this->solrDoc) return; // failed to load.
 
+        // customize on if we are a name or not
+        if($this->isName || $this->solrDoc->role_s != 'accepted'){
+            $this->isName = true;
+            $this->id = $this->solrDoc->wfo_id_s;
+            $this->classificationId = null;
+            $this->stableUri = 'https://list.worldfloraonline.org/' . $this->solrDoc->wfo_id_s;
+        }else{
+            $this->isName = false;
+            $this->id = $this->solrDoc->id;
+            $this->classificationId = $this->solrDoc->classification_id_s;
+            $this->stableUri = 'https://list.worldfloraonline.org/' . $this->solrDoc->id;
+        }
+
         // initialize all the simple fields that don't need another call
         
         // common properties
-        $this->id = $this->solrDoc->id;
-        $this->classificationId = $this->solrDoc->classification_id_s;
-        
         $this->title                = $this->solrDoc->full_name_string_plain_s;
         $this->wfoId                = $this->solrDoc->wfo_id_s;
         $this->fullNameStringHtml   = $this->solrDoc->full_name_string_html_s;
@@ -128,18 +154,6 @@ class TaxonRecord extends PlantList{
         // dedupe wfo ids
         if(isset($this->solrDoc->wfo_id_deduplicated_ss)){
             $this->wfoIdsDeduplicated = $this->solrDoc->wfo_id_deduplicated_ss;
-        }
-
-        if(in_array($this->solrDoc->role_s, array('synonym', 'unplaced', 'deprecated'))){
-            // we are a name not a taxon
-            $this->isName = true;
-            $this->classificationId = null;
-            $this->stableUri = 'https://list.worldfloraonline.org/' . $this->wfoId;
-        }else{
-            // we are a taxon AND a name
-            $this->isName = false;
-            $this->classificationId = $this->solrDoc->classification_id_s;
-            $this->stableUri = 'https://list.worldfloraonline.org/' . $this->id;
         }
 
         // we have wfo path which is a useful hint for where this name might be
@@ -197,7 +211,7 @@ class TaxonRecord extends PlantList{
                 'query' => 'wfo_id_s:' . $this->getWfoId(),
                 'sort' => 'classification_id_s asc'
             );
-            $this->usages = $this->loadTaxonRecords($query);
+            $this->usages = $this->loadTaxonRecords($query, false);
         }
 
         return $this->usages;
@@ -208,13 +222,8 @@ class TaxonRecord extends PlantList{
 
         if(!$this->exists()) return null;
 
-        // are we at the current level of things?
-        if($this->solrDoc->classification_id_s == WFO_DEFAULT_VERSION){
-            $current_me = $this;
-        }else{
-            $current_me = new TaxonRecord($this->solrDoc->wfo_id_s . "-" . WFO_DEFAULT_VERSION);
-        }
-
+        $current_me = new TaxonRecord($this->solrDoc->wfo_id_s . "-" . WFO_DEFAULT_VERSION);
+        
         if(isset($current_me->solrDoc->accepted_id_s)){
             // we are a synonym - return the accepted name we belong to
             return new TaxonRecord($current_me->solrDoc->accepted_id_s);
@@ -394,12 +403,13 @@ class TaxonRecord extends PlantList{
 
     }
 
-    public function loadTaxonRecords($query){
+    public function loadTaxonRecords($query, $as_name = true){
 
         $records = array();
 
         $docs = PlantList::getSolrDocs($query);
         foreach($docs as $doc){
+            $doc->asName = $as_name;
             $records[] = new TaxonRecord($doc);
         }
 
@@ -553,6 +563,18 @@ class TaxonRecord extends PlantList{
     }
 
     /**
+     * TaxonConcepts only will return 
+     * their name
+     */
+    public function getName(){
+        if($this->isName) return null;
+
+        // the name based on the 10 digit wfo id
+        return new TaxonRecord(substr($this->id, 0, 14));
+
+    }
+
+    /**
      * Get the value of nameString
      */ 
     public function getNameString()
@@ -572,5 +594,13 @@ class TaxonRecord extends PlantList{
     public function getNomenclaturalStatus()
     {
         return $this->nomenclaturalStatus;
+    }
+
+    /**
+     * Get the value of authorsStringHtml
+     */ 
+    public function getAuthorsStringHtml()
+    {
+        return $this->authorsStringHtml;
     }
 }
