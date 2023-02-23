@@ -37,7 +37,11 @@ class TaxonConceptType extends ObjectType
                         'description' => "The ID of the classification this taxon belongs to e.g. 2022-12.",
                         'resolve'=>function($record, $args, $context, $info) {return $record->getClassificationId();}
                     ],
-                   
+                    'classification' => [
+                        'type' => TypeRegister::classificationType(),
+                        'description' => "The classification object based on the classificationId",
+                        'resolve'=>function($record, $args, $context, $info) {return $record->getClassification();}
+                    ],
                     'comment' => [
                         'type' => Type::string(),
                         'description' => "Notes and comments about this taxon",

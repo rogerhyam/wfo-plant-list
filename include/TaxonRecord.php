@@ -15,6 +15,8 @@ class TaxonRecord extends PlantList{
     private ?String $title = null;
     private ?String $wfoId = null;
     private ?String $classificationId = null;
+    private ?Classification $classification = null;
+    
     private ?String $stableUri = null;
     
     private ?String $fullNameStringHtml = null;
@@ -602,5 +604,17 @@ class TaxonRecord extends PlantList{
     public function getAuthorsStringHtml()
     {
         return $this->authorsStringHtml;
+    }
+
+    /**
+     * Get the value of classification
+     */ 
+    public function getClassification(){
+
+        if(!$this->classification){
+            $this->classification = Classification::getById($this->classificationId);
+        }
+
+        return $this->classification;
     }
 }

@@ -13,7 +13,7 @@ class Classification extends PlantList{
     public int $taxonCount;
     public int $year;
     public int $month; // as int
-    public string $guid;
+    public string $stableUri;
 
     public function __construct($classification_id, $accepted_taxon_count){
 
@@ -25,7 +25,7 @@ class Classification extends PlantList{
         $this->year = (int)$parts[0];
         $this->month = (int)$parts[1];
 
-        $this->guid = 'https//list.worldfloraonline.org/' . $classification_id;
+        $this->stableUri = 'https//list.worldfloraonline.org/' . $classification_id;
 
         // add myself to the list of loaded classifications so I'm not loaded again.
         self::$loaded[$this->id] = $this;

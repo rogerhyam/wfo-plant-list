@@ -20,7 +20,7 @@ class ClassificationType extends ObjectType
                         'type' => Type::string(),
                         'description' => "A human readable label for the classification."
                     ],
-                    'guid' => [
+                    'stableUri' => [
                         'type' => Type::string(),
                         'description' => "A globally unique identifier in the form of a URI that will resolve to data about this classification."
                     ],
