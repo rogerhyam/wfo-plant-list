@@ -45,6 +45,7 @@ class TaxonRecord extends PlantList{
     private ?TaxonRecord $currentUsage = null;
     private ?TaxonRecord $parent = null;
     private ?Array $synonyms = null;
+    private ?Array $unplacedNames = null;
     private int $childCount = -1; 
 
     private ?String $wfoPath = null;
@@ -359,6 +360,29 @@ class TaxonRecord extends PlantList{
 
     }
 
+    public function getUnplacedNames(){
+
+        if(!$this->exists()) return null;
+        if($this->isName) return null;
+        if($this->getRank() != 'genus') return null;
+        
+        if(!$this->unplacedNames){
+
+            $query = array(
+                'query' => 'genus_string_s:' . $this->solrDoc->name_string_s,
+                'filter' => 'role_s:unplaced',
+                'limit' => 1000000,
+                'sort' => 'full_name_string_plain_s asc'
+            );
+
+            $this->unplacedNames = $this->loadTaxonRecords($query);
+
+        }
+
+        return $this->unplacedNames;
+
+    }
+
 
     public function getNomenclaturalReferences(){
         if(!$this->exists()) return null;
@@ -617,4 +641,75 @@ class TaxonRecord extends PlantList{
 
         return $this->classification;
     }
+
+    public function getStats(){
+
+        // no stats for names
+        if($this->isName) return null;
+
+        // return value
+        $stats = array();
+
+        $query = array(
+            'query' => 'name_descendent_path:' . $this->solrDoc->name_descendent_path, 
+            'filter' => 'classification_id_s:' . $this->solrDoc->classification_id_s,
+            'facet' => array(
+                "role" => array(
+                    "type" => "terms",
+                    "field" => "role_s",
+                    'limit' => 10,
+                    'facet' => array(
+                        "rank" => array(
+                            "type" => "terms",
+                            "field" => "rank_s",
+                            'limit' => 100
+                        )
+                    )
+                ),
+                "rank" => array(
+                    "type" => "terms",
+                    "field" => "rank_s",
+                    'limit' => 100,
+                    'facet' => array(
+                        "role" => array(
+                            "type" => "terms",
+                            "field" => "role_s",
+                            'limit' => 10
+                        )
+                    )
+                ),
+            ),
+            'limit' => 0
+        );
+
+        // if we are a genus then we include unplaced names
+        if($this->solrDoc->rank_s == 'genus'){
+            $query['query'] .= " OR (genus_string_s:{$this->solrDoc->name_string_s} AND role_s:unplaced) ";
+        }
+
+        $response = PlantList::getSolrResponse($query);
+
+        if(isset($response->facets)){
+
+            foreach($response->facets as $upper_facet_name => $upper_facet){
+                if($upper_facet_name == 'count') continue; 
+                foreach ($upper_facet->buckets as $upper_bucket) {
+                    $stats[] = new TaxonConceptStat($upper_facet_name ."-". $upper_bucket->val, "Total names with $upper_facet_name:'{$upper_bucket->val}'", $upper_bucket->count);
+                    foreach($upper_bucket as $lower_facet_name => $lower_facet){
+                        if($lower_facet_name == 'val') continue; 
+                        if($lower_facet_name == 'count') continue;
+                        foreach($lower_facet->buckets as $lower_bucket){
+                            $stats[] = new TaxonConceptStat($upper_facet_name ."-". $upper_bucket->val ."-". $lower_facet_name ."-". $lower_bucket->val, "Total names with $upper_facet_name:'{$upper_bucket->val}' and $lower_facet_name:'{$lower_bucket->val}'", $lower_bucket->count);    
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return $stats;
+    }
+
+
+
 }

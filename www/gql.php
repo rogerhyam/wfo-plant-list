@@ -19,6 +19,7 @@ require_once('../include/Classification.php');
 require_once('../include/TypeRegister.php');
 require_once('../include/TaxonRecord.php');
 require_once('../include/NameMatcher.php');
+require_once('../include/TaxonConceptStat.php');
 
 
 $typeReg = new TypeRegister();

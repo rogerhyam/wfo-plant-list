@@ -68,6 +68,11 @@ class TaxonConceptType extends ObjectType
                         This includes homotypic (nomenclatural) synonyms which share the same type specimen as the accepted name 
                         and heterotypic (taxonomic) synonyms whose type specimens are considered to fall within the circumscription of this taxon."
                     ],
+                    'hasUnplacedNames' => [
+                        'type' => Type::listOf(TypeRegister::taxonNameType()),
+                        'resolve' => function($taxon){return $taxon->getUnplacedNames(); },
+                        'description' => "Names with this genus name that haven't been placed in the taxonomy yet. Only applicable to genera. Returns null for other ranks."
+                    ],
                     'isPartOf' => [
                         'type' => TypeRegister::taxonConceptType(),
                         'resolve' => function($record){return $record->getParent();},
@@ -119,6 +124,13 @@ class TaxonConceptType extends ObjectType
                         'resolve' => function($taxon){return $taxon->getReplacedBy();},
                         'description' => "The nearest equivalent taxon in the next published classification."
                     ],
+                    'stats' => [
+                        'type' => Type::listOf(TypeRegister::taxonConceptStatType()),
+                        'resolve' => function($taxon){
+                            return $taxon->getStats();
+                        },
+                        'description' => "A selection of statistics that can be gleaned from the index."
+                    ]
 
                 ];
             }
