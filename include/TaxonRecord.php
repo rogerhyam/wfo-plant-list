@@ -315,7 +315,7 @@ class TaxonRecord extends PlantList{
             $query['limit'] = $limit;
         }
 
-        return $this->loadTaxonRecords($query);
+        return $this->loadTaxonRecords($query, false);
 
     }
 
