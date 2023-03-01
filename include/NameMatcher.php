@@ -172,7 +172,7 @@ class NameMatcher extends PlantList{
         $response->parsedName->canonical_form = implode(' ', $canonical_parts);
 
         // all the rest of the parts are the authors string
-        $response->parsedName->author_string = implode(' ', array_slice($parts, $final_word_part +1));
+        $response->parsedName->author_string = trim(implode(' ', array_slice($parts, $final_word_part +1)));
 
         $response->narrative[] = "Parsed name complete.";
 
@@ -194,7 +194,6 @@ class NameMatcher extends PlantList{
         $response->narrative[] = "Searched index of " . WFO_DEFAULT_VERSION ." for canonical form of name '{$response->parsedName->canonical_form}' and found " . count($docs) . " candidates.";
         
         // rather than do convoluted logic we do it step wise.
-
 
         // they are all candidates
         foreach($docs as $doc){
@@ -222,6 +221,13 @@ class NameMatcher extends PlantList{
                     $response->narrative[] = "Found candidate ({$candidate->getWfoId()}) with matching author string so it becomes the match.";
                 }
             }
+        }
+
+        // if we have a single candidate and the input name doesn't have 
+        // an authorstring then we assume that it is a match 
+        if(count($response->candidates) == 1 && strlen($response->parsedName->author_string) == 0){
+            $response->match = $response->candidates[0];
+            $response->narrative[] = "Only one candidate found ({$candidate->getWfoId()}) and no author string supplied so name becomes match.";
         }
 
         // they care about ranks so remove the match if the ranks don't match
