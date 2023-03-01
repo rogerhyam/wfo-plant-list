@@ -647,6 +647,9 @@ class TaxonRecord extends PlantList{
         // no stats for names
         if($this->isName) return null;
 
+        // no stats for taxa without paths
+        if(!isset($this->solrDoc->name_descendent_path)) return null;
+
         // return value
         $stats = array();
 
