@@ -112,7 +112,7 @@ class TaxonRecord extends PlantList{
         if(!$this->solrDoc) return; // failed to load.
 
         // customize on if we are a name or not
-        if($this->isName || $this->solrDoc->role_s != 'accepted'){
+        if($this->isName){
             $this->isName = true;
             $this->id = $this->solrDoc->wfo_id_s;
             $this->classificationId = null;

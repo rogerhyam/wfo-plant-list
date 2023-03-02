@@ -197,6 +197,7 @@ class NameMatcher extends PlantList{
 
         // they are all candidates
         foreach($docs as $doc){
+            $doc->asName = true;
             $response->candidates[] = new TaxonRecord($doc);
         }
 
@@ -256,6 +257,7 @@ class NameMatcher extends PlantList{
 
             $docs = PlantList::getSolrDocs($query);
             foreach($docs as $doc){
+                $doc->asName = true;
                 $response->candidates[] = new TaxonRecord($doc);
             }
 
@@ -292,9 +294,11 @@ class NameMatcher extends PlantList{
         $docs  = $this->getSolrDocs($query);
 
         if(count($docs) == 1){
+            $doc[0]->asName = true;
             $response->match = new TaxonRecord($docs[0]);
         }else{
             foreach ($docs as $doc) {
+                $doc->asName = true;
                 $response->candidates[] = new TaxonRecord($doc);
             }
         }
