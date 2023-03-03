@@ -589,6 +589,17 @@ class TaxonRecord extends PlantList{
     }
 
     /**
+     * Get the value of fullNameStringNoAuthorsHtml
+     */ 
+    public function getFullNameStringNoAuthorsHtml()
+    {
+        // this one doesn't exist in the index so we 
+        // create it for completeness
+        return trim(preg_replace('/<span\s*class="wfo-name-authors"\s*>.+<\/span>/', '', $this->fullNameStringHtml));
+    }
+
+
+    /**
      * TaxonConcepts only will return 
      * their name
      */

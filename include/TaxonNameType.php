@@ -52,6 +52,12 @@ class TaxonNameType extends ObjectType
                         'description' => "The representation of the name without HTML tags or authors.",
                         'resolve'=>function($record, $args, $context, $info) {return $record->getFullNameStringNoAuthorsPlain();}
                     ],
+                    'fullNameStringNoAuthorsHtml' => [
+                        'type' => Type::string(),
+                        'description' => "The representation of the name without authors but with HTML tags.",
+                        'resolve'=>function($record, $args, $context, $info) {return $record->getFullNameStringNoAuthorsHtml();}
+                    ],
+
                     'nameString' => [
                         'type' => Type::string(),
                         'description' => "One of the three words of the name. The main word for this name and is always present. For genus and above it is the 'mononomial'. For species it is the specific epithet. ",
