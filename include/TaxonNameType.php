@@ -142,33 +142,13 @@ class TaxonNameType extends ObjectType
                         },
                         'description' => 'The TaxonConcept to which this TaxonName is assigned 
                         (either as the accepted name or a synonym) in the currently preferred (most recent) version of the WFO classification.'
-                    ]
-
-/*
-    private ?TaxonRecord $currentUsage = null;
-    private ?TaxonRecord $parent = null;
-    private ?Array $children = null;
-    private ?Array $synonyms = null;
-
-                    'acceptedNameFor' => [
-                        'type' => Type::listOf(TypeRegister::taxonConceptType()),
-                        'resolve' => function($name){
-                            return $name->getAcceptedNamesFor();
-                        },
-                        'description' => 'The TaxonConcept for which this is the accepted name. A value of null means this name is currently considered a synonym and the 
-                        currentPreferredUsage will return the TaxonConcept in which this is considered a'
-
                     ],
-
-
-                    'currentPreferredUsageIsSynonym' =>[
-                        'type' => Type::boolean(),
-                        'description' => "Whether this name is a synonym in the currently preferred (most recent) WFO classification.
-                            This is a convenience flag. It is the equivalent of currentPreferredUsage>hasName>guid != guid. That is, the negation of does the preferred placement in
-                            this classification have this name as its accepted name.
-                        "
+                    'hasAssociatedGenusName' => [
+                        'type' => Type::listOf(TypeRegister::taxonNameType()),
+                        'resolve' => function($name){return $name->getAssociatedGenusNames(); },
+                        'description' => "For unplaced names only. Will return list of genera who's names are the same as the genus string of this name. Otherwise null"
                     ]
-*/
+
                     ];
             }
         ];

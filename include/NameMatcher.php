@@ -294,7 +294,7 @@ class NameMatcher extends PlantList{
         $docs  = $this->getSolrDocs($query);
 
         if(count($docs) == 1){
-            $doc[0]->asName = true;
+            $docs[0]->asName = true;
             $response->match = new TaxonRecord($docs[0]);
         }else{
             foreach ($docs as $doc) {

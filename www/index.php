@@ -42,7 +42,8 @@ require_once('header.php');
     <li><a href="matching.php"/>Matching Tool</a>: A form based online tool to match lists of names either cut and pasted into a form or uploaded as a CSV file.</li>
     <li><a href="matching_rest.php"/>Matching API</a>: A simple REST API to match name strings. This is a subset of what is available through the GraphQL interface.</li>
     <li><a href="reconcile_index.php"/>Reconciliation API</a>: An implementation of the <a href="https://reconciliation-api.github.io/specs/latest/">W3C Reconciliation Service API</a> for use in <a href="https://openrefine.org/">OpenRefine</a> and other tools.</li>
- </ul>
+    <li><a href="browser.php"/>Browser</a>: A simple text based tool for exploring the data in the index.</li>
+</ul>
 
 <p>
     For our purposes, matching/reconciling is the process or binding your data to a WFO Name record (represented by a WFO ID) on the basis of a string of characters you supply.

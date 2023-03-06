@@ -124,4 +124,25 @@ class PlantList{
 
     }
 
+    public static function getLatestClassificationId(){
+
+            $query = array(
+                'query' => '*:*',
+                'facet' => array(
+                    'classifications' => array(
+                        "type" => "terms",
+                        "field" => "classification_id_s",
+                        'limit' => 100
+                )
+                ),
+                'limit' => '0'
+
+            );
+            
+            $response = PlantList::getSolrResponse($query);
+
+            return $response->facets->classifications->buckets[0]->val;
+
+    }
+
 }

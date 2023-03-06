@@ -106,13 +106,12 @@ class TaxonRecord extends PlantList{
                 }
             }
 
-
         }
 
         if(!$this->solrDoc) return; // failed to load.
 
         // customize on if we are a name or not
-        if($this->isName){
+        if($this->isName ){
             $this->isName = true;
             $this->id = $this->solrDoc->wfo_id_s;
             $this->classificationId = null;
@@ -370,7 +369,7 @@ class TaxonRecord extends PlantList{
 
             $query = array(
                 'query' => 'genus_string_s:' . $this->solrDoc->name_string_s,
-                'filter' => 'role_s:unplaced',
+                'filter' => array('role_s:unplaced', 'classification_id_s:' . $this->solrDoc->classification_id_s),
                 'limit' => 1000000,
                 'sort' => 'full_name_string_plain_s asc'
             );
@@ -443,6 +442,34 @@ class TaxonRecord extends PlantList{
 
     }
 
+    /**
+     * Just for names that are unplaced
+     * returns a list of names with the same genus
+     * 
+     */
+    public function getAssociatedGenusNames(){
+
+        if($this->getRole() != 'unplaced') return null;
+
+        $results = array();
+
+        $query = array(
+            'query' => 'name_string_s:' . $this->getGenusString(),
+            'filter' => array("classification_id_s:" . WFO_DEFAULT_VERSION, "rank_s:genus"),
+            'limit' => 1000000,
+            'sort' => 'full_name_string_plain_s asc'
+        );
+
+        $docs = PlantList::getSolrDocs($query);
+
+        foreach($docs as $doc){
+            $doc->asName = true;
+            $results[] = new TaxonRecord($doc);
+        }
+        
+        return $results;
+
+    }
 
     /**
      * Get the value of id
@@ -595,7 +622,10 @@ class TaxonRecord extends PlantList{
     {
         // this one doesn't exist in the index so we 
         // create it for completeness
-        return trim(preg_replace('/<span\s*class="wfo-name-authors"\s*>.+<\/span>/', '', $this->fullNameStringHtml));
+        $new_name = preg_replace('/<span\s*class="wfo-name-authors"\s*>.+<\/span>/', '', $this->fullNameStringHtml);
+        $new_name = preg_replace('/<span\s*class="wfo-list-authors"\s*>.+<\/span>/', '', $new_name); // two ways to encode. prat!
+        return trim($new_name);
+
     }
 
 

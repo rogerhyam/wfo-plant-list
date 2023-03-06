@@ -57,5 +57,7 @@
         <a href="matching_rest.php">Matching API</a>
         |
         <a href="reconcile_index.php">Reconciliation API</a>
+        |
+        <a href="browser.php">Browser</a>
     </div>
 <!-- end header.php -->
