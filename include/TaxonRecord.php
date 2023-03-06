@@ -312,6 +312,8 @@ class TaxonRecord extends PlantList{
         // -1 is unlimited but in Solr you just miss the parameter 
         if($limit >= 0){
             $query['limit'] = $limit;
+        }else{
+            $query['limit'] = 10000;
         }
 
         return $this->loadTaxonRecords($query, false);
