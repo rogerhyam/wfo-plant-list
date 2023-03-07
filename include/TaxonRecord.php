@@ -452,6 +452,7 @@ class TaxonRecord extends PlantList{
     public function getAssociatedGenusNames(){
 
         if($this->getRole() != 'unplaced') return null;
+        if(!$this->getGenusString()) return null;
 
         $results = array();
 
@@ -460,7 +461,7 @@ class TaxonRecord extends PlantList{
             'filter' => array("classification_id_s:" . WFO_DEFAULT_VERSION, "rank_s:genus"),
             'limit' => 1000000,
             'sort' => 'full_name_string_plain_s asc'
-        );
+        ); 
 
         $docs = PlantList::getSolrDocs($query);
 
