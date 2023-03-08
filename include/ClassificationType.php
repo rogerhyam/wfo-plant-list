@@ -53,10 +53,7 @@ class ClassificationType extends ObjectType
                     'taxonCount' => [
                         'type' => Type::int(),
                         'description' => "The total number of accepted taxa (TaxonConcepts) in this classification"
-                    ]
-                    /*
-                    , 
-                    FIXME - when taxon concept is implemented
+                    ],
                     'phyla' => [
                         'type' => Type::listOf(TypeRegister::taxonConceptType()),
                         'resolve' => function($classification){
@@ -65,7 +62,6 @@ class ClassificationType extends ObjectType
                         },
                         'description' => "The top level taxa in this classification at the rank of Phylum. Earlier classifications weren't joined up to phylum level so this may be blank for them."
                     ]
-                    */
                 ];
             }
         ];
