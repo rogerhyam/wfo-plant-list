@@ -114,13 +114,14 @@ class Classification extends PlantList{
         );
         $docs = PlantList::getSolrDocs($query);
 
+
         $phyla = array();
 
         // error_log(print_r($response->response->docs, true));
         if($docs){
             
             foreach ($docs as $doc) {
-                $phyla[] = TaxonConcept::getById($doc->id);
+                $phyla[] = new TaxonRecord($doc->id);
             }
         }
 
