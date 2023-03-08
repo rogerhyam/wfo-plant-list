@@ -105,6 +105,7 @@ class Classification extends PlantList{
         $query = array(
             'query' => '*:*',
             'filter' => array(
+                "role_s:accepted OR unplaced",
                 "classification_id_s:{$this->id}",
                 "rank_s:phylum"
             ),
