@@ -105,7 +105,6 @@ class Classification extends PlantList{
         $query = array(
             'query' => '*:*',
             'filter' => array(
-                "role_s:accepted",
                 "classification_id_s:{$this->id}",
                 "rank_s:phylum"
             ),
@@ -121,6 +120,7 @@ class Classification extends PlantList{
         if($docs){
             
             foreach ($docs as $doc) {
+
                 $phyla[] = new TaxonRecord($doc->id);
             }
         }
