@@ -145,7 +145,10 @@ class TaxonRecord extends PlantList{
 
         // identifiers other
         if(isset($this->solrDoc->identifiers_other_kind_ss)){
-            for ($i=0; $i < count($this->solrDoc->identifiers_other_kind_ss); $i++) { 
+            // had index glitches where kinds and values have been different numbers
+            // so this hack but shouldn't happen.
+            $lowest = min(count($this->solrDoc->identifiers_other_kind_ss), count($this->solrDoc->identifiers_other_value_ss));
+            for ($i=0; $i < $lowest; $i++) { 
                 $identifier = array();
                 $identifier['kind'] = $this->solrDoc->identifiers_other_kind_ss[$i];
                 $identifier['value'] = $this->solrDoc->identifiers_other_value_ss[$i];
