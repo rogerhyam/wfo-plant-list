@@ -83,6 +83,11 @@ class TaxonConceptType extends ObjectType
                         'resolve' => function($record){return $record->getPath();},
                         'description' => "The path of inclusion from the root taxon to this taxon. Good for bread crumb trails."
                     ],
+                    'pathString' => [
+                        'type' => Type::string(),
+                        'resolve' => function($record){return $record->getWfoPath();},
+                        'description' => "The path of inclusion as a string of taxon names, kinda like a file path"
+                    ],
                     'hasPart' => [
                         'type' => Type::listOf(TypeRegister::taxonConceptType()),
                         'resolve' => function($record, $args, $context, $info){
