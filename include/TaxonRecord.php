@@ -808,19 +808,21 @@ class TaxonRecord extends PlantList{
             $stats[] = new TaxonConceptStat("role-unplaced", "Total names with role:'unplaced'", $response->facets->count);
 
             // put the facets in
-            foreach ($response->facets->rank->buckets as $bucket) {
-
-                // increase the totals for the existing rank count
-                for ($i=0; $i < count($stats); $i++) { 
-                    if($stats[$i]->id == 'rank-' . $bucket->val){
-                        $stats[$i]->value += $bucket->count;
+            if(isset($response->facets->rank)){
+                    foreach ($response->facets->rank->buckets as $bucket) {
+                        // increase the totals for the existing rank count
+                        for ($i=0; $i < count($stats); $i++) { 
+                            if($stats[$i]->id == 'rank-' . $bucket->val){
+                                $stats[$i]->value += $bucket->count;
+                            }
+                        }
+                
+                        // add in our own stats for this bucket
+                        $stats[] = new TaxonConceptStat("role-unplaced-rank-{$bucket->val}", "Total names with role:'unplaced' and rank '{$bucket->val}'", $bucket->count);
+                        $stats[] = new TaxonConceptStat("rank-{$bucket->val}-role-unplaced", "Total names with rank '{$bucket->val}' and role'unplaced'", $bucket->count);
                     }
-                }
-        
-                // add in our own stats for this bucket
-                $stats[] = new TaxonConceptStat("role-unplaced-rank-{$bucket->val}", "Total names with role:'unplaced' and rank '{$bucket->val}'", $bucket->count);
-                $stats[] = new TaxonConceptStat("rank-{$bucket->val}-role-unplaced", "Total names with rank '{$bucket->val}' and role'unplaced'", $bucket->count);
             }
+            
             
            // error_log(print_r($response->facets, true));
 
