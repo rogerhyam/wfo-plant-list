@@ -279,7 +279,7 @@ class NameMatcher extends PlantList{
             return $response;
         }
 
-        $name = trim(strtolower($response->searchString));
+        $name = trim($response->searchString);
         $name = ucfirst($name); // all names start with an upper case letter
         $name = str_replace(' ', '\ ', $name);
         $name = $name . "*";
