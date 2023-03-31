@@ -691,6 +691,8 @@ class TaxonRecord extends PlantList{
 
     public function getStats(){
 
+        global $ranks_table;
+
         // no stats for names
         if($this->isName) return null;
 
@@ -756,6 +758,81 @@ class TaxonRecord extends PlantList{
             }
 
         }
+
+        // if we are above the level of genus then we include unplaced names within ranks
+        // we need to do a pseudo join for this
+        $genus_level = array_search('genus', array_keys($ranks_table));
+        $family_level = array_search('family', array_keys($ranks_table));
+        $our_level =  array_search($this->getRank(), array_keys($ranks_table));
+
+        if($our_level < $genus_level && $our_level >= $family_level){
+
+            // get a list of the genera below our level
+            $query = array(
+                'query' => 'name_descendent_path:' . $this->solrDoc->name_descendent_path,
+                'limit' => 1000,
+                'filter' => array(
+                    'classification_id_s:' . $this->solrDoc->classification_id_s,
+                    'rank_s:genus'
+                ),
+                'fields' => 'name_string_s'
+            );
+
+            $response = PlantList::getSolrResponse($query);
+            $genus_names = array();
+            foreach ($response->response->docs as $doc){
+                $genus_names[] = trim($doc->name_string_s);
+            }
+            $genus_names = '(' . implode(' OR ', $genus_names) . ')';
+
+            // look for unplaced names with those genera
+            $query = array(
+                'query' => 'genus_string_s:' . $genus_names,
+                'limit' => 1000,
+                'filter' => array(
+                    'classification_id_s:' . $this->solrDoc->classification_id_s,
+                    'role_s:unplaced'
+                ),
+                'facet' => array(
+                    "rank" => array(
+                        "type" => "terms",
+                        "field" => "rank_s",
+                        'limit' => 100,
+                    )
+                ),
+                'limit' => 0
+            );
+            $response = PlantList::getSolrResponse($query);
+
+            // put int he total;
+            $stats[] = new TaxonConceptStat("role-unplaced", "Total names with role:'unplaced'", $response->facets->count);
+
+            // put the facets in
+            if(isset($response->facets->rank)){
+                    foreach ($response->facets->rank->buckets as $bucket) {
+                        // increase the totals for the existing rank count
+                        for ($i=0; $i < count($stats); $i++) { 
+                            if($stats[$i]->id == 'rank-' . $bucket->val){
+                                $stats[$i]->value += $bucket->count;
+                            }
+                        }
+                
+                        // add in our own stats for this bucket
+                        $stats[] = new TaxonConceptStat("role-unplaced-rank-{$bucket->val}", "Total names with role:'unplaced' and rank '{$bucket->val}'", $bucket->count);
+                        $stats[] = new TaxonConceptStat("rank-{$bucket->val}-role-unplaced", "Total names with rank '{$bucket->val}' and role'unplaced'", $bucket->count);
+                    }
+            }
+            
+            
+           // error_log(print_r($response->facets, true));
+
+
+
+
+        }
+
+
+
 
         return $stats;
     }
