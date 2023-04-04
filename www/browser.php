@@ -117,7 +117,7 @@ if(@$_GET['terms']){
         if($results){
             echo "<ul>";
             foreach($results as $found){
-                echo "<li>";
+                echo "<li id=\"{$found->getWfoId()}\">";
                 echo render_name_link($found, $classification_id_latest);
                 echo "</li>";
             }
