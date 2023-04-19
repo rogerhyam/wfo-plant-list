@@ -97,13 +97,16 @@ $schema = new Schema([
                             'type' => Type::int(),
                             'description' => 'Maximum number of results to return.',
                             'defaultValue' => 100
+                        ],
+                        'excludeDeprecated' => [
+                            'type' => Type::boolean(),
+                            'description' => 'Exclude names that have the role deprecated.',
+                            'defaultValue' => true
                         ]
                     ],
                 'resolve' => function($rootValue, $args, $context, $info) {
-
-                        $matcher = new NameMatcher((object)array('limit' => $args['limit'], 'method' => 'alpha'));
+                        $matcher = new NameMatcher((object)array('limit' => $args['limit'], 'method' => 'alpha', 'excludeDeprecated' => $args['excludeDeprecated']));
                         $response = $matcher->match($args['termsString']);
-
                         if($response->match){
                             return array($response->match); // we have a perfect match
                         }else{
