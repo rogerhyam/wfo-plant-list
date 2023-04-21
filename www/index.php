@@ -96,7 +96,7 @@ require_once('header.php');
 <p>
     With each data release a new set of IDs are created that are of the form <code>wfo-0000615907-2022-12</code>. 
     For each name the year and month of the data release are appended. 
-    A regular expression similar to <code>'/^wfo-[0-9]{10}-[0-9]{10}-[4]{2}$/'</code> will match a versioned WFO ID (depending on your precise regex implementation). 
+    A regular expression similar to <code>'/^wfo-[0-9]{10}-[0-9]{4}-[0-9]{2}$/'</code> will match a versioned WFO ID (depending on your precise regex implementation). 
 </p>
 
 <p>
