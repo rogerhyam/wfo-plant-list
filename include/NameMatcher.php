@@ -284,9 +284,15 @@ class NameMatcher extends PlantList{
         $name = str_replace(' ', '\ ', $name);
         $name = $name . "*";
 
+        $filters = array();
+        $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
+        if($this->params->excludeDeprecated){
+            $filters[] = '-role_s:deprecated'; 
+        }
+
         $query = array(
             'query' => "full_name_string_alpha_s:$name",
-            'filter' => 'classification_id_s:' . $this->params->classificationVersion,
+            'filter' => $filters,
             'sort' => 'full_name_string_alpha_t_sort asc',
             'limit' => $this->params->limit
         );
