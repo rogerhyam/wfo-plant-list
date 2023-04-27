@@ -123,6 +123,7 @@ if(!$graph){
     exit;
 }
 
+$serialiserClass  = $formats[$format_string]->getSerialiserClass();
 $serialiser = new $serialiserClass();
     
 // if we are using GraphViz then we add some parameters 
