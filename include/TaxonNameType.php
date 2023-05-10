@@ -11,11 +11,13 @@ class TaxonNameType extends ObjectType
 {
     public function __construct()
     {
+
         $config = [
             'description' => "A TaxonName a string of characters used to name a taxon under as governed by the 
                 International Code of Botanical Nomenclature (ICBN) https://www.iapt-taxon.org/nomen/main.php.
                 TaxonNames may appear as the single correct name for a taxon or as one of the synonyms for that taxon.",
             'fields' => function(){
+                global $ranks_table;
                 return [
                     'id' => [
                         'type' => Type::string(),
@@ -103,9 +105,10 @@ class TaxonNameType extends ObjectType
                             'description' => 'Used for the relative position of the taxon with this name in the taxonomic hierarchy at time of publication.
                                 For suprageneric names published on or after 1 January 1887, the rank is indicated by the termination of the name.
                                 For names published on or after 1 January 1953, a clear indication of the rank is required for valid publication.',
-                            'values' => ["code","kingdom","phylum","class","subclass","superorder","order","suborder","family","subfamily","supertribe","tribe","subtribe","genus","subgenus","section","subsection","series","subseries","species","subspecies","prole","variety","subvariety","form","subform","unranked"]
+                                'values' => array_keys($ranks_table)
                         ]),
-                        "description" => "The name of the level within the classification at which this name was published.",
+                        "description" => "The name of the level within the classification at which this name was published. This represents the rank as a simple string which is the most common usage.
+                        Details of all the ranks in the system can be retrieved with the top level 'ranks' query. The name returned here maps to the ID of a rank object returned by the 'ranks' query.",
                         'resolve'=>function($record, $args, $context, $info) {return $record->getRank();}
                     ],
                     'comment' => [

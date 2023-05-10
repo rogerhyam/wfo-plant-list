@@ -7,6 +7,7 @@ require_once('../include/IdentifierType.php');
 require_once('../include/ReferenceType.php');
 require_once('../include/NameMatchResponseType.php');
 require_once('../include/TaxonConceptStatType.php');
+require_once('../include/RankObjectType.php');
 
 /*
 
@@ -23,6 +24,7 @@ class TypeRegister {
     private static $referenceType;
     private static $nameMatchResponseType;
     private static $taxonConceptStatType;
+    private static $rankObjectType;
 
     public static function classificationType(){
         return self::$classificationType ?: (self::$classificationType = new ClassificationType());
@@ -49,6 +51,10 @@ class TypeRegister {
 
     public static function taxonConceptStatType(){
         return self::$taxonConceptStatType ?: (self::$taxonConceptStatType = new TaxonConceptStatType());
+    }
+
+    public static function rankObjectType(){
+        return self::$rankObjectType ?: (self::$rankObjectType = new RankObjectType());
     }
 
 }

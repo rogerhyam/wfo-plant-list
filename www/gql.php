@@ -20,6 +20,7 @@ require_once('../include/TypeRegister.php');
 require_once('../include/TaxonRecord.php');
 require_once('../include/NameMatcher.php');
 require_once('../include/TaxonConceptStat.php');
+require_once('../include/RankObject.php');
 
 
 $typeReg = new TypeRegister();
@@ -141,7 +142,20 @@ $schema = new Schema([
                         return $matcher->match($args['inputString']);
 
                     }
-            ] // taxonNameSuggestion
+                ], // taxonNameMatch
+
+            'ranks' => [
+                'type' => Type::listOf(TypeRegister::rankObjectType()),
+                'description' => 'Return a list of all the ranks as objects.',
+                'resolve' => function() {
+                    global $ranks_table;
+                    $ranks = array();
+                    foreach(array_keys($ranks_table) as $rank_name){
+                        $ranks[] = RankObject::getRank($rank_name);
+                    }
+                    return $ranks;
+                }
+            ] // ranks
 
    
         ]// fields
