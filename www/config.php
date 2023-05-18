@@ -195,7 +195,7 @@ $ranks_table = array(
     "children" => array(), // permissible ranks for child taxa
     "abbreviation" => "prol.", // official abbreviation
     "plural" => "Proles",
-    "aka" => array("race") // alternative representations for import
+    "aka" => array("race", "proles") // alternative representations for import
   ),
 
   "variety" => array(
