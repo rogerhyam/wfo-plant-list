@@ -265,8 +265,11 @@ class NameMatcher extends PlantList{
 
             // do we only have one?
             if(count($response->candidates) == 1){
+                $response->narrative[] = "A single genus candidate found so it becomes the match.";
                 $response->match = $response->candidates[0];
                 $response->candidates = array();
+            }else{
+                $response->narrative[] = count($response->candidates) . " genus candidates found so no match.";
             }
 
         }
