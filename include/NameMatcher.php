@@ -244,13 +244,39 @@ class NameMatcher extends PlantList{
             $response->narrative[] = "Homonyms (same name different authors) are considered OK and we have a match so removing candidates.";
         }
 
+        // if we haven't found anything but they would be happy with a genus
+        if(!$response->match && !$response->candidates && @$this->params->fallbackToGenus && count($canonical_parts) > 0){
+            
+            $response->narrative[] = "No candidates found but fallbackToGenus is true so looking for genus.";
+            $query = array(
+                'query' => "name_string_s:" . $canonical_parts[0],
+                'filter' => array(
+                    'classification_id_s:' . $this->params->classificationVersion,
+                    'rank_s:genus',
+                ),
+                'limit' => $this->params->limit
+            );
+
+            $docs = PlantList::getSolrDocs($query);
+            foreach($docs as $doc){
+                $doc->asName = true;
+                $response->candidates[] = new TaxonRecord($doc);
+            }
+
+            // do we only have one?
+            if(count($response->candidates) == 1){
+                $response->match = $response->candidates[0];
+                $response->candidates = array();
+            }
+
+        }
+
         // Have we got anything?
         if(!$response->match && !$response->candidates){
 
             $response->narrative[] = "No candidates found so moving to relevance searching.";
-
             $query = array(
-                'query' => "_text_:$$response->searchString",
+                'query' => "_text_:$response->searchString",
                 'filter' => 'classification_id_s:' . $this->params->classificationVersion,
                 'limit' => $this->params->limit
             );
