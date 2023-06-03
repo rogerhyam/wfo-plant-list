@@ -245,19 +245,22 @@ class NameMatcher extends PlantList{
         }
 
         // if we haven't found anything but they would be happy with a genus
-        if(!$response->match && !$response->candidates && @$this->params->fallbackToGenus && count($canonical_parts) > 0){
+        if(!$response->match && @$this->params->fallbackToGenus && count($canonical_parts) > 0){
             
-            $response->narrative[] = "No candidates found but fallbackToGenus is true so looking for genus.";
+            $response->narrative[] = "No match was found but fallbackToGenus is true so looking for genus.";
+            
+            $filters = array();
+            $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
+            $filters[] = 'rank_s:genus';
+            
             $query = array(
                 'query' => "name_string_s:" . $canonical_parts[0],
-                'filter' => array(
-                    'classification_id_s:' . $this->params->classificationVersion,
-                    'rank_s:genus',
-                ),
+                'filter' => $filters,
                 'limit' => $this->params->limit
             );
 
             $docs = PlantList::getSolrDocs($query);
+            $response->candidates = array(); // scrub existing candidates
             foreach($docs as $doc){
                 $doc->asName = true;
                 $response->candidates[] = new TaxonRecord($doc);
@@ -278,6 +281,7 @@ class NameMatcher extends PlantList{
         if(!$response->match && !$response->candidates){
 
             $response->narrative[] = "No candidates found so moving to relevance searching.";
+
             $query = array(
                 'query' => "_text_:$response->searchString",
                 'filter' => 'classification_id_s:' . $this->params->classificationVersion,
