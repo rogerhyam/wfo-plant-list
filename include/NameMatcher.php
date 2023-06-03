@@ -252,6 +252,7 @@ class NameMatcher extends PlantList{
             $filters = array();
             $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
             $filters[] = 'rank_s:genus';
+            $filters[] = '-role_s:deprecated';
             
             $query = array(
                 'query' => "name_string_s:" . $canonical_parts[0],
