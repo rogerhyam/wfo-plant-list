@@ -345,13 +345,47 @@ class NameMatcher extends PlantList{
             $response->narrative[] = "Homonyms (same name different authors) are considered OK and we have a match so removing candidates.";
         }
 
+        // if we haven't found anything but they would be happy with a genus
+        if(!$response->match && @$this->params->fallbackToGenus && count($canonical_parts) > 0){
+            
+            $response->narrative[] = "No match was found but fallbackToGenus is true so looking for genus.";
+            
+            $filters = array();
+            $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
+            $filters[] = 'rank_s:genus';
+            $filters[] = '-role_s:deprecated';
+            
+            $query = array(
+                'query' => "name_string_s:" . $canonical_parts[0],
+                'filter' => $filters,
+                'limit' => $this->params->limit
+            );
+
+            $docs = PlantList::getSolrDocs($query);
+            $response->candidates = array(); // scrub existing candidates
+            foreach($docs as $doc){
+                $doc->asName = true;
+                $response->candidates[] = new TaxonRecord($doc);
+            }
+
+            // do we only have one?
+            if(count($response->candidates) == 1){
+                $response->narrative[] = "A single genus candidate found so it becomes the match.";
+                $response->match = $response->candidates[0];
+                $response->candidates = array();
+            }else{
+                $response->narrative[] = count($response->candidates) . " genus candidates found so no match.";
+            }
+
+        }
+
         // Have we got anything?
         if(!$response->match && !$response->candidates){
 
             $response->narrative[] = "No candidates found so moving to relevance searching.";
 
             $query = array(
-                'query' => "_text_:$$response->searchString",
+                'query' => "_text_:$response->searchString",
                 'filter' => 'classification_id_s:' . $this->params->classificationVersion,
                 'limit' => $this->params->limit
             );

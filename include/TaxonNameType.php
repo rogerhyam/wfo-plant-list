@@ -150,6 +150,11 @@ class TaxonNameType extends ObjectType
                         'type' => Type::listOf(TypeRegister::taxonNameType()),
                         'resolve' => function($name){return $name->getAssociatedGenusNames(); },
                         'description' => "For unplaced names only. Will return list of genera who's names are the same as the genus string of this name. Otherwise null"
+                    ],
+                    'wfoPath' => [
+                        'type' => Type::string(),
+                        'resolve' => function($name){return $name->getWfoPath(); },
+                        'description' => "Returns a string representation of this names placement in the current taxonomy like a file path. Useful for sanity checking you've got the right name."
                     ]
 
                     ];

@@ -134,11 +134,16 @@ $schema = new Schema([
                             'type' => Type::boolean(),
                             'description' => 'Consider matches to be ambiguous if it is possible to estimate rank from the search string and the rank does not match that in the name record.',
                             'defaultValue' => false
+                        ],
+                        'fallbackToGenus' => [
+                            'type' => Type::boolean(),
+                            'description' => 'If no matches are found see if we can match just to a genus before we go for a relevance search. This is useful for people handing "Rhododendron sp. A" type data. USE WITH CAUTION',
+                            'defaultValue' => false
                         ]
                     ],
                 'resolve' => function($rootValue, $args, $context, $info) {
 
-                        $matcher = new NameMatcher((object)array('checkHomonyms' => $args['checkHomonyms'], 'checkRank' => $args['checkRank'], 'method' => 'full'));
+                        $matcher = new NameMatcher((object)array('checkHomonyms' => $args['checkHomonyms'], 'checkRank' => $args['checkRank'], 'fallbackToGenus' => $args['fallbackToGenus'], 'method' => 'full'));
                         return $matcher->match($args['inputString']);
 
                     }
