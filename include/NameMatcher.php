@@ -100,6 +100,7 @@ class NameMatcher extends PlantList{
         $final_word_part = 0;
 
         // look for subsequent parts
+        $autonym_rank = false; 
         for($i = 1; $i < count($parts); $i++){
 
             $word = $parts[$i];
@@ -123,41 +124,77 @@ class NameMatcher extends PlantList{
 
             }
 
-            // see if it is anything other than just letters - and there for not a word-part but an author string
+            $is_name_word = true;
+
+            // see if it is anything other than just letters - and therefore not a word-part but an author string
             if(preg_match('/[^a-zA-Z\-]/', $word)){
-                $final_word_part = $i-1; // the last word was the final word part
+                $is_name_word = false;
                 $response->narrative[] = "Word contains non alpha chars and so is start of author string: '$word'.";
-                break;
+            }else{
+                    // Is the word a recognized name? 
+                    $query = array(
+                        'query' => 'name_string_s:' . $word, 
+                        'limit' => 0
+                    );
+                    $solr_response = PlantList::getSolrResponse($query);
+                    if(isset($solr_response->response->numFound)){
+                        if($solr_response->response->numFound > 0){
+                            $is_name_word = true;
+                            $response->narrative[] = "Word is found in index and so is part of name: '$word'.";
+                        }else{
+                            if($i == 1 && preg_match('/^[a-z]+/', $word)){
+                                $is_name_word = true;
+                                $response->narrative[] = "Word is NOT found in index BUT is second and has lowercase first letter so most probably novel/erroneous epithet: '$word'.";
+                            }else{
+                                $is_name_word = false;
+                                $response->narrative[] = "Word is NOT found in index and so start of authors: '$word'.";
+                            }
+                        }
+                    }else{
+                        echo "<p>SOLR Issues</p>";
+                        echo "<pre>";
+                        print_r($solr_response);
+                        echo "<pre/>";
+                        exit;
+                    }
             }
 
-            // we have not found a rank is the word a recognized name? 
-            $query = array(
-                'query' => 'name_string_s:' . $word, 
-                'limit' => 0
-            );
-            $solr_response = PlantList::getSolrResponse($query);
-            if(isset($solr_response->response->numFound)){
-                if($solr_response->response->numFound > 0){
-                    $canonical_parts[] = $word;
-                    $final_word_part = $i;
-                    $response->narrative[] = "Word is found in index and so is part of name: '$word'.";
-                }else{
-                    if($i == 1 && preg_match('/^[a-z]+/', $word)){
-                        $canonical_parts[] = $word;
-                        $final_word_part = $i;
-                        $response->narrative[] = "Word is NOT found in index BUT is second and has lowercase first letter so most probably novel/erroneous epithet: '$word'.";
-                    }else{
-                        $response->narrative[] = "Word is NOT found in index and so start of authors: '$word'.";
-                        $final_word_part = $i-1;
-                        break;
-                    }
-                }
+            // is this word a name part or something else?
+            if($is_name_word){                
+                // we are building the canonical name OK
+                $canonical_parts[] = $word;
+                $final_word_part = $i;
             }else{
-                echo "<p>SOLR Issues</p>";
-                echo "<pre>";
-                print_r($solr_response);
-                echo "<pre/>";
-                exit;
+
+                // we have run into the author string start
+                $final_word_part = $i-1; // the last word was the final word part (ignoring autonym parts )
+
+                // This might be an autonym with authors between the species part and the subspecific part
+                if(count($canonical_parts) == 2){
+                    $response->narrative[] = "There are two name parts. This may be an autonym with species authors included. Checking for second occurrence of '{$canonical_parts[1]}'";
+                    for($j = $i; $j < count($parts); $j++){
+                        if($parts[$j] == $canonical_parts[1]){
+                            $response->narrative[] = "Found second '{$canonical_parts[1]}'. This is an autonym with authors.";
+                            $canonical_parts[] = $canonical_parts[1];
+                            break;
+                        }
+                    }
+
+                    // check for the rank in the authors string of autonym
+                    if(count($canonical_parts) == 3 && $canonical_parts[2] == $canonical_parts[1]){
+                        for($j = $i; $j < count($parts); $j++){
+                            if(PlantList::isRankWord($parts[$j])){
+                                $response->parsedName->rank = PlantList::isRankWord($parts[$j]);
+                                $response->narrative[] = "Rank estimated as '{$response->parsedName->rank}' based on '{$parts[$j]}'.";
+                                $autonym_rank = $parts[$j];
+                                break;
+                            }
+                        }
+                    }
+
+                }
+                
+                break; // stop adding words we have done the authors part
             }
 
             // if we have found 3 name-parts we should definitely stop
@@ -173,6 +210,19 @@ class NameMatcher extends PlantList{
 
         // all the rest of the parts are the authors string
         $response->parsedName->author_string = trim(implode(' ', array_slice($parts, $final_word_part +1)));
+        $response->narrative[] = "Authors string looks like this: '{$response->parsedName->author_string}'";
+
+        // If we are dealing with an autonym the name may be embedded in the author string when we take this approach.
+        if(count($canonical_parts) == 3 && $canonical_parts[1] == $canonical_parts[2] && strpos($response->parsedName->author_string, $canonical_parts[1]) !== false){
+            $response->parsedName->author_string = trim(str_replace("{$canonical_parts[1]}", " ", $response->parsedName->author_string));
+            $response->narrative[] = "Autonym so removed name part from authors: '{$response->parsedName->author_string}'";
+
+            if($autonym_rank){
+                $response->parsedName->author_string = trim(str_replace("{$autonym_rank}", " ", $response->parsedName->author_string));
+                $response->narrative[] = "Autonym so removed rank '$autonym_rank' from authors: '{$response->parsedName->author_string}'";
+            }
+
+        }
 
         $response->narrative[] = "Parsed name complete.";
 
@@ -204,17 +254,22 @@ class NameMatcher extends PlantList{
         // do we have a single one with a good author string?
         foreach($response->candidates as $candidate){
 
+            $response->narrative[] = "Checking candidates for authors string.";
+
             if($candidate->getAuthorsString() == $response->parsedName->author_string){
 
                 if($response->match && $response->match != $candidate){
-                    // we have found two with good author strings!
+                    // we have found a second with good author strings!
                     if($response->match->getRole() == 'deprecated' && $candidate->getRole() != 'deprecated'){
                         // a good name over rules a deprecated one
                         $response->match = $candidate;
+                        $response->narrative[] = "Deprecated name removed to reveal matched name.";
                     }else{
                         // we have two and one isn't deprecated so we can't decide
                         // between them
                         $response->match = null;
+                        $response->narrative[] = "No candidate has matching author string.";
+                        break;
                     }
                 }else{
                     // this become the new match
@@ -224,22 +279,68 @@ class NameMatcher extends PlantList{
             }
         }
 
+        // if the search string has an ex in it then look without the ex author
+        // second author is real one.
+
+        if(!$response->match){
+            if(strpos($response->parsedName->author_string, ' ex ') !== false){
+                $response->narrative[] = "Submitted authors contain ' ex '. Removing the ex and checking authors again.";
+                $ex_less_authors = $this->removeExAuthors($response->parsedName->author_string);
+                foreach($response->candidates as $candidate){
+                    if($candidate->getAuthorsString() == $ex_less_authors){
+                        $response->match = $candidate;
+                        $response->narrative[] = "Found matching authors when ex removed from submitted name.";
+                        break;
+                    }
+                }
+            }else{
+                $response->narrative[] = "Submitted authors do NOT contain ' ex '. Looking for match in candidates if their ex authors are removed.";
+                foreach($response->candidates as $candidate){
+                    $ex_less_authors = $this->removeExAuthors($candidate->getAuthorsString());
+                    if($response->parsedName->author_string == $ex_less_authors){
+                        $response->match = $candidate;
+                        $response->narrative[] = "Found matching authors when ex removed from candidate name.";
+                        break;
+                    }
+                }
+            }
+        }
+
+
         // if we have a single candidate and the input name doesn't have 
         // an authorstring then we assume that it is a match 
         if(count($response->candidates) == 1 && strlen($response->parsedName->author_string) == 0){
             $response->match = $response->candidates[0];
-            $response->narrative[] = "Only one candidate found ({$candidate->getWfoId()}) and no author string supplied so name becomes match.";
+            $response->candidates = array();
+            $response->narrative[] = "Only one candidate found ({$response->match->getWfoId()}) and no author string supplied so name becomes match.";
+        }
+
+        // if we find a single candidate and the search term is an autonym and the match is an autonym and it is the same rank
+        // then we match it
+        if(
+            count($response->candidates) == 1 && count($canonical_parts) == 3 && $canonical_parts[1] == $canonical_parts[2] // search is autonym
+            && $response->candidates[0]->getNameString() == $response->candidates[0]->getSpeciesString() // match is autonym // match and search ranks are the same
+        ){
+            $response->narrative[] = "Only one candidate found ({$response->candidates[0]->getWfoId()}) it is an autonym and so is the supplied name.";
+            if($response->candidates[0]->getRank() == $response->parsedName->rank){
+                $response->narrative[] = "The ranks are the same so making it a match regardless of any author string.";
+                $response->match = $response->candidates[0];
+                $response->candidates = array();
+            }else{
+                $response->narrative[] = "The ranks are not the same ('{$response->candidates[0]->getRank()}' and '{$response->parsedName->rank}') so not a match.";
+            }
+
         }
 
         // they care about ranks so remove the match if the ranks don't match
-        if($response->match && $this->params->checkRank && $response->parsedName->rank != $name->getRank()){
+        if($response->match && $this->params->checkRank && $response->parsedName->rank != $response->match->getRank()){
             // they want the ranks to match and they don't so demote it
             $response->match = null;
             $response->narrative[] = "Checked ranks and they didn't match.";
         }
 
         // they don't care about homonyms so we can scrub any candidates if we have a match
-        if($response->match && !$this->params->checkHomonyms){
+        if($response->match && $response->candidates && !$this->params->checkHomonyms){
             $response->candidates = array();
             $response->narrative[] = "Homonyms (same name different authors) are considered OK and we have a match so removing candidates.";
         }
@@ -264,6 +365,20 @@ class NameMatcher extends PlantList{
         }
 
         return $response;
+    }
+
+    private function removeExAuthors($authors){
+
+        // no ex then just return them
+        if(strpos($authors, ' ex ') === false) return $authors;
+
+        // the ex may be in the parenthetical authors
+        if(preg_match('/\(.+ ex .+\)/', $authors)){
+            return preg_replace('/[^(]+ ex /', '', $authors);
+        }else{
+            return preg_replace('/^.+ ex /', '', $authors);
+        }
+
     }
 
     /**

@@ -47,7 +47,7 @@ if(@$_GET['input_string']){
     }
 
     header('Content-Type: application/json');
-    echo json_encode($response);
+    echo json_encode($response, JSON_PRETTY_PRINT);
     exit;
 }
 
