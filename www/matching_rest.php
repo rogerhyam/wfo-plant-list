@@ -105,7 +105,7 @@ function render_list($ob){
         }
         echo "</li>";
         $count++;
-        if($count > 11){
+        if($count > 19){
             $remains = count($ob) - $count;
             echo "<li>and $remains more ...</li>";
             break;
