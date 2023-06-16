@@ -9,7 +9,7 @@ require_once('../include/content_negotiate.php'); // handles content negotiation
 
 
 // are we being sent a request
-
+$response = false;
 if(@$_GET['input_string']){
 
     $inputString = $_GET['input_string'];
@@ -46,9 +46,11 @@ if(@$_GET['input_string']){
 
     }
 
-    header('Content-Type: application/json');
-    echo json_encode($response, JSON_PRETTY_PRINT);
-    exit;
+    if(!@$_GET['human']){
+        header('Content-Type: application/json');
+        echo json_encode($response, JSON_PRETTY_PRINT);
+        exit;
+    }
 }
 
 require_once('header.php');
@@ -65,6 +67,55 @@ require_once('header.php');
     If you need more complex behaviour you are encouraged to explore the <a href="gql_index.php">GraphQL API</a>
     which can be called without the use of client side libraries if necessary.
 </p>
+
+<h2>Test Form</h2>
+    <p>
+        Use this form to test how name strings are parsed and matched.
+    </p>
+    <form>
+        <input type="hidden" name="human" value="true" />
+        <input type="text" name="input_string" value="<?php echo @$_GET['input_string'] ?>" style="width: 30em" placeholder="Enter your name string here."/>
+        <input type="submit" /> <button onclick="event.preventDefault(); window.location='matching_rest.php';">Clear</button>
+        <br/>
+               Check Homonyms: <input type="checkbox" name="check_homonyms" <?php echo @$_GET['check_homonyms'] ? "checked" : "" ?> value="true" />
+               Check Rank: <input type="checkbox" name="check_rank" <?php echo @$_GET['check_rank'] ? "checked" : "" ?>  value="true" />
+               
+    </form>
+<?php 
+if($response){
+    echo "<hr/>";
+    echo "<h3>Matching Test Results</h3>";
+    render_list($response);
+    $ip = urlencode($_GET['input_string']);
+    $check_rank = @$_GET['check_rank'];
+    $check_homonyms = @$_GET['check_homonyms']; 
+    echo "<a href=\"matching_rest.php?input_string=$ip&check_rank=$check_rank&check_homonyms=$check_homonyms\" target=\"wfo_matching_json\">View JSON version</a>";
+    echo "<hr/>";
+}// there is a response
+
+function render_list($ob){
+    echo "<ul>";
+    $count = 0;
+    foreach($ob as $key => $val){
+        echo "<li><strong>$key: </strong>";
+        if(is_object($val) || is_array($val)){
+            render_list($val);
+        }else{
+            echo $val;
+        }
+        echo "</li>";
+        $count++;
+        if($count > 11){
+            $remains = count($ob) - $count;
+            echo "<li>and $remains more ...</li>";
+            break;
+        }
+    }    
+    echo "</ul>";
+}
+
+?>
+
 
 <h2>Requests and Responses</h2>
 
