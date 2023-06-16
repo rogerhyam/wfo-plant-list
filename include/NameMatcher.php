@@ -254,7 +254,7 @@ class NameMatcher extends PlantList{
         // do we have a single one with a good author string?
         foreach($response->candidates as $candidate){
 
-            $response->narrative[] = "Checking candidates for authors string.";
+            //$response->narrative[] = "Checking candidates for authors string.";
 
             if($candidate->getAuthorsString() == $response->parsedName->author_string){
 
