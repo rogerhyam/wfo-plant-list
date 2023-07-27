@@ -435,7 +435,7 @@ class NameMatcher extends PlantList{
 
         $filters = array();
         $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
-        if($this->params->excludeDeprecated){
+        if(isset($this->params->excludeDeprecated) && $this->params->excludeDeprecated){
             $filters[] = '-role_s:deprecated'; 
         }
 

@@ -642,6 +642,8 @@ class TaxonRecord extends PlantList{
     public function getName(){
         if($this->isName) return null;
 
+        if(!$this->id) return null;
+
         // the name based on the 10 digit wfo id
         return new TaxonRecord(substr($this->id, 0, 14));
 
