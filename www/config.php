@@ -13,7 +13,7 @@ define('WFO_SERVICE_VERSION','2.0.1');
 
 
 // Location of the solr server
-define('SOLR_QUERY_URI','http://localhost:8983/solr/wfo2');
+define('SOLR_QUERY_URI', $solr_query_uri); // from wfo_secrets.php
 
 // used for lookups and other services that don't want to 
 // trouble themselves with many versions of backbone
