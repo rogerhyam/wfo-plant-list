@@ -108,7 +108,9 @@ class TaxonRecord extends PlantList{
 
         }
 
+
         if(!$this->solrDoc) return; // failed to load.
+
 
         // customize on if we are a name or not
         if($this->isName ){
@@ -640,12 +642,15 @@ class TaxonRecord extends PlantList{
      * their name
      */
     public function getName(){
+  
         if($this->isName) return null;
 
         if(!$this->id) return null;
 
         // the name based on the 10 digit wfo id
-        return new TaxonRecord(substr($this->id, 0, 14));
+        $name_id = substr($this->id, 0, 14);
+        $name = new TaxonRecord($name_id); 
+        return $name;
 
     }
 

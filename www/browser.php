@@ -11,7 +11,7 @@ require_once('header.php');
 // we always render a record
 $id = @$_GET['id']; // from the query string
 if(!$id) $id = @$_SESSION['id']; // from the session
-if(!$id) $id = 'wfo-9971000003'; // from the default
+if(!$id) $id = 'wfo-9971000003'; // from the default - doesn't work if it doesn't exist i.e. earlier snapshots.
 $_SESSION['id'] = $id;
 
 // get this once as it is an index call
