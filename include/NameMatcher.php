@@ -25,6 +25,7 @@ class NameMatcher extends PlantList{
         if(!isset($this->params->classificationVersion)) $this->params->classificationVersion = WFO_DEFAULT_VERSION;
         if(!isset($this->params->checkHomonyms)) $this->params->checkHomonyms = false;
         if(!isset($this->params->checkRank)) $this->params->checkRank = false;
+        if(!isset($this->params->acceptSingleCandidate)) $this->params->acceptSingleCandidate = false;
     
     }
 
@@ -48,7 +49,7 @@ class NameMatcher extends PlantList{
         $json = '["\u00D7","\u2715","\u2A09"]';
         $hybrid_symbols = json_decode($json);
         foreach ($hybrid_symbols as $symbol) {
-            $response->searchString = str_replace($symbol, '', $response->searchString);
+            $response->searchString = trim(str_replace($symbol, '', $response->searchString));
         }
 
         switch ($this->params->method) {
@@ -380,21 +381,36 @@ class NameMatcher extends PlantList{
         }
 
         // Have we got anything?
-        if(!$response->match && !$response->candidates){
+        if(!$response->match && count($response->candidates) < 2){
 
-            $response->narrative[] = "No candidates found so moving to relevance searching.";
 
-            $query = array(
-                'query' => "_text_:$response->searchString",
-                'filter' => 'classification_id_s:' . $this->params->classificationVersion,
-                'limit' => $this->params->limit
-            );
+            if(count($response->candidates) == 1 && @$this->params->acceptSingleCandidate){
+                
+                // a single candidate and that will do for them!
+                $response->narrative[] = "A single candidate found and acceptSingleCandidate is true so it becomes the match.";
+                $response->match = $response->candidates[0];
+                $response->candidates = array();
 
-            $docs = PlantList::getSolrDocs($query);
-            foreach($docs as $doc){
-                $doc->asName = true;
-                $response->candidates[] = new TaxonRecord($doc);
+            }else{
+
+                // no candidates or matches so 
+                $response->narrative[] = "No candidates found so moving to relevance searching.";
+
+                $query = array(
+                    'query' => "_text_:$response->searchString",
+                    'filter' => 'classification_id_s:' . $this->params->classificationVersion,
+                    'limit' => $this->params->limit
+                );
+
+                $docs = PlantList::getSolrDocs($query);
+                foreach($docs as $doc){
+                    $doc->asName = true;
+                    $response->candidates[] = new TaxonRecord($doc);
+                }
             }
+
+
+
 
         }
 

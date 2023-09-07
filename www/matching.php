@@ -40,18 +40,31 @@ if(isset($_GET['delete_data']) && $_GET['delete_data'] == 'true'){
 }
 
 // they are updating some parameters
+$default_params = array(
+    'name_col_index' => -1,
+    'interactive' => false,
+    'homonyms' => false,
+    'ranks' => false,
+    'accept_single_candidate' => false,
+    'ex' => false
+);
+
+if(!isset($_SESSION['matching_params'])) $_SESSION['matching_params'] = $default_params;
+
 if(isset($_GET['update_matching_params']) && $_GET['update_matching_params'] = 'true'){
-    $_SESSION['matching_params'] = $_GET;
-}else{
-    // initiated the params if they haven't already been set
-    if(!isset($_SESSION['matching_params'])){
-        $_SESSION['matching_params'] = array(
-            'name_col_index' => -1,
-            'interactive' => false,
-            'homonyms' => false,
-            'ranks' => false,
-            'ex' => false
-        );
+    foreach ($default_params as $key => $value) {
+
+        // name_col_index is always a number
+        if(isset($_GET[$key]) && $key == 'name_col_index'){
+            $_SESSION['matching_params'][$key] = $_GET[$key];
+        }else{
+           // others are set to true/false
+            if(isset($_GET[$key]) && $_GET[$key] = 'true'){
+                $_SESSION['matching_params'][$key] = true;
+            }else{
+                $_SESSION['matching_params'][$key] = false;
+            }
+        }
     }
 }
 
@@ -226,8 +239,10 @@ if(@$_GET['matching_mode']){
             $config->method = "full";
             $config->includeDeprecated = true;
             $config->limit = 10;
-            $config->checkHomonyms = @$_GET['homonyms'] == 'true' ? true : false;
-            $config->checkRank = @$_GET['ranks'] == 'true' ? true : false;
+            $config->checkHomonyms = $_SESSION['matching_params']['homonyms'];
+            $config->checkRank = $_SESSION['matching_params']['ranks'];
+            $config->acceptSingleCandidate = $_SESSION['matching_params']['accept_single_candidate'];
+
             $matcher = new NameMatcher($config);
 
             $response = $matcher->match($row[$name_index]);
@@ -440,6 +455,14 @@ if(file_exists($input_file_path)){
     <td style="text-align: center"><input type="checkbox" name="ranks" value="true" <?php echo @$_SESSION['matching_params']['ranks'] ? 'checked' : '' ?>/></td>
     <td>If a precise match of name and author string is found and it is possible to extract the rank from the name but the rank doesn't match then stop/skip.</td>
 </tr>
+<tr>
+    <th style="text-align: right">Accept a single candidate:</th>
+    <td style="text-align: center"><input type="checkbox" name="accept_single_candidate" value="true" <?php echo @$_SESSION['matching_params']['accept_single_candidate'] ? 'checked' : '' ?>/></td>
+    <td>If an exact match of name and author string is NOT found but only a single candidate 
+        name is found make that the match and do not proceed to relevance searching. 
+        <strong>Use this feature with caution!</strong></td>
+</tr>
+
 <tr>
     <td colspan="3" style="text-align: right"><input type="submit" value="Set Parameters" name="submit"></td>
 </tr>

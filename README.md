@@ -30,9 +30,9 @@ Then run `php composer.phar update` to install dependencies.
 
 You need an instance of a SOLR server either locally or available over the network. Refer to the SOLR documentation if you are unsure.
 
-Create a core in the server called "wfo2". There are various ways to do this but running
+Create a core in the server called "wfo". There are various ways to do this but running
 
-`./solr create -c wfo2`
+`./solr create -c wfo`
 
 in the SOLR bin directory will usually do the trick. Disable authentication temporarily if needed.
 
@@ -42,7 +42,7 @@ Import data releases from WFO Plant list. The latest version is always available
 
 It can be imported into the index with the following command.
 
-`curl -H 'Content-type:application/json' 'http://localhost:8983/solr/wfo2/update?commit=true' -X POST -T plant_list_2022-12.json`
+`curl -H 'Content-type:application/json' 'http://localhost:8983/solr/wfo/update?commit=true' -X POST -T plant_list_2022-12.json`
 
 Import will take up to an hour depending on resources available.
 

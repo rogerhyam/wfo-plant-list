@@ -15,8 +15,15 @@ if(@$_GET['input_string']){
     $inputString = $_GET['input_string'];
     $checkHomonyms = @$_GET['check_homonyms'] == 'true' ? true : false;
     $checkRank = @$_GET['check_rank'] == 'true' ? true : false;
+    $acceptSingleCandidate = @$_GET['accept_single_candidate'] == 'true' ? true : false;
 
-    $matcher = new NameMatcher((object)array('checkHomonyms' => $checkHomonyms, 'checkRank' => $checkRank, 'method' => 'full'));
+    $matcher = new NameMatcher(
+        (object)array(
+            'checkHomonyms' => $checkHomonyms,
+            'checkRank' => $checkRank,
+            'method' => 'full',
+            'acceptSingleCandidate' => $acceptSingleCandidate
+        ));
     $response = $matcher->match($inputString);
 
     if($response->match){
@@ -79,6 +86,8 @@ require_once('header.php');
         <br/>
                Check Homonyms: <input type="checkbox" name="check_homonyms" <?php echo @$_GET['check_homonyms'] ? "checked" : "" ?> value="true" />
                Check Rank: <input type="checkbox" name="check_rank" <?php echo @$_GET['check_rank'] ? "checked" : "" ?>  value="true" />
+               Accept Single Candidate: <input type="checkbox" name="accept_single_candidate" <?php echo @$_GET['accept_single_candidate'] ? "checked" : "" ?>  value="true" />
+           
                
     </form>
 <?php 
@@ -131,6 +140,7 @@ function render_list($ob){
     <li><strong>input_string</strong> The name string to be searched for. It should contain a single botanical name. This should include the authors of the name if available. It should be URL encoded.</li>
     <li><strong>check_homonyms</strong> If present with the value "true" then homonyms will be checked for. If a single, exact match of name and author string is found but there are other names with the same letters but a different author strings present the match won't be considered unambiguous. </li>
     <li><strong>check_rank</strong> If present with the value "true" then the rank will be checked for. If a precise match of name and author string is found and it is possible to extract the rank from the name string but the rank isn't the same the match won't be considered unambiguous.</li>
+    <li><strong>accept_single_candidate</strong> If present with the value "true" and only a single candidate name is found that will be made the match, even though it isn't an exact match.</li>
 </ul>
 
 <h2>Response</h2>
