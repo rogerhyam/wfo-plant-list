@@ -109,8 +109,11 @@ if(@$_GET['chosen_wfo']){
             
         }
 
-        $rows[$i] = $row;
+        // because this was a human choice we keep a copy of it
+        // so we don't have to make the same choice again
+        $_SESSION['choices'][$_GET['input_string']] = array('wfo' => $row[0], 'wfo_name' => $row[1], 'wfo_path' => $row[2]);
 
+        $rows[$i] = $row;
 
     }
 
@@ -194,6 +197,8 @@ if(@$_GET['matching_mode']){
     if(@$_GET['new_run'] == 'true' && file_exists($candidates_file_path)){
         // remove it if this is a fresh run
         unlink($candidates_file_path);
+        // we start with a new choices array to remember the choices they make so we don't have to keep asking them.
+        $_SESSION['choices'] = array(); 
     }
 
     // which column is the name in?
@@ -235,52 +240,66 @@ if(@$_GET['matching_mode']){
             ($_GET['matching_mode'] == 'skipped' && $row[0] == 'SKIPPED')
         ){
 
-            $config = new class{}; // matching configuration object
-            $config->method = "full";
-            $config->includeDeprecated = true;
-            $config->limit = 10;
-            $config->checkHomonyms = $_SESSION['matching_params']['homonyms'];
-            $config->checkRank = $_SESSION['matching_params']['ranks'];
-            $config->acceptSingleCandidate = $_SESSION['matching_params']['accept_single_candidate'];
+            // have they already made a choice about this name during this run?
+            if(isset($_SESSION['choices'][$row[$name_index]])){
 
-            $matcher = new NameMatcher($config);
+                $choice = $_SESSION['choices'][$row[$name_index]];
+                $row[0] = $choice['wfo'];
+                $row[1] = $choice['wfo_name']; 
+                $row[2] = $choice['wfo_path'];
 
-            $response = $matcher->match($row[$name_index]);
+            }else{
 
-            if($response->match && !$response->candidates){
-                // we have an exact match with no ambiguity
-                $row[0] = $response->match->getWfoId();
-                $row[1] = $response->match->getFullNameStringPlain();
-                $row[2] = $response->match->getWfoPath();
-                if(!$row[2]) $row[2] = $response->match->getRole();
-            }elseif($response->match && $response->candidates){
-                // we have an exact match AND some ambiguity
-                // this will be homonyms or ranks based
-                if(@$_SESSION['matching_params']['interactive']){
-                    $row[0] = 'CHOICE';
-                    render_choices($response);
-                }
-                record_choices($row, $repsonse, $rows[0], $candidates_file_path);
-            }elseif(!$response->match && $response->candidates){
-                // no exact match but some candidates to look at
-                if(@$_SESSION['matching_params']['interactive']){
-                    // render some choice boxes
-                    $row[0] = 'CHOICE';
-                    render_choices($response);
+                // not in the previous choices so lets look for it.
+                $config = new class{}; // matching configuration object
+                $config->method = "full";
+                $config->includeDeprecated = true;
+                $config->limit = 10;
+                $config->checkHomonyms = $_SESSION['matching_params']['homonyms'];
+                $config->checkRank = $_SESSION['matching_params']['ranks'];
+                $config->acceptSingleCandidate = $_SESSION['matching_params']['accept_single_candidate'];
+
+                $matcher = new NameMatcher($config);
+
+                $response = $matcher->match($row[$name_index]);
+
+                if($response->match && !$response->candidates){
+                    // we have an exact match with no ambiguity
+                    $row[0] = $response->match->getWfoId();
+                    $row[1] = $response->match->getFullNameStringPlain();
+                    $row[2] = $response->match->getWfoPath();
+                    if(!$row[2]) $row[2] = $response->match->getRole();
+                }elseif($response->match && $response->candidates){
+                    // we have an exact match AND some ambiguity
+                    // this will be homonyms or ranks based
+                    if(@$_SESSION['matching_params']['interactive']){
+                        $row[0] = 'CHOICE';
+                        render_choices($response);
+                    }
+                    record_choices($row, $repsonse, $rows[0], $candidates_file_path);
+                }elseif(!$response->match && $response->candidates){
+                    // no exact match but some candidates to look at
+                    if(@$_SESSION['matching_params']['interactive']){
+                        // render some choice boxes
+                        $row[0] = 'CHOICE';
+                        render_choices($response);
+                    }else{
+                        // not interactive and no precise match found
+                        $row[0] = '';
+                        $row[1] = '';
+                        $row[2] = count($response->candidates) . ' candidates found.';
+                    }
+                    record_choices($row, $response, $rows[0], $candidates_file_path);
                 }else{
-                    // not interactive and no precise match found
+                    // nothing at all! Not a squib?
                     $row[0] = '';
                     $row[1] = '';
-                    $row[2] = count($response->candidates) . ' candidates found.';
+                    $row[2] = 'No candidates found';
                 }
-                record_choices($row, $response, $rows[0], $candidates_file_path);
-            }else{
-                // nothing at all! Not a squib?
-                $row[0] = '';
-                $row[1] = '';
-                $row[2] = 'No candidates found';
-            }
 
+            }// end looking for name
+
+           
             // $new_row = match_row($row, $name_index, $matcher);
             $rows[$i] = $row;
 
@@ -671,6 +690,7 @@ function render_choices($response){
     echo '<form method="GET" action="matching.php" >';
     echo '<input type="hidden" name="offset" value="' . @$_GET['offset'] .'" />';
     echo '<input type="hidden" name="matching_mode" value="'. @$_GET['matching_mode'] .'" />' ;
+    echo '<input type="hidden" name="input_string" value="'. $response->inputString .'" />' ;
 
     echo '<table style="width: 100%">';
     echo "<tr>";

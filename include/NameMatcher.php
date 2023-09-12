@@ -101,7 +101,8 @@ class NameMatcher extends PlantList{
         $final_word_part = 0;
 
         // look for subsequent parts
-        $autonym_rank = false; 
+        $autonym_rank = false;
+        $had_lower_case_word = false; // and we are therefore likely below species level
         for($i = 1; $i < count($parts); $i++){
 
             $word = $parts[$i];
@@ -127,10 +128,15 @@ class NameMatcher extends PlantList{
 
             $is_name_word = true;
 
-            // see if it is anything other than just letters - and therefore not a word-part but an author string
+            // see if it is anything other than just letters
+            // or if it starts with a capital when we have already had a lowercase name word (handles case of authors with names that are also genus names.)
+            //  - and therefore not a word-part but an author string
             if(preg_match('/[^a-zA-Z\-]/', $word)){
                 $is_name_word = false;
                 $response->narrative[] = "Word contains non alpha chars and so is start of author string: '$word'.";
+            }elseif($had_lower_case_word && preg_match('/^[A-Z]/', $word)){
+                $is_name_word = false;
+                $response->narrative[] = "Word starts with a capital when we have already had a name word starting with a lower case so part of author string: '$word'.";
             }else{
                     // Is the word a recognized name? 
                     $query = array(
@@ -142,6 +148,12 @@ class NameMatcher extends PlantList{
                         if($solr_response->response->numFound > 0){
                             $is_name_word = true;
                             $response->narrative[] = "Word is found in index and so is part of name: '$word'.";
+                            // if it is a lowercase word we remember that as subsequent name words should not start
+                            // with capitals
+                            if(preg_match('/^[a-z]/', $word)){
+                                $response->narrative[] = "Word is lowercase. Subsequent words must start with lowercase: '$word'.";
+                                $had_lower_case_word = true; 
+                            } 
                         }else{
                             if($i == 1 && preg_match('/^[a-z]+/', $word)){
                                 $is_name_word = true;
