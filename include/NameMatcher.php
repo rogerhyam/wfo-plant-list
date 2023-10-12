@@ -259,9 +259,11 @@ class NameMatcher extends PlantList{
         // rather than do convoluted logic we do it step wise.
 
         // they are all candidates
-        foreach($docs as $doc){
-            $doc->asName = true;
-            $response->candidates[] = new TaxonRecord($doc);
+        if($docs){
+            foreach($docs as $doc){
+                $doc->asName = true;
+                $response->candidates[] = new TaxonRecord($doc);
+            }
         }
 
         // do we have a single one with a good author string?
@@ -376,10 +378,13 @@ class NameMatcher extends PlantList{
 
             $docs = PlantList::getSolrDocs($query);
             $response->candidates = array(); // scrub existing candidates
-            foreach($docs as $doc){
-                $doc->asName = true;
-                $response->candidates[] = new TaxonRecord($doc);
+            if($docs){
+                foreach($docs as $doc){
+                    $doc->asName = true;
+                    $response->candidates[] = new TaxonRecord($doc);
+                }
             }
+
 
             // do we only have one?
             if(count($response->candidates) == 1){
@@ -415,10 +420,13 @@ class NameMatcher extends PlantList{
                 );
 
                 $docs = PlantList::getSolrDocs($query);
-                foreach($docs as $doc){
-                    $doc->asName = true;
-                    $response->candidates[] = new TaxonRecord($doc);
+                if($docs){
+                    foreach($docs as $doc){
+                        $doc->asName = true;
+                        $response->candidates[] = new TaxonRecord($doc);
+                    }
                 }
+
             }
 
 
@@ -476,15 +484,18 @@ class NameMatcher extends PlantList{
 
         $docs  = $this->getSolrDocs($query);
 
-        if(count($docs) == 1){
-            $docs[0]->asName = true;
-            $response->match = new TaxonRecord($docs[0]);
-        }else{
-            foreach ($docs as $doc) {
-                $doc->asName = true;
-                $response->candidates[] = new TaxonRecord($doc);
+        if($docs){
+            if(count($docs) == 1){
+                $docs[0]->asName = true;
+                $response->match = new TaxonRecord($docs[0]);
+            }else{
+                foreach ($docs as $doc) {
+                    $doc->asName = true;
+                    $response->candidates[] = new TaxonRecord($doc);
+                }
             }
         }
+
 
         return $response;
     }

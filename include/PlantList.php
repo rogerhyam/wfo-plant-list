@@ -88,7 +88,8 @@ class PlantList{
      */
     public static function getSolrDocs($query){
         $data = PlantList::getSolrResponse($query);
-        return $data->response->docs;
+        if(isset($data->response->docs)) return $data->response->docs;
+        else return null;
     }
 
     public static function getSolrResponse($query){
