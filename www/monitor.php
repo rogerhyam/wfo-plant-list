@@ -1,7 +1,7 @@
 <?php
 require_once('header.php');
 ?>
-<h2>Performance Monitors</h2>
+<h1>Performance Monitors</h1>
 <p>This page shows the performance banners for the monitors that are run by the Pingdom service. Roger gets email
     notifications of outages. You could get them to if you ask him to set you up!</p>
 
