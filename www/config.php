@@ -35,6 +35,7 @@ function get_uri($taxon_id){
 // copy of ranks table from management app
 // FIXME need a way of sharing this efficiently between 
 // repositories!
+// also in wfo-backbone-management
 $ranks_table = array(
 
   "code" => array(
@@ -45,7 +46,7 @@ $ranks_table = array(
   ),
 
   "kingdom" => array(
-    "children" => array("phylum"), // permissible ranks for child taxa
+    "children" => array("subkingdom", "phylum"), // permissible ranks for child taxa
     "abbreviation" => "K.", // official abbreviation
     "plural" => "Kingdoms",
     "aka" => array() // alternative representations for import
@@ -57,7 +58,7 @@ $ranks_table = array(
     "plural" => "Subkingdoms",
     "aka" => array() // alternative representations for import
   ),
-  
+
   "phylum" => array(
     "children" => array("class", "order", "family", "superorder"), // permissible ranks for child taxa
     "abbreviation" => "P.", // official abbreviation
@@ -178,14 +179,14 @@ $ranks_table = array(
   ),
 
   "species" => array(
-    "children" => array("subspecies", "variety", "form", "prole"), // permissible ranks for child taxa
+    "children" => array("subspecies", "variety", "form", "prole", "lusus"), // permissible ranks for child taxa
     "abbreviation" => "sp.", // official abbreviation
     "plural" => "Species",
     "aka" => array("nothospecies", "spec.") // alternative representations for import
   ),
 
   "subspecies" => array(
-    "children" => array("variety", "form", "prole"), // permissible ranks for child taxa
+    "children" => array("variety", "form", "prole", "lusus"), // permissible ranks for child taxa
     "abbreviation" => "subsp.", // official abbreviation
     "plural" => "Subspecies",
     "aka" => array("nothosubspecies", "nothosubsp.", "subsp.", "subsp", "ssp", "ssp.", "subspec.") // alternative representations for import
@@ -199,7 +200,7 @@ $ranks_table = array(
   ),
 
   "variety" => array(
-    "children" => array("subvariety", "form", "prole"), // permissible ranks for child taxa
+    "children" => array("subvariety", "form", "prole", "lusus"), // permissible ranks for child taxa
     "abbreviation" => "var.", // official abbreviation
     "plural" => "Varieties",
     "aka" => array("nothovar.", "var.", "var") // alternative representations for import
@@ -224,6 +225,13 @@ $ranks_table = array(
     "abbreviation" => "subf.", // official abbreviation
     "plural" => "Subforms",
     "aka" => array("subforma") // alternative representations for import
+  ),
+
+  "lusus" => array(
+    "children" => array(), // permissible ranks for child taxa
+    "abbreviation" => "lus.", // official abbreviation
+    "plural" => "Lusus",
+    "aka" => array("lus", "lusus naturae") // alternative representations for import
   ),
 
   "unranked" => array(
