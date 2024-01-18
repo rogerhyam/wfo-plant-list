@@ -51,6 +51,13 @@
 </head>
 
 <body>
+
+    <?php
+        if($plant_list_system_message){
+        echo "<p style=\"background-color: black; color:white; padding: 0.3em; border: solid 1px gray; margin: 0px;\"><strong>&nbsp;⚠️&nbsp;System Message:&nbsp;</strong>$plant_list_system_message</p>";
+        echo "<hr/>";
+    }
+    ?>
     <div id="navbar">
         <strong>WFO Plant List: </strong>
         <a href="index.php">Home</a>
@@ -69,4 +76,6 @@
         |
         <a href="browser.php">Browser</a>
     </div>
+
+
     <!-- end header.php -->
