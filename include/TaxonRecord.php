@@ -416,17 +416,17 @@ class TaxonRecord extends PlantList{
                 if(!$nomenclatural && $this->solrDoc->reference_contexts_ss[$i] == 'name') continue;
 
                 // always present
-                $ref['uri'] = $this->solrDoc->reference_uris_ss[$i];
-                $ref['context'] = $this->solrDoc->reference_contexts_ss[$i];
-                $ref['kind'] = $this->solrDoc->reference_kinds_ss[$i];
-                $ref['label'] = $this->solrDoc->reference_labels_ss[$i];
+                $ref['uri'] =  isset($this->solrDoc->reference_uris_ss[$i]) ?   $this->solrDoc->reference_uris_ss[$i] : null;
+                $ref['context'] = isset($this->solrDoc->reference_contexts_ss[$i]) ?   $this->solrDoc->reference_contexts_ss[$i] : null;
+                $ref['kind'] = isset($this->solrDoc->reference_kinds_ss[$i]) ?  $this->solrDoc->reference_kinds_ss[$i] : null;
+                $ref['label'] = isset($this->solrDoc->reference_labels_ss[$i]) ? $this->solrDoc->reference_labels_ss[$i] : null;
 
                 // optional values
-                $ref['thumbnailUri'] = $this->solrDoc->reference_thumbnail_uris_ss[$i] == '-' ? null : $this->solrDoc->reference_thumbnail_uris_ss[$i];
-                $ref['comment'] = $this->solrDoc->reference_comments_ss[$i] == '-' ? null : $this->solrDoc->reference_comments_ss[$i];
+                $ref['thumbnailUri'] = isset($this->solrDoc->reference_thumbnail_uris_ss[$i]) && $this->solrDoc->reference_thumbnail_uris_ss[$i] != '-' ? $this->solrDoc->reference_thumbnail_uris_ss[$i] : null;
+                $ref['comment'] = isset($this->solrDoc->reference_comments_ss[$i]) && $this->solrDoc->reference_comments_ss[$i] != '-' ? $this->solrDoc->reference_comments_ss[$i] : null;
 
-                $references[] = (object)$ref;      
-        
+                $references[] = (object)$ref;
+
             }
         }
 
