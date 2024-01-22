@@ -53,7 +53,8 @@ $query = array(
 
 $solr_response = $index->getSolrResponse($query);
 
-if(!isset($solr_response)){
+if(!isset($solr_response->facets)){
+    echo "Somethings up.";
     echo '<pre>';
     print_r($solr_response);
     exit;
