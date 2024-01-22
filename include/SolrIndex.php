@@ -53,6 +53,7 @@ class SolrIndex{
         $ch = curl_init($uri);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_USERAGENT, 'WFO Facet Service');
+        curl_setopt($ch, CURLOPT_USERPWD, SOLR_USER . ":" . SOLR_PASSWORD);
         curl_setopt($ch, CURLOPT_HEADER, 1);
         // we are read only so 
         // curl_setopt($ch, CURLOPT_USERPWD, SOLR_USER . ":" . SOLR_PASSWORD);
@@ -91,6 +92,7 @@ class SolrIndex{
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json')); 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+        curl_setopt($ch, CURLOPT_USERPWD, SOLR_USER . ":" . SOLR_PASSWORD);
         $response = $this->runCurlRequest($ch);
         return $response;
     }
