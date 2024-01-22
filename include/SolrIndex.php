@@ -45,8 +45,8 @@ class SolrIndex{
     public  function getSolrResponse($query){
         $solr_query_uri = SOLR_QUERY_URI . '/query';
         $response = $this->curlPostJson($solr_query_uri, json_encode($query));
-        $data = json_decode($response->body);
-        return $data;
+        if(isset($response->body)) return json_decode($response->body);
+        else return json_decode($response);
     }
 
     public  function getCurlHandle($uri){
