@@ -53,6 +53,12 @@ $query = array(
 
 $solr_response = $index->getSolrResponse($query);
 
+if(!isset($solr_response)){
+    echo '<pre>';
+    print_r($solr_response);
+    exit;
+}
+
 $classificications_number = count($solr_response->facets->rank->buckets[0]->classification->buckets);
 $colspan = $classificications_number * 5; // four roles in each classification 
 
