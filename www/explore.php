@@ -1,32 +1,44 @@
 <?php
 
 require_once('config.php');
-require_once('../include/PlantList.php');
-require_once('../include/TaxonRecord.php');
-require_once('../include/NameMatcher.php');
-require_once('../include/content_negotiate.php'); // handles content negotiation so saves us having .htaccess
-
 require_once('header.php');
 ?>
-<div id="navbar">
-    <strong>Explore: </strong>
-    <a href="index.php">Classification</a>
-    |
-    <a href="sw_index.php">Nomenclature</a>
-    |
-    <a href="gql_index.php">GraphQL API</a>
-    |
-    <a href="matching.php">Matching Tool</a>
-    |
-    <a href="matching_rest.php">Matching API</a>
-    |
-    <a href="reconcile_index.php">Reconciliation API</a>
-    |
-    <a href="references.php">Refs Tool</a>
-    |
-    <a href="browser.php">Browser</a>
-</div>
-<p>Explore the current classification and download subsets of it.</p>
+<h2>Explore</h2>
+<form method="GET" action="index.php" id="main_form">
+    <p>Explore the current classification and download subsets of it.</p>
+
+
+    <div>
+        <input type="text" name="search" id="search_box" placeholder="Type a taxon name" style="width: 80%;"
+            onkeyup="search_param_change(this)" />
+        <input type="submit" value="Search" />
+    </div>
+    <div id="facet_box">
+        <h2>Filters</h2>
+        <div id="facet_inputs">
+            Facets appear here.
+        </div>
+    </div>
+    <div id="search_results">
+        <p>Taxonomic searching is most common.</p>
+    </div>
+</form>
+<script src="scripts/explore.js"></script>
+<script>
+// once page has loaded
+load_label_cache();
+
+// we do an initial search so that the facet boxes are available
+// to be populated
+search_param_change(document.getElementById("search_box"));
+
+// then we initialise the form with saved values
+initialize_form();
+
+//update_search_results();
+//
+</script>
+
 
 
 <?php

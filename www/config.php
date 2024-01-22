@@ -23,6 +23,13 @@ define('WFO_DEFAULT_VERSION',$default_classification_version);
 define('SOLR_USER', $solr_user); // from wfo_secrets.php
 define('SOLR_PASSWORD', $solr_password); // from wfo_secrets.php
 
+// an ordered list of the facets we want 
+// displayed as part of the explorer interface
+$facet_q_numbers = array(
+    "Q6256", // country
+    "Q2355817" // plant life-form
+);
+
 // used all over to generate guids
 function get_uri($taxon_id){
   if(php_sapi_name() === 'cli'){
@@ -31,6 +38,7 @@ function get_uri($taxon_id){
     return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/" . $taxon_id;
   }
 }
+
 
 // copy of ranks table from management app
 // FIXME need a way of sharing this efficiently between 

@@ -47,6 +47,44 @@
         border: solid 1px gray;
         padding: 0.5em;
     }
+
+    .syn_highlight {
+        background-color: yellow;
+    }
+
+    #search_results {
+        width: 60%;
+    }
+
+    #facet_box {
+        float: right;
+        width: 30%;
+        border: solid 1px gray;
+        padding: 1em;
+        margin: 1em;
+    }
+
+    #facet_box h2,
+    #facet_box h3 {
+        margin-top: 0px;
+        margin-bottom: 0.3em;
+    }
+
+    #synonyms ul,
+    #subtaxa ul,
+    #facet_inputs ul {
+        padding-left: 0.5em;
+        max-height: 20em;
+        overflow-y: auto;
+        margin: 0px;
+    }
+
+    #synonyms,
+    #subtaxa {
+        margin-top: 1em;
+        padding: 0em;
+        border: solid 1px gray;
+    }
     </style>
 </head>
 
@@ -73,6 +111,8 @@
         <a href="reconcile_index.php">Reconciliation API</a>
         |
         <a href="references.php">Refs Tool</a>
+        |
+        <a href="stats.php">Stats</a>
         |
         <a href="browser.php">Browser</a>
     </div>
