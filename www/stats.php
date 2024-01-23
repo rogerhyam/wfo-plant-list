@@ -259,6 +259,8 @@ echo "<h2>Summary for {$classification_selected}</h2>";
 
 echo '<form method="GET" action="stats.php">';
 
+echo "<pre>" . print_r($solr_response->facets->classification->buckets) . "</pre>";
+
 echo '<select name="classification" onchange="this.form.submit()">';
 foreach ($solr_response->facets->classification->buckets as $classification) {
     if(!$classification->count) continue; // junk classifications with no content
