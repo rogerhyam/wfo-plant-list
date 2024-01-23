@@ -261,6 +261,7 @@ echo '<form method="GET" action="stats.php">';
 
 echo '<select name="classification" onchange="this.form.submit()">';
 foreach ($solr_response->facets->classification->buckets as $classification) {
+    if( $classification->val == '9999-99') continue;
     $selected = $classification_selected == $classification->val ? 'selected' : '';
     echo "<option $selected value=\"{$classification->val}\">{$classification->val}</option>";
 }
