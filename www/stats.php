@@ -81,34 +81,39 @@ foreach ($solr_response->facets->classification->buckets as $classification) {
     $o->total_names = $classification->count;
 
     // may not be present in early classifications
+    $o->accepted_species = 0;
+    $o->accepted_taxa = 0;
     $o->unplaced = 0; 
     $o->deprecated = 0;
 
-    foreach($classification->role->buckets as $role){
+    if($classification->role){
+        foreach($classification->role->buckets as $role){
 
-        if($role->val == 'accepted'){
-            $o->accepted_taxa = $role->count;
+            if($role->val == 'accepted'){
+                $o->accepted_taxa = $role->count;
 
-            foreach($role->rank->buckets as $rank){
-                if($rank->val == 'species'){
-                    $o->accepted_species = $rank->count;
+                foreach($role->rank->buckets as $rank){
+                    if($rank->val == 'species'){
+                        $o->accepted_species = $rank->count;
+                    }
                 }
             }
-        }
 
-        if($role->val == 'synonym'){
-            $o->synonyms = $role->count;
-        }
+            if($role->val == 'synonym'){
+                $o->synonyms = $role->count;
+            }
 
-        if($role->val == 'unplaced'){
-            $o->unplaced = $role->count;
-        }
+            if($role->val == 'unplaced'){
+                $o->unplaced = $role->count;
+            }
 
-        if($role->val == 'deprecated'){
-            $o->deprecated = $role->count;
-        }
+            if($role->val == 'deprecated'){
+                $o->deprecated = $role->count;
+            }
 
+        }
     }
+
 
     // add in the %
     $o->accepted_species_proportion = $o->accepted_species / $o->total_names;
