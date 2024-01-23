@@ -80,13 +80,15 @@ foreach ($solr_response->facets->classification->buckets as $classification) {
     $o->name = $classification->val;
     $o->total_names = $classification->count;
 
+    if(!$o->total_names) continue;
+
     // may not be present in early classifications
     $o->accepted_species = 0;
     $o->accepted_taxa = 0;
     $o->unplaced = 0; 
     $o->deprecated = 0;
 
-    if($classification->role){
+    if(isset($classification->role)){
         foreach($classification->role->buckets as $role){
 
             if($role->val == 'accepted'){
