@@ -263,7 +263,6 @@ echo "<pre>" . print_r($solr_response->facets->classification->buckets) . "</pre
 
 echo '<select name="classification" onchange="this.form.submit()">';
 foreach ($solr_response->facets->classification->buckets as $classification) {
-    if(!$classification->count) continue; // junk classifications with no content
     $selected = $classification_selected == $classification->val ? 'selected' : '';
     echo "<option $selected value=\"{$classification->val}\">{$classification->val}</option>";
 }
