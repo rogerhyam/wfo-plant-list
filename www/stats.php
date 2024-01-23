@@ -88,50 +88,50 @@ foreach ($solr_response->facets->classification->buckets as $classification) {
     $o->unplaced = 0; 
     $o->deprecated = 0;
 
-    if(isset($classification->role)){
-        foreach($classification->role->buckets as $role){
 
-            if($role->val == 'accepted'){
-                $o->accepted_taxa = $role->count;
+    foreach($classification->role->buckets as $role){
 
-                foreach($role->rank->buckets as $rank){
-                    if($rank->val == 'species'){
-                        $o->accepted_species = $rank->count;
-                    }
+        if($role->val == 'accepted'){
+            $o->accepted_taxa = $role->count;
+
+            foreach($role->rank->buckets as $rank){
+                if($rank->val == 'species'){
+                    $o->accepted_species = $rank->count;
                 }
             }
-
-            if($role->val == 'synonym'){
-                $o->synonyms = $role->count;
-            }
-
-            if($role->val == 'unplaced'){
-                $o->unplaced = $role->count;
-            }
-
-            if($role->val == 'deprecated'){
-                $o->deprecated = $role->count;
-            }
-
         }
+
+        if($role->val == 'synonym'){
+            $o->synonyms = $role->count;
+        }
+
+        if($role->val == 'unplaced'){
+            $o->unplaced = $role->count;
+        }
+
+        if($role->val == 'deprecated'){
+            $o->deprecated = $role->count;
+        }
+
     }
+
 
 
     // add in the %
     $o->accepted_species_proportion = $o->accepted_species / $o->total_names;
-    $o->accepted_species_percentage = number_format($o->accepted_species_proportion * 100 , 1) . '%';
+    $o->accepted_species_percentage = number_format($o->accepted_species_proportion * 100 , 2) . '%';
 
     $o->accepted_taxa_proportion = $o->accepted_taxa / $o->total_names;
-    $o->accepted_taxa_percentage = number_format($o->accepted_taxa_proportion * 100 , 1) . '%';
+    $o->accepted_taxa_percentage = number_format($o->accepted_taxa_proportion * 100 , 2) . '%';
 
     $o->synonyms_proportion = $o->synonyms / $o->total_names;
-    $o->synonyms_percentage = number_format($o->synonyms_proportion * 100 , 1) . '%';
+    $o->synonyms_percentage = number_format($o->synonyms_proportion * 100 , 2) . '%';
     
     $o->unplaced_proportion = $o->unplaced / $o->total_names;
-    $o->unplaced_percentage = number_format($o->unplaced_proportion * 100 , 1) . '%';
+    $o->unplaced_percentage = number_format($o->unplaced_proportion * 100 , 2) . '%';
 
     $o->deprecated_proportion = $o->deprecated / $o->total_names;
-    $o->deprecated_percentage = number_format($o->deprecated_proportion * 100 , 1) . '%';
+    $o->deprecated_percentage = number_format($o->deprecated_proportion * 100 , 2) . '%';
     
     $overview[] = $o;
     
@@ -188,11 +188,11 @@ foreach ($overview as $classification) {
     echo "<tr>";
     echo "<th style=\"text-align: right;\" >{$classification->name}</th>";
     
-    echo "<td style=\"text-align: right;\" >" . number_format($classification->accepted_species, 0) . "<br/>$o->accepted_species_percentage</td>";
-    echo "<td style=\"text-align: right;\" >" . number_format($classification->accepted_taxa, 0) . "<br/>$o->accepted_taxa_percentage</td>";
-    echo "<td style=\"text-align: right;\" >" . number_format($classification->synonyms, 0) . "<br/>$o->synonyms_percentage</td>";
-    echo "<td style=\"text-align: right;\" >" . number_format($classification->unplaced, 0) . "<br/>$o->unplaced_percentage</td>";
-    echo "<td style=\"text-align: right;\" >" . number_format($classification->deprecated, 0) . "<br/>$o->deprecated_percentage</td>";
+    echo "<td style=\"text-align: right;\" >" . number_format($classification->accepted_species, 0) . "<br/>$classification->accepted_species_percentage</td>";
+    echo "<td style=\"text-align: right;\" >" . number_format($classification->accepted_taxa, 0) . "<br/>$classification->accepted_taxa_percentage</td>";
+    echo "<td style=\"text-align: right;\" >" . number_format($classification->synonyms, 0) . "<br/>$classification->synonyms_percentage</td>";
+    echo "<td style=\"text-align: right;\" >" . number_format($classification->unplaced, 0) . "<br/>$classification->unplaced_percentage</td>";
+    echo "<td style=\"text-align: right;\" >" . number_format($classification->deprecated, 0) . "<br/>$classification->deprecated_percentage</td>";
     
     echo "<td style=\"text-align: right;\" >" . number_format($classification->total_names, 0) . "<br/>&nbsp;</td>";
     echo "<tr>";
