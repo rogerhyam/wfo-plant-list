@@ -11,6 +11,14 @@ if(@$_GET['classification']){
     $classification_selected =  WFO_DEFAULT_VERSION;
 }
 
+// the filters are hierachical - we ignore lower ones if higher ones aren't set
+$phylum_selected = @$_GET['phylum'];
+if($phylum_selected) $order_selected = @$_GET['order'];
+else $order_selected = false;
+if($order_selected) $family_selected = @$_GET['family'];
+else $family_selected = false;
+
+
 /*
 
     Common facet definitions used below
@@ -39,6 +47,30 @@ $classification_facet = (object)array(
         "limit" => -1,
         "sort" => 'index',
         "mincount" => 0, // we want them all for the form
+);
+
+$family_facet = (object)array(
+        "type" => "terms",
+        "field" => "placed_in_family_s",
+        "limit" => -1,
+        "sort" => 'index',
+        "mincount" => 1, // we want them all for the form
+);
+
+$order_facet = (object)array(
+        "type" => "terms",
+        "field" => "placed_in_order_s",
+        "limit" => -1,
+        "sort" => 'index',
+        "mincount" => 1, // we want them all for the form
+);
+
+$phylum_facet = (object)array(
+        "type" => "terms",
+        "field" => "placed_in_phylum_s",
+        "limit" => -1,
+        "sort" => 'index',
+        "mincount" => 1, // we want them all for the form
 );
 
 
@@ -237,10 +269,20 @@ $facets['rank'] = $rank_facet;
 
 // get a list of the classifications to filter by
 $facets['classification'] = $classification_facet;
+$facets['family'] = $family_facet;
+$facets['order'] = $order_facet;
+$facets['phylum'] = $phylum_facet;
 
 // now set up some filters
 $filters = array();
+
+// always filter on a classification
 $filters[] = 'classification_id_s:' . $classification_selected;
+
+// can filter on some ranks
+if($phylum_selected) $filters[] = 'placed_in_phylum_s:"' . $phylum_selected . '"';
+if($order_selected) $filters[] = 'placed_in_order_s:"' . $order_selected . '"';
+if($family_selected) $filters[] = 'placed_in_family_s:"' . $family_selected . '"';
 
 $query = array(
     'query' => "*:*",
@@ -267,14 +309,51 @@ echo "<h2>Summary for {$classification_selected}</h2>";
 
 echo '<form method="GET" action="stats.php">';
 
-echo '<select name="classification" onchange="this.form.submit()">';
+// pick a classification
+echo '<strong>Data Release:&nbsp;</strong><select name="classification" onchange="this.form.submit()">';
 foreach ($solr_response->facets->classification->buckets as $classification) {
     if( $classification->val == '9999-99') continue;
     $selected = $classification_selected == $classification->val ? 'selected' : '';
     echo "<option $selected value=\"{$classification->val}\">{$classification->val}</option>";
 }
 echo '</select>';
-echo '<input type="submit" value="Set Classification" />';
+
+
+// pick a phylum
+echo '&nbsp;<select name="phylum" onchange="this.form.submit()">';
+echo "<option value=\"\">Placed, Unplaced and Deprecated</option>";
+foreach ($solr_response->facets->phylum->buckets as $phylum) {
+    $c = number_format($phylum->count, 0);
+    $selected = $phylum_selected == $phylum->val ? 'selected' : '';
+    echo "<option $selected  value=\"{$phylum->val}\">Placed in: {$phylum->val} ($c)</option>";
+}
+echo '</select>';
+
+// pick an order
+if($phylum_selected){
+    echo '&nbsp;<select name="order" onchange="this.form.submit()">';
+    echo "<option value=\"\">~ Any Order ~</option>";
+    foreach ($solr_response->facets->order->buckets as $order) {
+        $c = number_format($order->count, 0);
+        $selected = $order_selected == $order->val ? 'selected' : '';
+        echo "<option $selected  value=\"{$order->val}\">{$order->val} ($c)</option>";
+    }
+    echo '</select>';
+}
+
+
+// pick a family
+if($order_selected){
+    echo '&nbsp;<select name="family" onchange="this.form.submit()">';
+    echo "<option value=\"\">~ Any Family ~</option>";
+    foreach ($solr_response->facets->family->buckets as $family) {
+        $c = number_format($family->count, 0);
+        $selected = $family_selected == $family->val ? 'selected' : '';
+        echo "<option $selected  value=\"{$family->val}\">{$family->val} ($c)</option>";
+    }
+    echo '</select>';
+}
+
 echo '<form/>';
 
 echo "<table  style=\"width: 80%; margin-top: 1em;\">";
@@ -311,7 +390,7 @@ foreach ($solr_response->facets->rank->buckets as $rank) {
                     }
                 }
             }else{
-                echo "<td style=\"text-align: center;\" >-</td>";
+                echo "<td style=\"text-align: right;\" >-</td>";
             }
 
         }
