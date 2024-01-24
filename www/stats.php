@@ -302,13 +302,18 @@ foreach ($solr_response->facets->rank->buckets as $rank) {
         $cols = array('accepted', 'synonym', 'unplaced', 'deprecated');
 
         foreach ($cols as $col) {
-            foreach($rank->role->buckets as $role){
-                if($role->val == $col){
-                    $count = number_format($role->count);
-                    echo "<td style=\"text-align: right;\" >{$count}</td>";
-                    break;
+            if(isset($rank->role->buckets)){
+                foreach($rank->role->buckets as $role){
+                    if($role->val == $col){
+                        $count = number_format($role->count);
+                        echo "<td style=\"text-align: right;\" >{$count}</td>";
+                        break;
+                    }
                 }
+            }else{
+                echo "<td style=\"text-align: center;\" >-</td>";
             }
+
         }
 
    }
