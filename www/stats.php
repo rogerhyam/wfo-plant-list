@@ -5,6 +5,12 @@ require_once('header.php');
 require_once('../include/SolrIndex.php');
 $index = new SolrIndex();
 
+if(@$_GET['classification']){
+    $classification_selected = $_GET['classification'];
+}else{
+    $classification_selected =  WFO_DEFAULT_VERSION;
+}
+
 /*
 
     Common facet definitions used below
@@ -185,7 +191,14 @@ echo "<th style=\"text-align: center; color: black; \" >Total Names</th>";
 echo "</tr>";
 
 foreach ($overview as $classification) {
-    echo "<tr>";
+
+    if($classification_selected == $classification->name){
+        $bg_colour = 'lightyellow';
+    }else{
+        $bg_colour = 'white';
+    }
+
+    echo "<tr style=\"background-color: $bg_colour;\">";
     echo "<th style=\"text-align: right;\" >{$classification->name}</th>";
     
     echo "<td style=\"text-align: right;\" >" . number_format($classification->accepted_species, 0) . "<br/>$classification->accepted_species_percentage</td>";
@@ -227,11 +240,6 @@ $facets['classification'] = $classification_facet;
 
 // now set up some filters
 $filters = array();
-if(@$_GET['classification']){
-    $classification_selected = $_GET['classification'];
-}else{
-    $classification_selected =  WFO_DEFAULT_VERSION;
-}
 $filters[] = 'classification_id_s:' . $classification_selected;
 
 $query = array(
