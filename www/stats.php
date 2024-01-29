@@ -431,20 +431,19 @@ echo "</table>";
 
 // if we have nomenclatural activity we add it in
 // not available for earlier classifications
-if($solr_response->facets->activity_decades->buckets){
+$total_pubs = $solr_response->facets->activity_decades->between->count;
+if($total_pubs > 0){
 
-    $total_pubs = $solr_response->facets->activity_decades->between->count;
     $max = 0;
     foreach ($solr_response->facets->activity_decades->buckets as $decade) {
         if($decade->count > $max) $max = $decade->count;
     }
 
-
-
+/*
     echo "<pre>";
-//echo print_r($solr_response->facets);
+    echo print_r($solr_response->facets->activity_decades->buckets);
     echo "</pre>";
-
+*/
     echo "<h4>Nomenclatural Activity</h4>";
     echo "<p>Creation of nomenclatural publications can give an indication of active taxonomic work. This table shows the years of publication for " . number_format($total_pubs, 0) . " names that we have data for in the current selection.</p>";
 
