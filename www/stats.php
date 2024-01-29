@@ -46,7 +46,7 @@ $classification_facet = (object)array(
         "field" => "classification_id_s",
         "limit" => -1,
         "sort" => 'index',
-        "mincount" => 0, // we want them all for the form
+        "mincount" => 0 // we want them all for the form
 );
 
 $family_facet = (object)array(
@@ -54,7 +54,7 @@ $family_facet = (object)array(
         "field" => "placed_in_family_s",
         "limit" => -1,
         "sort" => 'index',
-        "mincount" => 1, // we want them all for the form
+        "mincount" => 1 // we want them all for the form
 );
 
 $order_facet = (object)array(
@@ -62,7 +62,7 @@ $order_facet = (object)array(
         "field" => "placed_in_order_s",
         "limit" => -1,
         "sort" => 'index',
-        "mincount" => 1, // we want them all for the form
+        "mincount" => 1 // we want them all for the form
 );
 
 $phylum_facet = (object)array(
@@ -70,8 +70,32 @@ $phylum_facet = (object)array(
         "field" => "placed_in_phylum_s",
         "limit" => -1,
         "sort" => 'index',
+        "mincount" => 1 // we want them all for the form
+);
+
+$activity_decades = (object)array(
+      "type" => "range",
+      "field" => "publication_year_i",
+      "start" => 1750,
+      "end" => date("Y"),
+      "gap" => 10,
+      "mincount" => 0,
+      "other" => "all"
+);
+
+
+
+/*
+$activity_facet = (object)array(
+        "type" => "terms",
+        "field" => "placed_in_phylum_s",
+        "limit" => -1,
+        "sort" => 'index',
         "mincount" => 1, // we want them all for the form
 );
+
+*/
+
 
 
 /*
@@ -264,6 +288,7 @@ unset($classification_facet->facet);
 // each rank is divided into roles
 $facets = array();
 $rank_facet->facet = (object)array('role' => $role_facet);
+
 // the main breakdown is via rank
 $facets['rank'] = $rank_facet;
 
@@ -272,6 +297,7 @@ $facets['classification'] = $classification_facet;
 $facets['family'] = $family_facet;
 $facets['order'] = $order_facet;
 $facets['phylum'] = $phylum_facet;
+$facets['activity_decades'] = $activity_decades;
 
 // now set up some filters
 $filters = array();
@@ -402,6 +428,44 @@ foreach ($solr_response->facets->rank->buckets as $rank) {
 
 echo "</table>";
 
+
+// if we have nomenclatural activity we add it in
+// not available for earlier classifications
+if($solr_response->facets->activity_decades->buckets){
+
+    $total_pubs = $solr_response->facets->activity_decades->between->count;
+    $max = 0;
+    foreach ($solr_response->facets->activity_decades->buckets as $decade) {
+        if($decade->count > $max) $max = $decade->count;
+    }
+
+
+
+    echo "<pre>";
+//echo print_r($solr_response->facets);
+    echo "</pre>";
+
+    echo "<h4>Nomenclatural Activity</h4>";
+    echo "<p>Creation of nomenclatural publications can give an indication of active taxonomic work. This table shows the years of publication for " . number_format($total_pubs, 0) . " names that we have data for in the current selection.</p>";
+
+    echo "<table  style=\"width: 80%; margin-top: 1em;\">";
+    echo "<tr>";
+    echo "<th>Decade</th>";
+    echo "<th>Publication Count</th>";
+    echo "</tr>";
+    foreach ($solr_response->facets->activity_decades->buckets as $decade) {
+        echo "<tr>";
+        echo "<th>{$decade->val}</th>";
+        echo '<td style="width: 100%; padding: 0px;">';
+        $percentage = ($decade->count/$max * 100) . "%";
+        echo '<div style="width: '. $percentage.'; height: 100%; display: inline-block; padding-left: 0px; padding-right: 0px;  background-color: lightgray; color: black; border: none; text-align: right;">&nbsp;' . number_format($decade->count, 0) . "&nbsp;</div>";
+        echo "</td>";
+        echo "</tr>";
+    }
+
+    echo "</table>";
+
+}
 
 
 
