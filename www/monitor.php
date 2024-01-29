@@ -7,8 +7,7 @@ require_once('header.php');
 
 <h3>Main Portal</h3>
 <p>
-    <a
-        href="https://list.worldfloraonline.org/rhakhis/ui/index.html">https://list.worldfloraonline.org/rhakhis/ui/index.html</a>
+    <a href="https://www.worldfloraonline.org/">https://www.worldfloraonline.org/</a>
 <p>
 <p>
     <a href="https://www.pingdom.com"><img src="https://share.pingdom.com/banners/5c6b1b5e"
