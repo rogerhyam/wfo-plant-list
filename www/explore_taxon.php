@@ -75,6 +75,8 @@ $children = $solr_response->response->docs;
 
 require_once('header.php');
 
+echo '<div id="explore_taxon">';
+
 if($ancestors){
     echo "<div id=\"bread_crumbs\">";
     $spacer = "";
@@ -175,7 +177,7 @@ render_references($references);
 echo '</div>';
 
 
-
+echo '</div>'; // end explore_taxon
 
 ?>
 

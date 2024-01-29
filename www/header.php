@@ -52,8 +52,19 @@
         background-color: yellow;
     }
 
-    #search_results {
-        width: 60%;
+    #explore_taxon div,
+    #explore div {
+        padding: 0px;
+        border: none;
+    }
+
+    #explore #search_form div,
+    #explore #search_results div {
+        width: 65%;
+    }
+
+    #bread_crumbs {
+        margin-top: 0.5em;
     }
 
     #facet_box {
@@ -61,7 +72,7 @@
         width: 30%;
         border: solid 1px gray;
         padding: 1em;
-        margin: 1em;
+        margin: none;
     }
 
     #facet_box h2,
@@ -84,6 +95,15 @@
         margin-top: 1em;
         padding: 0em;
         border: solid 1px gray;
+        width: 100%;
+    }
+
+    div#explore_taxon,
+    div#explore {
+        width: 100%;
+        padding: 0px;
+        border: none;
+        position: relative;
     }
     </style>
 </head>
