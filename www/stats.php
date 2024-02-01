@@ -1,3 +1,4 @@
+<script src="https://www.gstatic.com/charts/loader.js"></script>
 <?php
 
 require_once('config.php');
@@ -72,30 +73,6 @@ $phylum_facet = (object)array(
         "sort" => 'index',
         "mincount" => 1 // we want them all for the form
 );
-
-$activity_decades = (object)array(
-      "type" => "range",
-      "field" => "publication_year_i",
-      "start" => 1750,
-      "end" => date("Y"),
-      "gap" => 10,
-      "mincount" => 0,
-      "other" => "all"
-);
-
-
-
-/*
-$activity_facet = (object)array(
-        "type" => "terms",
-        "field" => "placed_in_phylum_s",
-        "limit" => -1,
-        "sort" => 'index',
-        "mincount" => 1, // we want them all for the form
-);
-
-*/
-
 
 
 /*
@@ -297,7 +274,6 @@ $facets['classification'] = $classification_facet;
 $facets['family'] = $family_facet;
 $facets['order'] = $order_facet;
 $facets['phylum'] = $phylum_facet;
-$facets['activity_decades'] = $activity_decades;
 
 // now set up some filters
 $filters = array();
@@ -429,47 +405,138 @@ foreach ($solr_response->facets->rank->buckets as $rank) {
 echo "</table>";
 
 
-// if we have nomenclatural activity we add it in
-// not available for earlier classifications
-$total_pubs = $solr_response->facets->activity_decades->between->count;
-if($total_pubs > 0){
-
-    $max = 0;
-    foreach ($solr_response->facets->activity_decades->buckets as $decade) {
-        if($decade->count > $max) $max = $decade->count;
-    }
-
 /*
-    echo "<pre>";
-    echo print_r($solr_response->facets->activity_decades->buckets);
-    echo "</pre>";
+
+    Now we get the speciation rate and synonymisation rate
+
 */
-    echo "<h4>Nomenclatural Activity</h4>";
-    echo "<p>Creation of nomenclatural publications can give an indication of active taxonomic work. This table shows the years of publication for " . number_format($total_pubs, 0) . " names that we have data for in the current selection.</p>";
 
-    echo "<table  style=\"width: 80%; margin-top: 1em;\">";
-    echo "<tr>";
-    echo "<th>Decade</th>";
-    echo "<th>Publication Count</th>";
-    echo "</tr>";
-    foreach ($solr_response->facets->activity_decades->buckets as $decade) {
-        echo "<tr>";
-        echo "<th>{$decade->val}</th>";
-        echo '<td style="width: 100%; padding: 0px;">';
-        $percentage = ($decade->count/$max * 100) . "%";
-        echo '<div style="width: '. $percentage.'; height: 100%; display: inline-block; padding-left: 0px; padding-right: 0px;  background-color: lightgray; color: black; border: none; text-align: right;">&nbsp;' . number_format($decade->count, 0) . "&nbsp;</div>";
-        echo "</td>";
-        echo "</tr>";
-    }
 
-    echo "</table>";
+// we facet on the years - all of them
+$facets = array();
+$facets['years'] = (object)array(
+      "type" => "range",
+      "field" => "publication_year_i",
+      "start" => 1750,
+      "end" => date("Y"),
+      "gap" => 1,
+      "mincount" => 0,
+      "other" => "all"
+);
 
+// now set up some filters
+$filters = array();
+
+// always filter on a classification
+$filters[] = 'classification_id_s:' . $classification_selected;
+
+// can filter on some ranks
+if($phylum_selected) $filters[] = 'placed_in_phylum_s:"' . $phylum_selected . '"';
+if($order_selected) $filters[] = 'placed_in_order_s:"' . $order_selected . '"';
+if($family_selected) $filters[] = 'placed_in_family_s:"' . $family_selected . '"';
+
+// we are only interested in accepted species.
+//$filters[] = "rank_s:species";
+$filters[] = "-role_s:deprecated";
+
+$filters_basionyms = $filters; 
+$filters_basionyms[] = "-authors_string_s:\(*";
+
+$filters_synonyms = $filters;
+$filters_synonyms[] = "authors_string_s:\(*";
+
+
+// first query is for basionyms
+$query = array(
+    'query' => "*:*",
+    'facet' => $facets,
+    'filter' => $filters_basionyms,
+    'limit' => 0 // we are only interested in the facet data
+);
+
+$solr_response = $index->getSolrResponse($query);
+
+if(!isset($solr_response->facets)){
+    echo "Somethings up.";
+    echo '<pre>';
+    print_r($solr_response);
+    exit;
 }
 
+$basionym_years = $solr_response->facets->years->buckets;
 
+// first query is for basionyms
+$query = array(
+    'query' => "*:*",
+    'facet' => $facets,
+    'filter' => $filters_synonyms,
+    'limit' => 0 // we are only interested in the facet data
+);
 
-// filtering the bryophytes in and out
-// !name_descendent_path:Code/Plantae/Bryobiotina
+$solr_response = $index->getSolrResponse($query);
+
+if(!isset($solr_response->facets)){
+    echo "Somethings up.";
+    echo '<pre>';
+    print_r($solr_response);
+    exit;
+}
+
+$synonym_years = $solr_response->facets->years->buckets;
+
+$scores = array();
+$scores[] = array('Year', 'New Names', 'Com. Nov.');
+
+for ($i=0; $i < count($basionym_years); $i++) { 
+   $scores[] = array($basionym_years[$i]->val, $basionym_years[$i]->count, $synonym_years[$i]->count);
+}
+
+echo '<h3>Taxon Name Publication Rate</h3>';
+echo '<p style="width:100%; max-width:80%;">Name publication dates can be an indication of species discovery.
+Date of publication of new combinations (with paranthetical authors) can be an indication of revisionary activity. 
+This graph gives an indication of the number of new taxon names and new taxon name combinations published by year (all ranks) for the selection above.</p>';
+echo '<div id="description_rate" style="width:100%; max-width:80%; height:500px;"></div>';
+
+// write in some javascript to render the chart
+echo "\n<script>\n";
+
+// load appropriate google package
+echo "google.charts.load('current',{packages:['corechart']});\n";
+
+// register function to be called when page has loaded
+echo "google.charts.setOnLoadCallback(drawRateChart);";
+
+// function to draw chart
+echo "function drawRateChart(){\n";
+
+    // options for the chart
+    $options = (object)array(
+       // "title" => 'Rate of Publication',
+        "hAxis" => (object)array( "title" => 'Year', 'format' => '####'),
+        "vAxis" => (object)array("title" => 'Names Published'),
+        //"legend" => 'Some legend text'
+    );
+    $options_json = json_encode($options);
+    echo "const options = $options_json\n";
+
+    // data for the chart
+    $data_json = json_encode($scores);
+    echo "const data = google.visualization.arrayToDataTable( $data_json );\n";
+
+    // get the chart in the DOM
+    echo "const chart = new google.visualization.LineChart(document.getElementById('description_rate'));\n";
+
+    // actually draw it
+    echo "chart.draw(data, options);";
+
+echo "\n}\n"; // end drawRateChart function
+
+echo "</script>\n";
+
+echo "<pre>";
+//echo print_r($data_json);
+echo "</pre>";
+
 
 
 ?>

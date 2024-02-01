@@ -27,12 +27,13 @@
         white-space: nowrap;
     }
 
+    /*
     div {
         width: 58em;
         border: solid 1px gray;
         padding: 1em;
     }
-
+*/
     div#navbar {
         width: 100%;
         border: none;
