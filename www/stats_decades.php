@@ -20,24 +20,20 @@ $filters = array();
 $filters[] = 'classification_id_s:9999-01';
 
 // we are only interested in accepted species.
-$filters[] = "rank_s:species";
-//$filters[] = "-role_s:deprecated";
+//$filters[] = "rank_s:species";
+$filters[] = "-role_s:deprecated";
 
 
 // flip this to switch between year
-//$filters[] = "-authors_string_s:\(*";
-$filters[] = "authors_string_s:\(*";
+$filters[] = "-authors_string_s:\(*";
+//$filters[] = "authors_string_s:\(*";
 
 $facets = array();
 
 $facets['years'] = (object)array(
-      "type" => "range",
+      "type" => "terms",
       "field" => "publication_year_i",
-      "start" => 1750,
-      "end" => 2024,
-      "gap" => 1,
-      "mincount" => 0,
-      "other" => "all",
+      "sort" => "index",
       "limit" => -1
 );
 
@@ -59,21 +55,35 @@ if(!isset($solr_response->facets)){
 
 
 
-// echo "<pre>";
-
+//echo "<pre>";
 header("Content-Type: text/csv");
-header("Content-Disposition: attachment; filename=years_basionyms.csv");
+header("Content-Disposition: attachment; filename=decades_basionyms.csv");
 
+$year_range = range(1750, 2040, 1);
 
+// initialise the years
+$out = array();
+foreach($year_range as $year) $out[$year] = 0;
+
+// populate them
+foreach ($solr_response->facets->years->buckets as $year) {
+    $out[$year->val] = $year->count;
+}
 
 // output decades or years
-if(false){
+if(true){
 
     $matrix = array();
 
-    foreach ($solr_response->facets->years->buckets as $year) {
-        $decade = floor($year->val/10)*10;
-        $matrix[$decade][] = $year->count;
+    foreach ($out as $year => $count) {
+        $decade = floor($year/10)*10;
+        $digit = round(($year/10 - floor($year/10))*10);
+        
+        // create an empty colum
+        if(!isset($matrix[$decade])){
+            $matrix[$decade] = array(0,0,0,0,0,0,0,0,0,0);
+        }
+        $matrix[$decade][$digit] = $count;
     }
 
     echo 'Year,'  . implode(',', array_keys($matrix)) . "\n";
@@ -87,9 +97,10 @@ if(false){
         echo "\n";
     }
 }else{
+
     echo "Year,Count\n";
-    foreach ($solr_response->facets->years->buckets as $year) {
-        echo "{$year->val},{$year->count}\n";
+    foreach ($out as $year => $count) {
+        echo "{$year},{$count}\n";
     }
 }
 

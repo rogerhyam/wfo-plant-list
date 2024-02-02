@@ -415,13 +415,11 @@ echo "</table>";
 // we facet on the years - all of them
 $facets = array();
 $facets['years'] = (object)array(
-      "type" => "range",
+      "type" => "terms",
       "field" => "publication_year_i",
-      "start" => 1750,
-      "end" => date("Y"),
-      "gap" => 1,
-      "mincount" => 0,
-      "other" => "all"
+      "sort" => "index",
+      "allBuckets" => true,
+      "limit" => -1
 );
 
 // now set up some filters
@@ -466,9 +464,9 @@ if(!isset($solr_response->facets)){
 $basionym_years = $solr_response->facets->years->buckets;
 
 // we shouldn't carry on if this is not here
-if($solr_response->facets->years->between->count != 0){
+if($solr_response->facets->years->allBuckets->count != 0){
 
-        // first query is for basionyms
+        // second query for synonyms
         $query = array(
             'query' => "*:*",
             'facet' => $facets,
@@ -490,8 +488,26 @@ if($solr_response->facets->years->between->count != 0){
         $scores = array();
         $scores[] = array('Year', 'New Names', 'Com. Nov.');
 
-        for ($i=0; $i < count($basionym_years); $i++) { 
-        $scores[] = array($basionym_years[$i]->val, $basionym_years[$i]->count, $synonym_years[$i]->count);
+        // we are not guaranteed to have a bucket for every year because mincount doesn't work on this kind of facet
+        $year_range = range(1750, 2024, 1);
+
+        // initialise the years
+        $out = array();
+        foreach($year_range as $year) $out[$year] = array($year, 0, 0);
+
+        // populate them
+        foreach ($basionym_years as $year) {
+            if(!isset($out[$year->val])) continue;
+            $out[$year->val][1] = $year->count;
+        }
+        foreach ($synonym_years as $year) {
+            if(!isset($out[$year->val])) continue;
+            $out[$year->val][2] = $year->count;
+        }
+
+        // add it to the score
+        foreach ($out as $year => $vals){
+            $scores[] = $vals;
         }
 
 
