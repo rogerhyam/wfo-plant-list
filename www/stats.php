@@ -465,73 +465,84 @@ if(!isset($solr_response->facets)){
 
 $basionym_years = $solr_response->facets->years->buckets;
 
-// first query is for basionyms
-$query = array(
-    'query' => "*:*",
-    'facet' => $facets,
-    'filter' => $filters_synonyms,
-    'limit' => 0 // we are only interested in the facet data
-);
+// we shouldn't carry on if this is not here
+if($solr_response->facets->years->between->count != 0){
 
-$solr_response = $index->getSolrResponse($query);
+        // first query is for basionyms
+        $query = array(
+            'query' => "*:*",
+            'facet' => $facets,
+            'filter' => $filters_synonyms,
+            'limit' => 0 // we are only interested in the facet data
+        );
 
-if(!isset($solr_response->facets)){
-    echo "Somethings up.";
-    echo '<pre>';
-    print_r($solr_response);
-    exit;
+        $solr_response = $index->getSolrResponse($query);
+
+        if(!isset($solr_response->facets)){
+            echo "Somethings up.";
+            echo '<pre>';
+            print_r($solr_response);
+            exit;
+        }
+
+        $synonym_years = $solr_response->facets->years->buckets;
+
+        $scores = array();
+        $scores[] = array('Year', 'New Names', 'Com. Nov.');
+
+        for ($i=0; $i < count($basionym_years); $i++) { 
+        $scores[] = array($basionym_years[$i]->val, $basionym_years[$i]->count, $synonym_years[$i]->count);
+        }
+
+
+
+        echo '<h3>Taxon Name Publication Rate</h3>';
+        echo '<p style="width:100%; max-width:80%;">Name publication dates can be an indication of species discovery.
+        Date of publication of new combinations (with paranthetical authors) can be an indication of revisionary activity. 
+        This graph gives an indication of the number of new taxon names and new taxon name combinations published by year (all ranks) for the selection above.</p>';
+        echo '<div id="description_rate" style="width:100%; max-width:80%; height:500px;"></div>';
+
+        // write in some javascript to render the chart
+        echo "\n<script>\n";
+
+        // load appropriate google package
+        echo "google.charts.load('current',{packages:['corechart']});\n";
+
+        // register function to be called when page has loaded
+        echo "google.charts.setOnLoadCallback(drawRateChart);";
+
+        // function to draw chart
+        echo "function drawRateChart(){\n";
+
+            // options for the chart
+            $options = (object)array(
+            // "title" => 'Rate of Publication',
+                "hAxis" => (object)array( "title" => 'Year', 'format' => '####'),
+                "vAxis" => (object)array("title" => 'Names Published'),
+                //"legend" => 'Some legend text'
+            );
+            $options_json = json_encode($options);
+            echo "const options = $options_json\n";
+
+            // data for the chart
+            $data_json = json_encode($scores);
+            echo "const data = google.visualization.arrayToDataTable( $data_json );\n";
+
+            // get the chart in the DOM
+            echo "const chart = new google.visualization.LineChart(document.getElementById('description_rate'));\n";
+
+            // actually draw it
+            echo "chart.draw(data, options);";
+
+        echo "\n}\n"; // end drawRateChart function
+
+        echo "</script>\n";
+
+
+
 }
 
-$synonym_years = $solr_response->facets->years->buckets;
 
-$scores = array();
-$scores[] = array('Year', 'New Names', 'Com. Nov.');
-
-for ($i=0; $i < count($basionym_years); $i++) { 
-   $scores[] = array($basionym_years[$i]->val, $basionym_years[$i]->count, $synonym_years[$i]->count);
-}
-
-echo '<h3>Taxon Name Publication Rate</h3>';
-echo '<p style="width:100%; max-width:80%;">Name publication dates can be an indication of species discovery.
-Date of publication of new combinations (with paranthetical authors) can be an indication of revisionary activity. 
-This graph gives an indication of the number of new taxon names and new taxon name combinations published by year (all ranks) for the selection above.</p>';
-echo '<div id="description_rate" style="width:100%; max-width:80%; height:500px;"></div>';
-
-// write in some javascript to render the chart
-echo "\n<script>\n";
-
-// load appropriate google package
-echo "google.charts.load('current',{packages:['corechart']});\n";
-
-// register function to be called when page has loaded
-echo "google.charts.setOnLoadCallback(drawRateChart);";
-
-// function to draw chart
-echo "function drawRateChart(){\n";
-
-    // options for the chart
-    $options = (object)array(
-       // "title" => 'Rate of Publication',
-        "hAxis" => (object)array( "title" => 'Year', 'format' => '####'),
-        "vAxis" => (object)array("title" => 'Names Published'),
-        //"legend" => 'Some legend text'
-    );
-    $options_json = json_encode($options);
-    echo "const options = $options_json\n";
-
-    // data for the chart
-    $data_json = json_encode($scores);
-    echo "const data = google.visualization.arrayToDataTable( $data_json );\n";
-
-    // get the chart in the DOM
-    echo "const chart = new google.visualization.LineChart(document.getElementById('description_rate'));\n";
-
-    // actually draw it
-    echo "chart.draw(data, options);";
-
-echo "\n}\n"; // end drawRateChart function
-
-echo "</script>\n";
 
 echo "<pre>";
 //echo print_r($data_json);
