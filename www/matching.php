@@ -276,7 +276,7 @@ if(@$_GET['matching_mode']){
                         $row[0] = 'CHOICE';
                         render_choices($response);
                     }
-                    record_choices($row, $repsonse, $rows[0], $candidates_file_path);
+                    record_choices($row, $response, $rows[0], $candidates_file_path);
                 }elseif(!$response->match && $response->candidates){
                     // no exact match but some candidates to look at
                     if(@$_SESSION['matching_params']['interactive']){
@@ -401,9 +401,9 @@ if(file_exists($input_file_path)){
 <p>Each name should be on a new line. Try cutting and pasting a column from a spreadsheet if you like.</p>
 <p>
 <form action="matching.php" method="POST">
-  <textarea cols="60" rows="10" name="name_data"></textarea>
-  <br/>
-  <input type="submit" value="Submit Data" name="submit">
+    <textarea cols="60" rows="10" name="name_data"></textarea>
+    <br />
+    <input type="submit" value="Submit Data" name="submit">
 </form>
 </p>
 
@@ -411,9 +411,9 @@ if(file_exists($input_file_path)){
 <p>The first row of the CSV file will be taken as the column headers for the file.</p>
 <p>
 <form action="matching.php" method="POST" enctype="multipart/form-data">
-  Select file to upload:
-  <input type="file" name="input_file" id="input_file">
-  <input type="submit" value="Upload CSV File" name="submit">
+    Select file to upload:
+    <input type="file" name="input_file" id="input_file">
+    <input type="submit" value="Upload CSV File" name="submit">
 </form>
 </p>
 
@@ -425,8 +425,8 @@ if(file_exists($input_file_path)){
 <p>
 <form action="matching.php" method="GET">
     <input type="hidden" name="update_matching_params" value="true" />
-<table>
-<?php 
+    <table>
+        <?php 
 
     if(isset($_SESSION['data_type']) && $_SESSION['data_type'] == 'CSV') { 
     
@@ -435,57 +435,65 @@ if(file_exists($input_file_path)){
         $header = fgetcsv($in_file);
         fclose($in_file);
 ?>
-<tr>
-    <th style="text-align: right">Names Column:</th>
-    <td>
-        <select name="name_col_index">
-            <option value="-1">~ Pick Column ~</option>
-<?php
+        <tr>
+            <th style="text-align: right">Names Column:</th>
+            <td>
+                <select name="name_col_index">
+                    <option value="-1">~ Pick Column ~</option>
+                    <?php
     for($i = 0; $i < count($header); $i++){
         $selected = $i == @$_SESSION['matching_params']['name_col_index'] ? 'selected' : '';
         echo "<option value=\"$i\" $selected >{$header[$i]}</option>";
     }
 ?>
-        </select>
-    </td>
-    <td>The data supplied is in a CSV file. You must specify which column contains the names.</td>
-</tr>
+                </select>
+            </td>
+            <td>The data supplied is in a CSV file. You must specify which column contains the names.</td>
+        </tr>
 
-<?php
+        <?php
 } // end data type check
 
 ?>
 
 
-<tr>
-    <th style="text-align: right">Interactive mode:</th>
-    <td style="text-align: center"><input type="checkbox" name="interactive" value="true" <?php echo @$_SESSION['matching_params']['interactive'] ? 'checked' : '' ?>/></td>
-    <td>If no unambiguous match is found but some candidate names are found then stop and manually pick from the list of candidates. If this isn't selected then rows without unambiguous matches will be skipped.</td>
-</tr>
+        <tr>
+            <th style="text-align: right">Interactive mode:</th>
+            <td style="text-align: center"><input type="checkbox" name="interactive" value="true"
+                    <?php echo @$_SESSION['matching_params']['interactive'] ? 'checked' : '' ?> /></td>
+            <td>If no unambiguous match is found but some candidate names are found then stop and manually pick from the
+                list of candidates. If this isn't selected then rows without unambiguous matches will be skipped.</td>
+        </tr>
 
-<tr>
-    <th style="text-align: right">Check homonyms:</th>
-    <td style="text-align: center"><input type="checkbox" name="homonyms" value="true" <?php echo @$_SESSION['matching_params']['homonyms'] ? 'checked' : '' ?>/></td>
-    <td>If a single, exact match of name and author string is found but there are other names with the same letters but a different author string stop/skip.</td>
-</tr>
+        <tr>
+            <th style="text-align: right">Check homonyms:</th>
+            <td style="text-align: center"><input type="checkbox" name="homonyms" value="true"
+                    <?php echo @$_SESSION['matching_params']['homonyms'] ? 'checked' : '' ?> /></td>
+            <td>If a single, exact match of name and author string is found but there are other names with the same
+                letters but a different author string stop/skip.</td>
+        </tr>
 
-<tr>
-    <th style="text-align: right">Check ranks:</th>
-    <td style="text-align: center"><input type="checkbox" name="ranks" value="true" <?php echo @$_SESSION['matching_params']['ranks'] ? 'checked' : '' ?>/></td>
-    <td>If a precise match of name and author string is found and it is possible to extract the rank from the name but the rank doesn't match then stop/skip.</td>
-</tr>
-<tr>
-    <th style="text-align: right">Accept a single candidate:</th>
-    <td style="text-align: center"><input type="checkbox" name="accept_single_candidate" value="true" <?php echo @$_SESSION['matching_params']['accept_single_candidate'] ? 'checked' : '' ?>/></td>
-    <td>If an exact match of name and author string is NOT found but only a single candidate 
-        name is found make that the match and do not proceed to relevance searching. 
-        <strong>Use this feature with caution!</strong></td>
-</tr>
+        <tr>
+            <th style="text-align: right">Check ranks:</th>
+            <td style="text-align: center"><input type="checkbox" name="ranks" value="true"
+                    <?php echo @$_SESSION['matching_params']['ranks'] ? 'checked' : '' ?> /></td>
+            <td>If a precise match of name and author string is found and it is possible to extract the rank from the
+                name but the rank doesn't match then stop/skip.</td>
+        </tr>
+        <tr>
+            <th style="text-align: right">Accept a single candidate:</th>
+            <td style="text-align: center"><input type="checkbox" name="accept_single_candidate" value="true"
+                    <?php echo @$_SESSION['matching_params']['accept_single_candidate'] ? 'checked' : '' ?> /></td>
+            <td>If an exact match of name and author string is NOT found but only a single candidate
+                name is found make that the match and do not proceed to relevance searching.
+                <strong>Use this feature with caution!</strong>
+            </td>
+        </tr>
 
-<tr>
-    <td colspan="3" style="text-align: right"><input type="submit" value="Set Parameters" name="submit"></td>
-</tr>
-</table>
+        <tr>
+            <td colspan="3" style="text-align: right"><input type="submit" value="Set Parameters" name="submit"></td>
+        </tr>
+    </table>
 
 </form>
 </p>
@@ -496,22 +504,22 @@ if(file_exists($input_file_path)){
 <form action="matching.php" method="GET">
     <input type="hidden" name="offset" value="<?php echo @$_GET['offset'] ?>" />
     <input type="hidden" name="new_run" value="true" />
-<table>
+    <table>
 
-<tr>
-    <th style="text-align: right">Only unexamined:</th>
-    <td><input type="radio" name="matching_mode" value="unmatched" checked="true" /></td>
-    <td>Only try and match rows that haven't been matched or skipped before.</td>
-</tr>
-<tr>
-    <th style="text-align: right">Skipped and unmatched:</th>
-    <td><input type="radio" name="matching_mode" value="skipped" /></td>
-    <td>Try and match rows that haven't been attempted and those that were previously skipped.</td>
-</tr>
-<tr>
-    <td colspan="3" style="text-align: right">
+        <tr>
+            <th style="text-align: right">Only unexamined:</th>
+            <td><input type="radio" name="matching_mode" value="unmatched" checked="true" /></td>
+            <td>Only try and match rows that haven't been matched or skipped before.</td>
+        </tr>
+        <tr>
+            <th style="text-align: right">Skipped and unmatched:</th>
+            <td><input type="radio" name="matching_mode" value="skipped" /></td>
+            <td>Try and match rows that haven't been attempted and those that were previously skipped.</td>
+        </tr>
+        <tr>
+            <td colspan="3" style="text-align: right">
 
-<?php
+                <?php
     // check if we have enough information to allow matching to start
     $disabled = "";
     $message = "";
@@ -525,19 +533,19 @@ if(file_exists($input_file_path)){
     } 
     
 ?>
-    <span style="color: red;"><?php echo $message ?></span>
-    <input type="submit" value="Run Matching" name="submit" <?php echo $disabled ?> />
-    </td>
-</tr>
-</table>
-  
+                <span style="color: red;"><?php echo $message ?></span>
+                <input type="submit" value="Run Matching" name="submit" <?php echo $disabled ?> />
+            </td>
+        </tr>
+    </table>
+
 </form>
 </p>
 
 <h2>4. Download</h2>
 <p><a href="<?php echo $output_file_path ?>">Download Results</a>
 
-<?php
+    <?php
     if(file_exists($candidates_file_path)) echo " (<a href=\"$candidates_file_path\">Candidates</a>)";
 ?>
 
@@ -547,138 +555,143 @@ if(file_exists($input_file_path)){
 <p><strong>Note on Encoding:</strong>
     UTF-8 encoding is assumed throughout.
     This should work seemlessly apart from in one situation.
-    <br/>If you download a file and open it with Microsoft Excel by double clicking 
+    <br />If you download a file and open it with Microsoft Excel by double clicking
     on the file itself Excel may assume the wrong encoding.
-    <br/>To preserve the encoding import the file via File > Import > CSV and choose Unicode (UTF-8) from the
+    <br />To preserve the encoding import the file via File > Import > CSV and choose Unicode (UTF-8) from the
     "File origin" dropdown.
-    <br/>Files saved as CSV from Excel are UTF-8 encoded by default.
+    <br />Files saved as CSV from Excel are UTF-8 encoded by default.
 </p>
 
 <div>
-<a name="instructions"><h2>Instructions</h2></a>
-<p>
-    This tool is for attaching WFO name IDs to your data based on the name string you have.
-    You submit your data,
-    run the matching process
-    and download a CSV file with three additional columns in:
-</p>
-<ol>
-    <li><strong>wfo_id</strong> The unique 10 digit WFO ID for the name.</li>
-    <li><strong>wfo_full_name</strong> The full version of the name as it occurs in the WFO Plant list as plain text.</li>
-    <li><strong>wfo_check</strong>
-        If the name is placed in the current classification then the full path to the name.
-        If the name hasn't been placed in the classification then either 
-        UNPLACED (An expert has not expressed an opinion on the taxonomy yet.)
-        of
-        DEPRECATED (Can't be placed in the classification - do not use.)
+    <a name="instructions">
+        <h2>Instructions</h2>
+    </a>
+    <p>
+        This tool is for attaching WFO name IDs to your data based on the name string you have.
+        You submit your data,
+        run the matching process
+        and download a CSV file with three additional columns in:
+    </p>
+    <ol>
+        <li><strong>wfo_id</strong> The unique 10 digit WFO ID for the name.</li>
+        <li><strong>wfo_full_name</strong> The full version of the name as it occurs in the WFO Plant list as plain
+            text.</li>
+        <li><strong>wfo_check</strong>
+            If the name is placed in the current classification then the full path to the name.
+            If the name hasn't been placed in the classification then either
+            UNPLACED (An expert has not expressed an opinion on the taxonomy yet.)
+            of
+            DEPRECATED (Can't be placed in the classification - do not use.)
 
-    </li>
-</ol>
+        </li>
+    </ol>
 
-<h3>Name strings</h3>
-<p>
-     The names you submit must be complete and include the authors.
-     They should have one, two or three "name words".
-     You will get unreliable results if you include varieties of subspecies (four name words).
-     Ranks (either in full or using common abbreviations) are OK to include.
-     Hybrid symbols will be stripped out at the start of the process.
-</p>
+    <h3>Name strings</h3>
+    <p>
+        The names you submit must be complete and include the authors.
+        They should have one, two or three "name words".
+        You will get unreliable results if you include varieties of subspecies (four name words).
+        Ranks (either in full or using common abbreviations) are OK to include.
+        Hybrid symbols will be stripped out at the start of the process.
+    </p>
 
-<h3>Submitting data</h3>
+    <h3>Submitting data</h3>
 
-<p>
-    The easiest way to get started is to cut and paste a 
-    column of names into the text box in the form and click "Submit Data".
-    If you have the authors in a second column then it is OK to copy the two columns into the text box.
-    The matching process will merge them.
-</p>
+    <p>
+        The easiest way to get started is to cut and paste a
+        column of names into the text box in the form and click "Submit Data".
+        If you have the authors in a second column then it is OK to copy the two columns into the text box.
+        The matching process will merge them.
+    </p>
 
-<p>
-    Once you have tried it out with a few names cut and paste into the text box you could
-    try uploading a CSV file. All the columns in the CSV file will be returned to you in 
-    the results so this technique can be used to bind WFO IDs to your local IDs 
-    and other data. If you have the name and authors in separate columns you 
-    must combine them into a single column before upload.
-</p>
+    <p>
+        Once you have tried it out with a few names cut and paste into the text box you could
+        try uploading a CSV file. All the columns in the CSV file will be returned to you in
+        the results so this technique can be used to bind WFO IDs to your local IDs
+        and other data. If you have the name and authors in separate columns you
+        must combine them into a single column before upload.
+    </p>
 
-<h3>Setting parameters</h3>
+    <h3>Setting parameters</h3>
 
-<p>
-    The matching process can be parametised. 
-    The default values are usually OK to start with but if you have uploaded a CSV file
-    you need to specify the column that contains the name strings at a minimum.
-</p>
-
-
-<p> 
-    Recommendation: Do not turn on interactive mode the first time you run the matching
-    process. This will give an idea of how dirty the data is and how much work is needed 
-    to get to 100% matching using interactive mode.
-</p>
-
-<h3>Doing a matching run</h3>
-
-<p>
-    Once you have submitted data and set the parameters you can do a matching run.
-    If you have submitted a large file then the page may refresh multiple times 
-    so be patient.
-</p>
-
-<p>
-    You can do multiple matching runs on the same data, perhaps one with interactive mode off
-    followed by a run with it turned on.
-</p>
-
-<h3>Downloading data</h3>
-
-<p>
-    You can download the results of the matching at any time after you first run the matching process.
-    <strong>To avoid data loss download your data frequently. </strong> Data is only stored as long
-    as your session lasts. If you walk away and come back later it may be gone!
-    You can upload the file you have downloaded if you want to continue an earlier session.
-</p>
-
-<h3>Candidates</h3>
-
-<p>
-   If an unambiguous match is not made for a name in your data then the near matches (candidates) are 
-   written to a file called candidates.csv. For each candidate name your input row is repeated along with a
-   relative matching score.
-   This occurs both in interactive and non-interactive modes.
-   You can download this file if you would like to resolve issues with matching locally.
-   <strong>The candidates.csv file is deleted at the beginning of each matching run.
-    i.e. when you click the "Run Matching" button.
-   </strong>
-   The file is just logging the output of the matching process as it happens and not updated.
-</p>
-<p>
-    Recommendation: If you have 10% unmatched names and you'd like to work on them somewhere else
-    turn off interactive mode and run the matching one last time then download the candidates.csv 
-    file. It will contain the candidates for all your unmatched names and only your unmatched names.
-</p>
+    <p>
+        The matching process can be parametised.
+        The default values are usually OK to start with but if you have uploaded a CSV file
+        you need to specify the column that contains the name strings at a minimum.
+    </p>
 
 
-<h3>Big datasets</h3>
+    <p>
+        Recommendation: Do not turn on interactive mode the first time you run the matching
+        process. This will give an idea of how dirty the data is and how much work is needed
+        to get to 100% matching using interactive mode.
+    </p>
 
-<p>
-    No limit is set on the number of names that can be matched in one go, beyond the filesize upload limit.
-    The process works well with CSV files with tens of thousands of rows.
-    The process will probably fail with more than one hundred thousand rows.
-</p>
+    <h3>Doing a matching run</h3>
 
-<p>
-    If you have a large number of names to match it is highly recommend you break your work into 
-    batches of logical batches of a few tens of thousands of names each. This is worth doing for the human
-    factor alone. A large dataset may contain more ambiguous names than a human is able to disambiguate in one session.
-</p>
+    <p>
+        Once you have submitted data and set the parameters you can do a matching run.
+        If you have submitted a large file then the page may refresh multiple times
+        so be patient.
+    </p>
 
-<p>
-    If you frequently need to rematch many thousands of names please consider installing a local
-    copy of this matching service (see <a href="index.php#scale">Scalability and Performance</a>). This is a shared resource and if the server is stressed 
-    it will slow down access to other users.
-</p>
+    <p>
+        You can do multiple matching runs on the same data, perhaps one with interactive mode off
+        followed by a run with it turned on.
+    </p>
 
-<?php
+    <h3>Downloading data</h3>
+
+    <p>
+        You can download the results of the matching at any time after you first run the matching process.
+        <strong>To avoid data loss download your data frequently. </strong> Data is only stored as long
+        as your session lasts. If you walk away and come back later it may be gone!
+        You can upload the file you have downloaded if you want to continue an earlier session.
+    </p>
+
+    <h3>Candidates</h3>
+
+    <p>
+        If an unambiguous match is not made for a name in your data then the near matches (candidates) are
+        written to a file called candidates.csv. For each candidate name your input row is repeated along with a
+        relative matching score.
+        This occurs both in interactive and non-interactive modes.
+        You can download this file if you would like to resolve issues with matching locally.
+        <strong>The candidates.csv file is deleted at the beginning of each matching run.
+            i.e. when you click the "Run Matching" button.
+        </strong>
+        The file is just logging the output of the matching process as it happens and not updated.
+    </p>
+    <p>
+        Recommendation: If you have 10% unmatched names and you'd like to work on them somewhere else
+        turn off interactive mode and run the matching one last time then download the candidates.csv
+        file. It will contain the candidates for all your unmatched names and only your unmatched names.
+    </p>
+
+
+    <h3>Big datasets</h3>
+
+    <p>
+        No limit is set on the number of names that can be matched in one go, beyond the filesize upload limit.
+        The process works well with CSV files with tens of thousands of rows.
+        The process will probably fail with more than one hundred thousand rows.
+    </p>
+
+    <p>
+        If you have a large number of names to match it is highly recommend you break your work into
+        batches of logical batches of a few tens of thousands of names each. This is worth doing for the human
+        factor alone. A large dataset may contain more ambiguous names than a human is able to disambiguate in one
+        session.
+    </p>
+
+    <p>
+        If you frequently need to rematch many thousands of names please consider installing a local
+        copy of this matching service (see <a href="index.php#scale">Scalability and Performance</a>). This is a shared
+        resource and if the server is stressed
+        it will slow down access to other users.
+    </p>
+
+    <?php
 
 require_once('footer.php');
 
@@ -795,4 +808,3 @@ function record_choices($row, $response, $header, $candidates_file_path){
 }
 
 ?>
-
