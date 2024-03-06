@@ -254,7 +254,9 @@ class NameMatcher extends PlantList{
         );
         $docs = PlantList::getSolrDocs($query);
 
-        $response->narrative[] = "Searched index of " . WFO_DEFAULT_VERSION ." for canonical form of name '{$response->parsedName->canonical_form}' and found " . count($docs) . " candidates.";
+        $doc_count = $docs ? count($docs) : 0; // docs may be null
+
+        $response->narrative[] = "Searched index of " . WFO_DEFAULT_VERSION ." for canonical form of name '{$response->parsedName->canonical_form}' and found " . $doc_count . " candidates.";
         
         // rather than do convoluted logic we do it step wise.
 
