@@ -392,16 +392,21 @@ class TaxonRecord extends PlantList{
 
     public function getNomenclaturalReferences(){
         if(!$this->exists()) return null;
-        return $this->getReferences(true);
+        return $this->getReferences('nomenclatural');
     }
 
     public function getTaxonomicReferences(){
         if(!$this->exists()) return null;
         if($this->getIsName()) return null;
-        return $this->getReferences(false);
+        return $this->getReferences('taxonomic');
     }
 
-    private function getReferences($nomenclatural){
+    public function getTreatmentReferences(){
+        if(!$this->exists()) return null;
+        return $this->getReferences('treatment');
+    }
+
+    public function getReferences($context = null){
 
         $references = array();
 
@@ -410,14 +415,21 @@ class TaxonRecord extends PlantList{
             for ($i=0; $i < count($this->solrDoc->reference_uris_ss); $i++) { 
                 
                 $ref = array();
+                $ref_context = isset($this->solrDoc->reference_contexts_ss[$i]) ?   $this->solrDoc->reference_contexts_ss[$i] : null;
 
-                // we only return appropriate references for the context    
-                if($nomenclatural && $this->solrDoc->reference_contexts_ss[$i] != 'name') continue;
-                if(!$nomenclatural && $this->solrDoc->reference_contexts_ss[$i] == 'name') continue;
-
+                // the index might contain 'name' for 'nomeclatural' and 'taxon' for 'taxonomic'.
+                // convert to the new names for contexts
+                if($ref_context == 'name') $ref_context = 'nomenclatural';
+                if($ref_context == 'taxon') $ref_context = 'taxonomic';
+                
+                // we only return appropriate references for the context                
+                 if($context == 'nomenclatural' && $ref_context != 'nomenclatural') continue;
+                if($context == 'taxonomic' && $ref_context != 'taxonomic') continue;
+                if($context == 'treatment' && $ref_context != 'treatment') continue;
+                
                 // always present
                 $ref['uri'] =  isset($this->solrDoc->reference_uris_ss[$i]) ?   $this->solrDoc->reference_uris_ss[$i] : null;
-                $ref['context'] = isset($this->solrDoc->reference_contexts_ss[$i]) ?   $this->solrDoc->reference_contexts_ss[$i] : null;
+                $ref['context'] = $ref_context;
                 $ref['kind'] = isset($this->solrDoc->reference_kinds_ss[$i]) ?  $this->solrDoc->reference_kinds_ss[$i] : null;
                 $ref['label'] = isset($this->solrDoc->reference_labels_ss[$i]) ? $this->solrDoc->reference_labels_ss[$i] : null;
 
@@ -429,7 +441,6 @@ class TaxonRecord extends PlantList{
 
             }
         }
-
 
         return $references;
 

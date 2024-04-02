@@ -45,7 +45,7 @@ if(file_exists($input_file_path)){
 
     // if we are starting an new output file then put in a header row
     if($offset == 0){
-        fputcsv($out, array('wfo_id', 'full_name', 'reference_type', 'citation', 'comment', 'url', 'thumbnail_url'));
+        fputcsv($out, array('wfo_id', 'full_name', 'reference_type', 'reference_context', 'citation', 'comment', 'url', 'thumbnail_url'));
     }else{
         echo "<p>Offset: $offset</p>";
     }
@@ -77,6 +77,7 @@ if(file_exists($input_file_path)){
         $out_line[] = $wfo;
         $out_line[] = $name->getFullNameStringPlain();
         $out_line[] = 'micro-citation';
+        $out_line[] = 'nomenclatural';
         $out_line[] = $name->getCitationMicro();
         $out_line[] = ''; // comment
         $out_line[] = ''; // url
@@ -85,12 +86,13 @@ if(file_exists($input_file_path)){
 
 
         // next iterate through the references
-        $refs = $name->getNomenclaturalReferences();
+        $refs = $name->getReferences();
         foreach ($refs as $ref) {
             $out_line = array();
             $out_line[] = $wfo;
             $out_line[] = $name->getFullNameStringPlain();
             $out_line[] = $ref->kind;
+            $out_line[] = $ref->context;
             $out_line[] = $ref->label;
             $out_line[] = $ref->comment; // comment
             $out_line[] = $ref->uri; // url
