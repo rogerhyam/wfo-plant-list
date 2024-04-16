@@ -176,7 +176,7 @@
     <main class="container">
         <div class="bg-light p-5 rounded">
             <?php
-    if(!$plant_list_system_message){
+    if($plant_list_system_message){
         echo "<p><div class=\"alert alert-danger\" role=\"alert\"><strong>&nbsp;System Message:&nbsp;</strong>$plant_list_system_message</div></p>";
     }else{
         echo "<p>&nbsp;</p>";
