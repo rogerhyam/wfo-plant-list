@@ -176,33 +176,11 @@
     <main class="container">
         <div class="bg-light p-5 rounded">
             <?php
-    if($plant_list_system_message){
+    if(!$plant_list_system_message){
         echo "<p><div class=\"alert alert-danger\" role=\"alert\"><strong>&nbsp;System Message:&nbsp;</strong>$plant_list_system_message</div></p>";
-//        echo "<p style=\"background-color: black; color:white; padding: 0.3em; border: solid 1px gray; margin: 0px;\"><strong>&nbsp;⚠️&nbsp;System Message:&nbsp;</strong>$plant_list_system_message</p>";
-  //      echo "<hr/>";
+    }else{
+        echo "<p>&nbsp;</p>";
     }
 ?>
-            <!--
-    <div id="navbar">
-        <strong>WFO Plant List: </strong>
-        <a href="index.php">Home</a>
-        |
-        <a href="sw_index.php">Stable URIs</a>
-        |
-        <a href="gql_index.php">GraphQL API</a>
-        |
-        <a href="matching.php">Matching Tool</a>
-        |
-        <a href="matching_rest.php">Matching API</a>
-        |
-        <a href="reconcile_index.php">Reconciliation API</a>
-        |
-        <a href="references.php">Refs Tool</a>
-        |
-        <a href="stats.php">Stats</a>
-        |
-        <a href="browser.php">Browser</a>
-    </div>
--->
 
             <!-- end header.php -->
