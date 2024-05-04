@@ -45,102 +45,21 @@ if(!$view) $view = @$_SESSION['view']; // from the session
 if(!$view) $view = 'subtaxa'; // from the default
 $_SESSION['view'] = $view;
 
-
 ?>
 
-<form method="GET" action="browser.php">
-    <p>
-        <strong>Search: </strong>
-        <input 
-            type="text"
-            name="terms"
-            id="terms"
-            placeholder="Start typing name (3+ letters) or enter WFO ID" 
-            size="100" 
-            value="<?php echo @$_GET['terms'] ?>"
-            onkeyup="searchChange(this.value)"
-            onfocus="inputFocussed(this)"
-            autofocus
-            /> 
-    </p>
-</form>
-<p id="loading" style="display: none;">Loading ...</p>
-<script>
+<ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-bottom: 2em;">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="view-tab" href="browser.php" type="button">View</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link " id="search-tab" href="browser_search.php" type="button">Search</a>
+    </li>
+</ul>
 
-let keyTimer = null; 
 
-function searchChange(val){
-
-    // if the timer is running we cancel the last call
-    clearTimeout(keyTimer);
-
-    // refresh the page if we aren't interrupted by another keystroke.
-    keyTimer = setTimeout(function(){
-        if(val.length > 3){
-            document.getElementById('loading').style.display = 'block';
-            window.location = 'browser.php?terms=' + encodeURI(val);
-        }
-    }, 500);
-
-}
-
-function inputFocussed(input){
-
-    input.setSelectionRange(input.value.length, input.value.length, "forward");
-/*
-    console.log(val);
-    document.getElementById("terms").select();
-    div.getElementsByTagName("input")[0].setSelectionRange(div.getElementsByTagName("input")[0].value.length,div.getElementsByTagName("input")[0].value.length,"forward");
-*/
-}
-
-</script>
-
-<?php
-
-if(@$_GET['terms']){
-
-    $terms = trim($_GET['terms']);
-    
-    if(!preg_match('/^wfo-/', $terms)){
-
-        // not a wfo id or part of
-        $matcher = new NameMatcher((object)array('limit' => 20, 'method' => 'alpha'));
-        $response = $matcher->match($terms);
-
-        if($response->match){
-            $results = array($response->match); // we have a perfect match
-        }else{
-            $results = $response->candidates;
-        }
-
-        if($results){
-            echo "<ul>";
-            foreach($results as $found){
-                echo "<li id=\"{$found->getWfoId()}\">";
-                echo render_name_link($found, $classification_id_latest);
-                echo "</li>";
-            }
-            echo "</ul>";
-        }else{
-            echo "<p>Nothing found</p>";
-        }
-    }else{
-
-        // if they put a good wfo in
-        if(preg_match('/^wfo-[0-9]{10}$/', $terms) || preg_match('/^wfo-[0-9]{10}-[0-9]{4}-[0-9]{2}$/', $terms)){
-            header('Location: browser.php?id=' . $terms);
-            exit;
-        }
-
-    }
-
-}
-?>
-<hr/>
 <h2>Nomenclature: <?php echo $name->getId() ?></h2>
 <div style="border: none; width:100%; padding: 0px;">
-<?php
+    <?php
 // just put the pictures in if we have them
 
 if($name->getNomenclaturalReferences()){
@@ -164,10 +83,11 @@ if($name->getNomenclaturalReferences()){
 
 
 
-<p>
-<strong style="color: green; font-size: 152%;"><?php echo $name->getFullNameStringHtml() ?></strong> <?php echo $name->getCitationMicro() ?>
-</p>
-<?php
+    <p>
+        <strong style="color: green; font-size: 152%;"><?php echo $name->getFullNameStringHtml() ?></strong>
+        <?php echo $name->getCitationMicro() ?>
+    </p>
+    <?php
 
 if($name->getNomenclaturalReferences()){
     echo "<h3>Nomenclatural References</h3>";
@@ -181,7 +101,7 @@ if($name->getNomenclaturalReferences()){
 }
 ?>
 </div>
-<hr/>
+<hr />
 <?php 
 
     // what we display depends on the role played
@@ -217,15 +137,10 @@ if($name->getNomenclaturalReferences()){
 
 ?>
 
-<hr/>
+<hr />
 
 <?php
 require_once('footer.php');
-
-function render_name_link($record, $classification_id){
-    $link_id = $record->getWfoId() . "-" . $classification_id;
-    echo "<a href=\"browser.php?id={$link_id}\">{$record->getFullNameStringHtml()}</a>";
-}
 
 
 function render_accepted($record, $classification_id){
@@ -342,5 +257,12 @@ function  render_occurs_in($record, $classification_id){
     }
 
 }
+
+
+?>
+
+
+<?php 
+require_once('footer.php');
 
 ?>

@@ -23,12 +23,25 @@ define('WFO_DEFAULT_VERSION',$default_classification_version);
 define('SOLR_USER', $solr_user); // from wfo_secrets.php
 define('SOLR_PASSWORD', $solr_password); // from wfo_secrets.php
 
-// an ordered list of the facets we want 
-// displayed as part of the explorer interface
-$facet_q_numbers = array(
-    "Q6256", // country
-    "Q2355817" // plant life-form
+
+// facets to used
+// these are a list of the field names IDs to use
+// in the order provided
+$facet_ids = array(
+  "wfo-f-5_ss", // Life form
+  "wfo-f-2_ss", // Countries ISO
+  "wfo-f-8_ss", // TDWG Countries
+  "role_s",
+  "rank_s",
+  "placed_in_phylum_s",
+  "placed_in_family_s",
+  "placed_in_genus_s",
+  "nomenclatural_status_s"
+  
 );
+
+
+
 
 // used all over to generate guids
 function get_uri($taxon_id){
@@ -250,3 +263,9 @@ $ranks_table = array(
   )
 
 );
+
+
+function render_name_link($record, $classification_id){
+    $link_id = $record->getWfoId() . "-" . $classification_id;
+    echo "<a href=\"browser.php?id={$link_id}\">{$record->getFullNameStringHtml()}</a>";
+}
