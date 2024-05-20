@@ -44,8 +44,19 @@ class FacetDetails{
     public function getFacetValueName($value_id){
 
         if($this->facetCache && isset($this->facetCache->facet_values->{$value_id})) return $this->facetCache->facet_values->{$value_id}->name;
-
         return $value_id;
     }
+
+
+    public function getFacetValueLink($value_id){
+        if($this->facetCache && isset($this->facetCache->facet_values->{$value_id})) return $this->facetCache->facet_values->{$value_id}->link_uri;
+        return null;
+    }
+
+    public function getFacetValueCode($value_id){
+        if($this->facetCache && isset($this->facetCache->facet_values->{$value_id})) return $this->facetCache->facet_values->{$value_id}->code;
+        return null;
+    }
+
 
 }

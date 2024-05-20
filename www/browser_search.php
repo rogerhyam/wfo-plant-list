@@ -2,24 +2,25 @@
 
 require_once('config.php');
 require_once('../include/PlantList.php');
-require_once('../include/SolrIndex.php');
 require_once('../include/FacetDetails.php');
-require_once('../include/facet_decoration_cache.php');
 require_once('../include/content_negotiate.php'); // handles content negotiation so saves us having .htaccess
 require_once('header.php');
 
 // get this once as it is an index call
 $classification_id_latest = PlantList::getLatestClassificationId();
 
-// we keep the terms in the session
-if(isset($_GET['terms'])){
-    $terms = @trim($_GET['terms']);
-    $_SESSION['search_terms'] = $terms; 
+// we preserve the request between calls
+if(isset($_REQUEST['timestamp'])){
+    $request = $_REQUEST;
+    $_SESSION['search_request'] = $request; 
 }else{
-    $terms = @$_SESSION['search_terms'];
+    $request = @$_SESSION['search_request'];
 }
 
-// we always do a searcht to load the facet fields
+$terms = @$request['terms'];
+if(!$terms) $terms = '';
+
+// we always do a search to load the facet fields
 if(!preg_match('/^wfo-/', $terms)){
 
     // we haven't been passed a wfo ID
@@ -50,8 +51,8 @@ if(!preg_match('/^wfo-/', $terms)){
 
         // if we have a value for the facet
         // then add a filter for that facet
-        if(isset($_REQUEST[$fi])){
-            foreach($_REQUEST[$fi] as $v){
+        if(isset($request[$fi])){
+            foreach($request[$fi] as $v){
                 $filters[] =  $fi . ':' . $v;
             }
         }
@@ -70,8 +71,7 @@ if(!preg_match('/^wfo-/', $terms)){
     //print_r($query);
     echo '</pre>';
     
-    $index = new SolrIndex();
-    $solr_response  = $index->getSolrResponse($query);
+    $solr_response  = PlantList::getSolrResponse($query);
     if(isset($solr_response->response->docs)) $docs = $solr_response->response->docs;
     if(isset($solr_response->facets)) $facets_response = $solr_response->facets;
 
@@ -103,11 +103,13 @@ if(!preg_match('/^wfo-/', $terms)){
 </ul>
 
 <form method="GET" action="browser_search.php">
+    <input type="hidden" name="timestamp" value="<?php echo time(); ?>" />
     <p>
         <strong>Search: </strong>
         <input type="text" name="terms" id="terms" placeholder="Type the first part of then name or enter WFO ID"
             size="100" value="<?php echo $terms ?>" onfocus="inputFocussed(this)" autofocus />
         &nbsp;<button type="submit">Search</button>
+        &nbsp;<a href="browser_search.php?timestamp=<?php time() ?>">Clear</a>
     </p>
 
     <p id="loading" style="display: none;">Loading ...</p>
@@ -123,8 +125,11 @@ if(!preg_match('/^wfo-/', $terms)){
         echo "<ul>";
         foreach($docs as $doc){
             echo "<li id=\"{$doc->wfo_id_s}\">";
+            echo "<a href=\"/browser.php?id={$doc->id}\">";
             echo $doc->full_name_string_html_s;
-            echo "</li>";
+            echo "</a> [";
+            echo $doc->role_s;
+            echo "]</li>";
         }
         echo "</ul>";
     }else{
@@ -147,9 +152,9 @@ if(!preg_match('/^wfo-/', $terms)){
         // any value is ticked then we render as open
         $collapsed = 'collapsed';
         $collapse = 'collapse';
-        if(@$_REQUEST[$f_name]){
+        if(@$request[$f_name]){
             foreach($f->buckets as $bucket){
-                if(in_array($bucket->val, $_REQUEST[$f_name])){
+                if(in_array($bucket->val, $request[$f_name])){
                     $collapsed = '';
                     $collapse = '';
                     break;
@@ -180,7 +185,7 @@ if(!preg_match('/^wfo-/', $terms)){
 
         foreach($f->buckets as $bucket){
 
-            if(@$_REQUEST[$f_name] && in_array($bucket->val, $_REQUEST[$f_name])){
+            if(@$request[$f_name] && in_array($bucket->val, $request[$f_name])){
                 $checked = 'checked';
             }else{
                 $checked = '';

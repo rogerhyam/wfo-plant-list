@@ -844,9 +844,6 @@ class TaxonRecord extends PlantList{
             
            // error_log(print_r($response->facets, true));
 
-
-
-
         }
 
 
@@ -856,5 +853,105 @@ class TaxonRecord extends PlantList{
     }
 
 
+    public function getFacets(){
+
+        $out = array();
+
+        foreach($this->solrDoc as $prop => $val){
+            $matches = array();
+            if(preg_match('/^(wfo-f-[0-9]+)_s/', $prop, $matches)){
+
+                // set up the facet
+                $prop_prefix = $matches[1];
+                $out[$prop_prefix] = array();
+                $out[$prop_prefix]['facet_values'] = array();
+
+                // add the values
+                foreach ($this->solrDoc->{$prop} as $fv) {
+                    $out[$prop_prefix]['facet_values'][$fv] = array();
+                    $out[$prop_prefix]['facet_values'][$fv]['provenance'] = array();
+
+                    // and their provenance 
+                    $prov_prop = $fv . '_provenance_ss';
+                    foreach($this->solrDoc->{$prov_prop} as $prov){
+                        $out[$prop_prefix]['facet_values'][$fv]['provenance'][]  = $prov;
+                    }
+
+                }
+                
+            }
+        } // fin building the structure
+
+        // if we've not been indexed then we are empty
+        if(!$out) return $out;
+
+        foreach($out as $f_id => $f){
+            $details = new FacetDetails($f_id);
+            $out[$f_id]['id'] = $f_id;
+            $out[$f_id]['name'] = $details->getFacetName();
+            foreach($f['facet_values'] as $fv_id => $fv){
+                $out[$f_id]['facet_values'][$fv_id]['name'] = $details->getFacetValueName($fv_id); 
+               
+                $out[$f_id]['facet_values'][$fv_id]['link'] = $details->getFacetValueLink($fv_id); 
+                $out[$f_id]['facet_values'][$fv_id]['code'] = $details->getFacetValueCode($fv_id); 
+
+                /*
+                for($i = 0; $i < count($fv['provenance']); $i++){
+                    $out[$f_id]['facet_values'][$fv_id][$i]
+                }
+                */
+            }
+        }
+
+
+        /*
+        // populate it with names
+        $query = array('query' => "id:(" . implode(' OR ', array_keys($out)) . ")");
+        $facet_docs = $index->getSolrDocs((object)$query);
+        foreach ($facet_docs as $fd){
+           $meta = json_decode($fd->json_t);
+
+           $out[$fd->id]['meta']['id'] = $meta->id;
+           $out[$fd->id]['meta']['name'] = $meta->name;
+           $out[$fd->id]['meta']['description'] = trim($meta->description);
+           $out[$fd->id]['meta']['link_uri'] = trim($meta->link_uri);
+
+           foreach (array_keys($out[$fd->id]['facet_values']) as $fv_key) {
+                
+                $out[$fd->id]['facet_values'][$fv_key]['meta'] = $meta->facet_values->{$fv_key};
+
+                // break down the provenance
+                $new_provs = array();
+                foreach ($out[$fd->id]['facet_values'][$fv_key]['provenance'] as $prov) {
+                        //wfo-4000019729-s-37-ancestor
+                        $matches = array();
+                        preg_match('/^(wfo-[0-9]{10})-s-([0-9]+)-([a-z]+)$/', $prov, $matches);
+
+                        $wfo = $matches[1];
+                        $name_doc = $index->getDoc($wfo);
+
+                        $source_id  = $matches[2];
+                        $source_doc = $index->getDoc('wfo-fs-'. $source_id);
+                        $source_doc = json_decode($source_doc->json_t);
+
+                        $new_provs[] = array(
+                            'wfo_id' => $wfo,
+                            'full_name_html' => $name_doc->full_name_string_html_s,
+                            'full_name_plain' => $name_doc->full_name_string_plain_s,
+                            'source_id' => $source_id,
+                            'source_name' => $source_doc->name,
+                            'kind' => $matches[3],
+                        );
+                }
+                $out[$fd->id]['facet_values'][$fv_key]['provenance'] = $new_provs;
+           
+            }
+           
+        }
+        */
+
+
+        return $out;
+    }
 
 }

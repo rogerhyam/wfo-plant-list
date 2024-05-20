@@ -3,6 +3,7 @@
 require_once('config.php');
 require_once('../include/PlantList.php');
 require_once('../include/TaxonRecord.php');
+require_once('../include/FacetDetails.php');
 require_once('../include/NameMatcher.php');
 require_once('../include/content_negotiate.php'); // handles content negotiation so saves us having .htaccess
 
@@ -45,6 +46,8 @@ if(!$view) $view = @$_SESSION['view']; // from the session
 if(!$view) $view = 'subtaxa'; // from the default
 $_SESSION['view'] = $view;
 
+
+if(WFO_FACET_BROWSE_ON){
 ?>
 
 <ul class="nav nav-tabs" id="myTab" role="tablist" style="margin-bottom: 2em;">
@@ -55,6 +58,9 @@ $_SESSION['view'] = $view;
         <a class="nav-link " id="search-tab" href="browser_search.php" type="button">Search</a>
     </li>
 </ul>
+<?php
+} // WFO_FACET_BROWSE_ON
+?>
 
 
 <h2>Nomenclature: <?php echo $name->getId() ?></h2>
@@ -123,17 +129,121 @@ if($name->getNomenclaturalReferences()){
             break;
     }
 
-    if($record->getTaxonomicReferences()){
-    echo "<h3>Taxonomic References</h3>";
-    echo "<ul>";
-    foreach ($record->getTaxonomicReferences() as $ref) {
-        echo "<li>";
-        echo  "<strong>{$ref->kind} : </strong><a href=\"{$ref->uri}\">{$ref->label}</a> {$ref->comment}";
-        echo "</li>";
-    }
-    echo "</ul>";
+    // output the facets
+    $facets = $record->getFacets();
+    if(WFO_FACET_BROWSE_ON && $facets){
+        echo "<h3>Facets</h3>";
 
-}
+        foreach($facets as $f){
+            echo "<p><strong>{$f['name']}: </strong>";
+            $spacer = '';
+            foreach($f['facet_values'] as $fv){
+                echo $spacer;
+                $spacer = '; ';
+                echo '<span>';
+                if($fv['link']){
+                    echo "<a target=\"facet_info\" href=\"{$fv['link']}\">{$fv['name']}</a>";
+                }else{
+                    echo $fv['name'];
+                }
+
+                $prov_json = urlencode(json_encode($fv['provenance']));
+
+                echo '<strong data-bs-toggle="modal" data-bs-target="#provModal" data-wfoprov="'. $prov_json .'" style="cursor: zoom-in;"> ('. count($fv['provenance']) .')</strong>';
+
+               
+            } // end facet value
+            echo ".</p>";
+
+            // if this facet is the country iso then we put a map in
+            if($f['id'] == 'wfo-f-2' && count($f['facet_values'])){
+                echo '<p>';
+                echo '<div id="map"></div>';
+                echo "\n<script>\n";
+                echo "var map = L.map('map').setView([33, 0], 1);\n";
+                echo "L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { noWrap: true, maxZoom: 19, attribution: '&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreetMap</a>'}).addTo(map);\n";
+                
+                foreach($f['facet_values'] as $fv){
+                    $path = 'scripts/countries/'. $fv['code'] .'.json';
+                    if(file_exists($path)){
+                        $json = file_get_contents($path);
+                        echo "L.geoJSON($json, {style: {fillColor: 'green', fillOpacity: 0.7, weight: 0}}).addTo(map);\n";
+                    }
+                }
+                
+                echo "\n</script>\n";
+                echo '</p>';
+                
+            }// is country iso
+
+        } // end facet
+
+
+?>
+
+
+<!-- Modal -->
+
+<div class="modal fade" id="provModal" tabindex="-1" aria-labelledby="provModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="provModalLabel">Provenance</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="provModalContent">
+            </div>
+            <div class="modal-footer">
+                <button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn btn-primary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('provModal').addEventListener('show.bs.modal', event => {
+
+    const modalContent = document.getElementById('provModalContent');
+    modalContent.innerHTML = 'Loading ...';
+    fetch("provenance.php?prov=" + event.relatedTarget.dataset.wfoprov)
+        .then(response => response.text())
+        .then(text => modalContent.innerHTML = text);
+
+})
+</script>
+
+<?php
+
+
+        echo '<pre>';
+       // print_r($facets);
+        echo '</pre>';
+
+    }
+   
+    // taxonomic references
+    if($record->getTaxonomicReferences()){
+        echo "<h3>Taxonomic References</h3>";
+        echo "<ul>";
+        foreach ($record->getTaxonomicReferences() as $ref) {
+            echo "<li>";
+            echo  "<strong>{$ref->kind} : </strong><a href=\"{$ref->uri}\">{$ref->label}</a> {$ref->comment}";
+            echo "</li>";
+        }
+        echo "</ul>";
+    }
+
+    // treatment references
+    if($record->getTreatmentReferences()){
+        echo "<h3>Treatment References</h3>";
+        echo "<ul>";
+        foreach ($record->getTaxonomicReferences() as $ref) {
+            echo "<li>";
+            echo  "<strong>{$ref->kind} : </strong><a href=\"{$ref->uri}\">{$ref->label}</a> {$ref->comment}";
+            echo "</li>";
+        }
+        echo "</ul>";
+    }
 
 ?>
 
@@ -145,7 +255,7 @@ require_once('footer.php');
 
 function render_accepted($record, $classification_id){
 
-    echo "<h2>Taxonomy: Accepted in $classification_id</h2>";
+    echo "<h2>Taxonomy: Accepted in $classification_id classification</h2>";
     render_occurs_in($record, $classification_id);
 
     echo "<p>";
