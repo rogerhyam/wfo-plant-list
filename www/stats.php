@@ -473,7 +473,7 @@ if($solr_response->facets->years->allBuckets->count != 0){
             'limit' => 0 // we are only interested in the facet data
         );
 
-        $solr_response = $index->getSolrResponse($query);
+        $solr_response = PlantList::getSolrResponse($query);
 
         if(!isset($solr_response->facets)){
             echo "Somethings up.";
