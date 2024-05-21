@@ -1,5 +1,9 @@
 <?php
 
+// we override the default version 
+// in the config.
+$over_ride_classification = 1;
+
 require_once('config.php');
 require_once('../include/PlantList.php');
 require_once('../include/TaxonRecord.php');

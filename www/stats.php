@@ -2,9 +2,8 @@
 <?php
 
 require_once('config.php');
+require_once('../include/PlantList.php');
 require_once('header.php');
-require_once('../include/SolrIndex.php');
-$index = new SolrIndex();
 
 if(@$_GET['classification']){
     $classification_selected = $_GET['classification'];
@@ -98,7 +97,7 @@ $query = array(
     'limit' => 0 // we are only interested in the facet data
 );
 
-$solr_response = $index->getSolrResponse($query);
+$solr_response = PlantList::getSolrResponse($query);
 
 if(!isset($solr_response->facets)){
     echo "Somethings up.";
@@ -293,7 +292,7 @@ $query = array(
     'limit' => 0 // we are only interested in the facet data
 );
 
-$solr_response = $index->getSolrResponse($query);
+$solr_response = PlantList::getSolrResponse($query);
 
 if(!isset($solr_response->facets)){
     echo "Somethings up.";
@@ -452,7 +451,7 @@ $query = array(
     'limit' => 0 // we are only interested in the facet data
 );
 
-$solr_response = $index->getSolrResponse($query);
+$solr_response = PlantList::getSolrResponse($query);
 
 if(!isset($solr_response->facets)){
     echo "Somethings up.";

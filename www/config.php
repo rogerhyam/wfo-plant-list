@@ -24,7 +24,11 @@ define('SOLR_QUERY_URI', $solr_query_uri); // from wfo_secrets.php
 // used for lookups and other services that don't want to 
 // trouble themselves with many versions of backbone
 // will normally be set to the most recent.
-define('WFO_DEFAULT_VERSION',$default_classification_version);
+if(isset($over_ride_classification) && isset($default_classification_versions[$over_ride_classification])){
+  define('WFO_DEFAULT_VERSION',$default_classification_versions[$over_ride_classification]);
+}else{
+  define('WFO_DEFAULT_VERSION',$default_classification_versions[0]);
+}
 
 define('SOLR_USER', $solr_user); // from wfo_secrets.php
 define('SOLR_PASSWORD', $solr_password); // from wfo_secrets.php
