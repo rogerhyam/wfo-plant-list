@@ -19,14 +19,11 @@ if(!$id) $id = @$_SESSION['id']; // from the session
 if(!$id) $id = 'wfo-9971000003'; // from the default - doesn't work if it doesn't exist i.e. earlier snapshots.
 $_SESSION['id'] = $id;
 
-// get this once as it is an index call
-$classification_id_latest = PlantList::getLatestClassificationId();
-
 // did they passed an name or placement id?
 if(preg_match('/^wfo-[0-9]{10}$/', $id)){
     // they passed a pure name
     $name_id = $id;
-    $classification_id = $classification_id_latest;
+    $classification_id = WFO_DEFAULT_VERSION;
     $taxon_id = $id . "-" . $classification_id;
 }else{
     // they passed qualified id

@@ -9,9 +9,6 @@ require_once('../include/FacetDetails.php');
 require_once('../include/content_negotiate.php'); // handles content negotiation so saves us having .htaccess
 require_once('header.php');
 
-// get this once as it is an index call
-$classification_id_latest = PlantList::getLatestClassificationId();
-
 // we preserve the request between calls
 if(isset($_REQUEST['timestamp'])){
     $request = $_REQUEST;
@@ -40,7 +37,7 @@ if(!preg_match('/^wfo-/', $terms)){
 
     // restrict to the real names in the accepted classification
     $filters = array();
-    $filters[] = 'classification_id_s:' . $classification_id_latest;
+    $filters[] = 'classification_id_s:' . WFO_DEFAULT_VERSION;
     $filters[] = '-role_s:deprecated';
 
     $facets = array();
