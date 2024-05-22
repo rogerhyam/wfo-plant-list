@@ -40,6 +40,7 @@ $facet_ids = array(
   "wfo-f-5_ss", // Life form
   "wfo-f-2_ss", // Countries ISO
   "wfo-f-8_ss", // TDWG Countries
+  "wfo-f-10_ss", // IUCN Statuses
   "role_s",
   "rank_s",
   "placed_in_phylum_s",
