@@ -399,20 +399,26 @@ class NameMatcher extends PlantList{
 
         }
 
-        // Have we got anything?
-        if(!$response->match && count($response->candidates) < 2){
+        // Have we got a match?
+        if(!$response->match){
+            
+            $response->narrative[] = "Still no match found.";
 
+            // have we got any canditates
+            if(count($response->candidates) > 0){
 
-            if(count($response->candidates) == 1 && @$this->params->acceptSingleCandidate){
-                
-                // a single candidate and that will do for them!
-                $response->narrative[] = "A single candidate found and acceptSingleCandidate is true so it becomes the match.";
-                $response->match = $response->candidates[0];
-                $response->candidates = array();
+                $response->narrative[] = "But " . count($response->candidates) . " candidates found.";
+
+                if(count($response->candidates) == 1 && @$this->params->acceptSingleCandidate){
+                    // a single candidate and that will do for them!
+                    $response->narrative[] = "A single candidate found and acceptSingleCandidate is true so it becomes the match.";
+                    $response->match = $response->candidates[0];
+                    $response->candidates = array();
+                }
 
             }else{
 
-                // no candidates or matches so 
+                // no candidates so go relevance
                 $response->narrative[] = "No candidates found so moving to relevance searching.";
 
                 $query = array(
@@ -429,12 +435,10 @@ class NameMatcher extends PlantList{
                     }
                 }
 
-            }
 
+            } //no candidates
 
-
-
-        }
+        } // not got a match
 
         return $response;
     }
