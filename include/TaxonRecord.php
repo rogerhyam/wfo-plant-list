@@ -95,9 +95,11 @@ class TaxonRecord extends PlantList{
 
             // if we haven't got it yet try and load it by it being a deduplicated wfo ID
             // it will be a name
-            if(!$this->solrDoc && preg_match('/^wfo-[0-9]{10}$/', $init_val)){
+            
+            if(!$this->solrDoc){
+                $potential_dedupe_wfo = substr($init_val, 0, 14);
                 $query = array( 
-                    'query' => "wfo_id_deduplicated_ss:$init_val",
+                    'query' => "wfo_id_deduplicated_ss:$potential_dedupe_wfo",
                     'filter' => ['classification_id_s:' . WFO_DEFAULT_VERSION ],
                 );
                 $docs = PlantList::getSolrDocs($query);
