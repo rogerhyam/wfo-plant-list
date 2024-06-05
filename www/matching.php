@@ -1,8 +1,8 @@
 <?php
-include('config.php');
-include('../include/PlantList.php');
-include('../include/TaxonRecord.php');
-include('../include/NameMatcher.php');
+require_once('config.php');
+require_once('../include/PlantList.php');
+require_once('../include/TaxonRecord.php');
+require_once('../include/NameMatcher.php');
 
 // we don't time out this script because it might get busy
 set_time_limit(60*5); // for 5 minutes
