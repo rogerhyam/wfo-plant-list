@@ -91,6 +91,13 @@ class NameMatcher extends PlantList{
 
         // lets parse the name out
         $parts = explode(" ", $response->searchString);
+
+        // there should be no parts that are just punctuation
+        $parts = preg_grep('/[a-zA-Z]+/', $parts);
+
+        // nothing starting with a - as it will break solr
+        $parts = preg_grep('/^-/', $parts, PREG_GREP_INVERT);
+
         $canonical_parts = array(); // this is just the name parts - up to 3 words
         $response->parsedName->rank = null; // if we can find one
         $authors = null;
