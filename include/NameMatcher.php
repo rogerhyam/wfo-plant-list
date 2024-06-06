@@ -196,11 +196,15 @@ class NameMatcher extends PlantList{
                 if(count($canonical_parts) == 2){
                     $response->narrative[] = "There are two name parts. This may be an autonym with species authors included. Checking for second occurrence of '{$canonical_parts[1]}'";
                     for($j = $i; $j < count($parts); $j++){
+
+                        if(!isset($parts[$j])) break; // don't try and go beyond bounds
+
                         if($parts[$j] == $canonical_parts[1]){
                             $response->narrative[] = "Found second '{$canonical_parts[1]}'. This is an autonym with authors.";
                             $canonical_parts[] = $canonical_parts[1];
                             break;
                         }
+                        
                     }
 
                     // check for the rank in the authors string of autonym
