@@ -112,6 +112,9 @@ class NameMatcher extends PlantList{
         $had_lower_case_word = false; // and we are therefore likely below species level
         for($i = 1; $i < count($parts); $i++){
 
+            // if we only have one part don't bother
+            if(!isset($parts[$i])) break;
+
             $word = $parts[$i];
 
             if(!$word) continue;
