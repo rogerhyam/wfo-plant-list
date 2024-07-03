@@ -304,7 +304,7 @@ if(!isset($solr_response->facets)){
 
 // a form to filter by
 
-
+echo "<p/>";
 echo "<h2>Summary for {$classification_selected}</h2>";
 
 
@@ -357,7 +357,7 @@ if($order_selected){
 
 echo '<form/>';
 
-echo "<table  style=\"width: 80%; margin-top: 1em;\">";
+echo "<table  style=\"width: 80%; margin-top: 1em; margin-bottom: 1em;\">";
 
 // next row breaks classifications into accepted/synonym/unplaced/deprecated
 // we can put the classifications headings in based on the first as it will be biggest

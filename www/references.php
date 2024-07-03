@@ -119,7 +119,8 @@ if(file_exists($input_file_path)){
 ?>
 <h1>Reference Download</h1>
 <p>
-    Once you have match name strings to WFO IDs this tool allows you to download data associated with those names.
+    Once you have match name strings to WFO IDs this tool allows you to download ancillary data associated with those
+    names.
 </p>
 <p>
     You upload a CSV file the first column of which must include the WFO IDs (wfo-0123456789). Any values that don't

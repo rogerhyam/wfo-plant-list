@@ -125,63 +125,63 @@ $ranks_table = array(
 
   "kingdom" => array(
     "children" => array("subkingdom", "phylum"), // permissible ranks for child taxa
-    "abbreviation" => "K.", // official abbreviation
+    "abbreviation" => "King.", // official abbreviation
     "plural" => "Kingdoms",
     "aka" => array() // alternative representations for import
   ),
 
   "subkingdom" => array(
     "children" => array("phylum", "class", "order","family", "superorder"), // permissible ranks for child taxa
-    "abbreviation" => "subK.", // official abbreviation
+    "abbreviation" => "subking.", // official abbreviation
     "plural" => "Subkingdoms",
     "aka" => array() // alternative representations for import
   ),
 
   "phylum" => array(
     "children" => array("class", "order", "family", "superorder"), // permissible ranks for child taxa
-    "abbreviation" => "P.", // official abbreviation
+    "abbreviation" => "phylum", // official abbreviation
     "plural" => "Phyla",
     "aka" => array() // alternative representations for import
   ),
 
   "class" => array(
     "children" => array("subclass", "order", "family","superorder"), // permissible ranks for child taxa
-    "abbreviation" => "C.", // official abbreviation
+    "abbreviation" => "class", // official abbreviation
     "plural" => "Classes",
     "aka" => array() // alternative representations for import
   ),
 
   "subclass" => array(
     "children" => array("order", "family", "superorder"), // permissible ranks for child taxa
-    "abbreviation" => "subc.", // official abbreviation
+    "abbreviation" => "subclass.", // official abbreviation
     "plural" => "Subclasses",
     "aka" => array() // alternative representations for import
   ),
 
   "superorder" => array(
     "children" => array("order"), // permissible ranks for child taxa
-    "abbreviation" => "supo.", // official abbreviation
+    "abbreviation" => "superord.", // official abbreviation
     "plural" => "Superorders",
     "aka" => array() // alternative representations for import
   ),
 
   "order" => array(
     "children" => array("suborder", "family"), // permissible ranks for child taxa
-    "abbreviation" => "O.", // official abbreviation
+    "abbreviation" => "ord.", // official abbreviation
     "plural" => "Orders",
     "aka" => array() // alternative representations for import
   ),
 
   "suborder" => array(
     "children" => array("family"), // permissible ranks for child taxa
-    "abbreviation" => "subo.", // official abbreviation
+    "abbreviation" => "subord.", // official abbreviation
     "plural" => "Suborders",
     "aka" => array() // alternative representations for import
   ),
 
   "family" => array(
     "children" => array("supertribe", "subfamily", "tribe", "genus"), // permissible ranks for child taxa
-    "abbreviation" => "Fam.", // official abbreviation
+    "abbreviation" => "fam.", // official abbreviation
     "plural" => "Families",
     "aka" => array() // alternative representations for import
   ),
@@ -195,21 +195,21 @@ $ranks_table = array(
 
   "supertribe" => array(
     "children" => array("tribe"), // permissible ranks for child taxa
-    "abbreviation" => "supt.", // official abbreviation
+    "abbreviation" => "suptr.", // official abbreviation
     "plural" => "Supertribes",
     "aka" => array('supertrib.') // alternative representations for import
   ),
 
   "tribe" => array(
     "children" => array("subtribe", "genus"), // permissible ranks for child taxa
-    "abbreviation" => "t.", // official abbreviation
+    "abbreviation" => "tr.", // official abbreviation
     "plural" => "Tribes",
     "aka" => array('trib.') // alternative representations for import
   ),
 
   "subtribe" => array(
     "children" => array("genus"), // permissible ranks for child taxa
-    "abbreviation" => "subt.", // official abbreviation
+    "abbreviation" => "subtr.", // official abbreviation
     "plural" => "Subtribes",
     "aka" => array('subtrib.', 'subtrib') // alternative representations for import
   ),
@@ -223,9 +223,9 @@ $ranks_table = array(
 
   "subgenus" => array(
     "children" => array("section", "series", "species"), // permissible ranks for child taxa
-    "abbreviation" => "subgen.", // official abbreviation
+    "abbreviation" => "subg.", // official abbreviation
     "plural" => "Subgenera",
-    "aka" => array() // alternative representations for import
+    "aka" => array("subgen.") // alternative representations for import
   ),
 
   "section" => array(
