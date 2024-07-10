@@ -754,6 +754,9 @@ class TaxonRecord extends PlantList{
             'limit' => 0
         );
 
+
+          
+
         // if we are a genus then we include unplaced names
         if($this->solrDoc->rank_s == 'genus'){
             $query['query'] .= " OR (genus_string_s:{$this->solrDoc->name_string_s} AND role_s:unplaced) ";
@@ -799,52 +802,64 @@ class TaxonRecord extends PlantList{
             );
 
             $response = PlantList::getSolrResponse($query);
+
             $genus_names = array();
             foreach ($response->response->docs as $doc){
                 $genus_names[] = trim($doc->name_string_s);
             }
-            $genus_names = '(' . implode(' OR ', $genus_names) . ')';
 
-            // look for unplaced names with those genera
-            $query = array(
-                'query' => 'genus_string_s:' . $genus_names,
-                'limit' => 1000,
-                'filter' => array(
-                    'classification_id_s:' . $this->solrDoc->classification_id_s,
-                    'role_s:unplaced'
-                ),
-                'facet' => array(
-                    "rank" => array(
-                        "type" => "terms",
-                        "field" => "rank_s",
-                        'limit' => 100,
-                    )
-                ),
-                'limit' => 0
-            );
-            $response = PlantList::getSolrResponse($query);
+            // only if there are genera below us
+            if(count($genus_names) > 0){
 
-            // put int he total;
-            $stats[] = new TaxonConceptStat("role-unplaced", "Total names with role:'unplaced'", $response->facets->count);
+                $genus_names = '(' . implode(' OR ', $genus_names) . ')';
 
-            // put the facets in
-            if(isset($response->facets->rank)){
-                    foreach ($response->facets->rank->buckets as $bucket) {
-                        // increase the totals for the existing rank count
-                        for ($i=0; $i < count($stats); $i++) { 
-                            if($stats[$i]->id == 'rank-' . $bucket->val){
-                                $stats[$i]->value += $bucket->count;
+                // look for unplaced names with those genera
+                $query = array(
+                    'query' => 'genus_string_s:' . $genus_names,
+                    'limit' => 1000,
+                    'filter' => array(
+                        'classification_id_s:' . $this->solrDoc->classification_id_s,
+                        'role_s:unplaced'
+                    ),
+                    'facet' => array(
+                        "rank" => array(
+                            "type" => "terms",
+                            "field" => "rank_s",
+                            'limit' => 100,
+                        )
+                    ),
+                    'limit' => 0
+                );
+                $response = PlantList::getSolrResponse($query);
+
+                error_log(print_r($response, true));
+
+                // put int he total;
+                $stats[] = new TaxonConceptStat("role-unplaced", "Total names with role:'unplaced'", $response->facets->count);
+
+                // put the facets in
+                if(isset($response->facets->rank)){
+                        foreach ($response->facets->rank->buckets as $bucket) {
+                            // increase the totals for the existing rank count
+                            for ($i=0; $i < count($stats); $i++) { 
+                                if($stats[$i]->id == 'rank-' . $bucket->val){
+                                    $stats[$i]->value += $bucket->count;
+                                }
                             }
+                    
+                            // add in our own stats for this bucket
+                            $stats[] = new TaxonConceptStat("role-unplaced-rank-{$bucket->val}", "Total names with role:'unplaced' and rank '{$bucket->val}'", $bucket->count);
+                            $stats[] = new TaxonConceptStat("rank-{$bucket->val}-role-unplaced", "Total names with rank '{$bucket->val}' and role'unplaced'", $bucket->count);
                         }
-                
-                        // add in our own stats for this bucket
-                        $stats[] = new TaxonConceptStat("role-unplaced-rank-{$bucket->val}", "Total names with role:'unplaced' and rank '{$bucket->val}'", $bucket->count);
-                        $stats[] = new TaxonConceptStat("rank-{$bucket->val}-role-unplaced", "Total names with rank '{$bucket->val}' and role'unplaced'", $bucket->count);
-                    }
+                }
+
+
             }
+
+
             
             
-           // error_log(print_r($response->facets, true));
+        
 
         }
 
