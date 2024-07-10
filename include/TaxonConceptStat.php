@@ -9,7 +9,7 @@ class TaxonConceptStat{
     public function __construct($id, $title, $value){
         $this->id = $id;
         $this->title = $title;
-        $this->value = $value;
+        $this->value = $value ? $value : 0;
     }
 
 }
