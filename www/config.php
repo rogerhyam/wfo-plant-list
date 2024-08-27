@@ -47,7 +47,6 @@ $facet_ids = array(
   "placed_in_family_s",
   "placed_in_genus_s",
   "nomenclatural_status_s"
-  
 );
 
 // this ensures that we have 

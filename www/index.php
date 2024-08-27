@@ -28,7 +28,8 @@ require_once('header.php');
         description, distribution, image and other data. This is where you go to find out more about a plant.</li>
     <li><a href="http://www.wfoplantlist.org">WFO Plant List</a>: Human friendly access to the WFO Plant List in all its
         versions as soon as they are released. It forms part of 1, the main portal.</li>
-    <li><a href="https://doi.org/10.5281/zenodo.7467360">WFO Plant List Download [doi:10.5281/zenodo.7467360]</a>: Gives
+    <li><a href="https://zenodo.org/doi/10.5281/zenodo.7460141">WFO Plant List Download
+            [doi:10.5281/zenodo.7460141]</a>: Gives
         access to the same data as available from 2 above to download in multiple formats and citable via a DOI.</li>
     <li><strong>WFO Plant List API:</strong> This site. Gives access to the same data as available from 2 above but via
         APIs and specialist tools.</li>

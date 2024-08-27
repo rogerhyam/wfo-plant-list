@@ -7,7 +7,8 @@ require_once('../include/SourceDetails.php');
 
 $provs = json_decode($_GET['prov']);
 
-foreach($provs as $prov){
+
+foreach($provs->facet_value->provenance as $prov){
 
     $matches = array();
     preg_match('/(wfo-[0-9]{10})-s-([0-9]+)-(.+)/', $prov, $matches);

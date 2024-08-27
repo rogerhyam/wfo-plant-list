@@ -146,9 +146,8 @@ class TaxonRecord extends PlantList{
         $this->citationMicro        = isset($this->solrDoc->citation_micro_s) ? $this->solrDoc->citation_micro_s : null;
         $this->comment              = isset($this->solrDoc->comment_t) ? $this->solrDoc->comment_t : null;
 
-
         // identifiers other
-        if(isset($this->solrDoc->identifiers_other_kind_ss)){
+        if(isset($this->solrDoc->identifiers_other_kind_ss) && isset($this->solrDoc->identifiers_other_value_ss)){
             // had index glitches where kinds and values have been different numbers
             // so this hack but shouldn't happen.
             $lowest = min(count($this->solrDoc->identifiers_other_kind_ss), count($this->solrDoc->identifiers_other_value_ss));
