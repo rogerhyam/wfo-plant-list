@@ -147,6 +147,8 @@ class TaxonRecord extends PlantList{
         $this->comment              = isset($this->solrDoc->comment_t) ? $this->solrDoc->comment_t : null;
 
         // identifiers other
+
+        print_r($this->solrDoc);
         if(isset($this->solrDoc->identifiers_other_kind_ss) && isset($this->solrDoc->identifiers_other_value_ss)){
             // had index glitches where kinds and values have been different numbers
             // so this hack but shouldn't happen.
