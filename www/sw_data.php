@@ -179,8 +179,10 @@ function get_name_resource($graph, $record){
     }
 
     // add the current usage of the name
-    $name_resource->add('wfo:currentPreferredUsage', $graph->resource(get_uri($record->getCurrentUsage()->getId())));
-
+    if($record->getCurrentUsage()){
+        $name_resource->add('wfo:currentPreferredUsage', $graph->resource(get_uri($record->getCurrentUsage()->getId())));
+    }
+    
     $references = $record->getNomenclaturalReferences();
     add_references($references, $name_resource, $graph);
 
