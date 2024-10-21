@@ -144,7 +144,8 @@ class TaxonNameType extends ObjectType
                             return $record->getCurrentUsage();
                         },
                         'description' => 'The TaxonConcept to which this TaxonName is assigned 
-                        (either as the accepted name or a synonym) in the currently preferred (most recent) version of the WFO classification.'
+                        (either as the accepted name or a synonym) in the currently preferred (most recent) version of the WFO classification. 
+                        If currentPreferredUsage.hasName.id != this.id then this name is a synonym otherwise it is the accepted name of the currentPreferredUsage TaxonConcept.'
                     ],
                     'hasAssociatedGenusName' => [
                         'type' => Type::listOf(TypeRegister::taxonNameType()),

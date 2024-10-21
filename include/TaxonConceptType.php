@@ -59,7 +59,7 @@ class TaxonConceptType extends ObjectType
                         'resolve' => function($record){ 
                             return $record->getName(); 
                         }, // yes the same object just in another wrapper!
-                        'description' => "The name that should be used for this taxon according to the International Code of Botanical Nomenclature"
+                        'description' => "The name that should be used for this taxon according to the International Code of Botanical Nomenclature. i.e. the accepted name for the TaxonConcept. Synonyms are accessed by hasSynonym."
                     ],
                     'hasSynonym' => [
                         'type' => Type::listOf(TypeRegister::taxonNameType()),

@@ -90,7 +90,7 @@ class NameMatcher extends PlantList{
         */
 
         // lets parse the name out
-        $parts = explode(" ", $response->searchString);
+        $parts = explode(" ", ucfirst($response->searchString));
 
         // there should be no parts that are just punctuation
         $parts = preg_grep('/[a-zA-Z]+/', $parts);
@@ -364,7 +364,7 @@ class NameMatcher extends PlantList{
         }
 
         // they care about ranks so remove the match if the ranks don't match
-        if($response->match && $this->params->checkRank && $response->parsedName->rank != $response->match->getRank()){
+        if($response->match && $this->params->checkRank && $response->parsedName->rank && $response->parsedName->rank != $response->match->getRank()){
             // they want the ranks to match and they don't so demote it
             $response->match = null;
             $response->narrative[] = "Checked ranks and they didn't match.";
@@ -433,22 +433,43 @@ class NameMatcher extends PlantList{
             }else{
 
                 // no candidates so go relevance
-                $response->narrative[] = "No candidates found so moving to relevance searching.";
+                $response->narrative[] = "No candidates found so moving to enhanced search (single candidates not accepted as matches)";
 
-                $query = array(
-                    'query' => "_text_:$response->searchString",
-                    'filter' => 'classification_id_s:' . $this->params->classificationVersion,
-                    'limit' => $this->params->limit
-                );
+                $canonical_name = $response->parsedName->canonical_form;
+                $canonical_name = str_replace(' ', '\ ', $canonical_name);
+                $canonical_name = substr($canonical_name, 0, -1);
 
-                $docs = PlantList::getSolrDocs($query);
-                if($docs){
-                    foreach($docs as $doc){
-                        $doc->asName = true;
-                        $response->candidates[] = new TaxonRecord($doc);
+                while(strlen($canonical_name) > 3){
+
+                    $query = array(
+                        'query' => "full_name_string_alpha_s:{$canonical_name}*",
+                        'filter' => $filters,
+                        'sort' => 'full_name_string_alpha_t_sort asc',
+                        'limit' => $this->params->limit
+                    );
+
+                    $filters = array();
+                    $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
+
+                    $docs  = $this->getSolrDocs($query);
+        
+                    if($docs){
+
+                        $n = str_replace('\\', '', $canonical_name);
+                        $c = count($docs);
+
+                        $response->narrative[] = "Found $c candidates for '{$n}'";
+                        foreach ($docs as $doc) {
+                            $doc->asName = true;
+                            $response->candidates[] = new TaxonRecord($doc);
+                        }
+                        break; // we are out of here because we have stuff.
                     }
-                }
 
+                    // go round again with a slightly shorter name
+                    $canonical_name = substr($canonical_name, 0, -1);
+                
+                } // while 
 
             } //no candidates
 
