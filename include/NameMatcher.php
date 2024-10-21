@@ -441,16 +441,16 @@ class NameMatcher extends PlantList{
 
                 while(strlen($canonical_name) > 3){
 
+                    $filters = array();
+                    $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
+
                     $query = array(
                         'query' => "full_name_string_alpha_s:{$canonical_name}*",
                         'filter' => $filters,
                         'sort' => 'full_name_string_alpha_t_sort asc',
                         'limit' => $this->params->limit
                     );
-
-                    $filters = array();
-                    $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
-
+                
                     $docs  = $this->getSolrDocs($query);
         
                     if($docs){
