@@ -475,6 +475,14 @@ class NameMatcher extends PlantList{
                 
                 } // while 
 
+                // if we only have a single candidate --- 
+                if(count($response->candidates) == 1 && @$this->params->acceptSingleCandidate){
+                    // a single candidate and that will do for them!
+                    $response->narrative[] = "A single candidate found and acceptSingleCandidate is true so it becomes the match.";
+                    $response->match = $response->candidates[0];
+                    $response->candidates = array();
+                }
+
             } //no candidates
 
         } // not got a match
@@ -573,7 +581,7 @@ class NameMatcher extends PlantList{
         $cleaner = str_replace('ñ', 'n', $cleaner);
         $cleaner = str_replace('ø', 'oe', $cleaner);
         $cleaner = str_replace('å', 'ao', $cleaner);
-        $cleaner = str_replace("", '', $cleaner); // can you believe an o'donolli 
+        $cleaner = str_replace("'", '', $cleaner); // can you believe an o'donolli 
 
         // we don't do hybrid symbols or other weirdness
         $cleaner = str_replace(' X ', '', $cleaner); // may use big X for hybrid  - we ignore
