@@ -241,7 +241,12 @@ class NameMatcher extends PlantList{
 
         // all the rest of the parts are the authors string
         $response->parsedName->author_string = trim(implode(' ', array_slice($parts, $final_word_part +1)));
-        $response->narrative[] = "Authors string looks like this: '{$response->parsedName->author_string}'";
+       
+        if($response->parsedName->author_string){
+            $response->narrative[] = "Authors string looks like this: '{$response->parsedName->author_string}'";
+        }else{
+            $response->narrative[] = "No authors string provided. Will match all authors strings.";
+        }
 
         // If we are dealing with an autonym the name may be embedded in the author string when we take this approach.
         if(count($canonical_parts) == 3 && $canonical_parts[1] == $canonical_parts[2] && strpos($response->parsedName->author_string, $canonical_parts[1]) !== false){
@@ -291,7 +296,7 @@ class NameMatcher extends PlantList{
 
             //$response->narrative[] = "Checking candidates for authors string.";
 
-            if($candidate->getAuthorsString() == $response->parsedName->author_string){
+            if($response->parsedName->author_string && $candidate->getAuthorsString() == $response->parsedName->author_string){
 
                 if($response->match && $response->match != $candidate){
                     // we have found a second with good author strings!
@@ -317,7 +322,7 @@ class NameMatcher extends PlantList{
         // if the search string has an ex in it then look without the ex author
         // second author is real one.
 
-        if(!$response->match){
+        if(!$response->match && $response->parsedName->author_string){
             if(strpos($response->parsedName->author_string, ' ex ') !== false){
                 $response->narrative[] = "Submitted authors contain ' ex '. Removing the ex and checking authors again.";
                 $ex_less_authors = $this->removeExAuthors($response->parsedName->author_string);
