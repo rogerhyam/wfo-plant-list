@@ -492,6 +492,10 @@ class NameMatcher extends PlantList{
 
         } // not got a match
 
+        // before returning we check that if we are returning a 
+        // match we do not also return candidates
+        if($response->match) $response->candidates = array();
+
         return $response;
     }
 
