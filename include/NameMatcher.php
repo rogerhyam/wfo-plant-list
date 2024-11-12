@@ -21,7 +21,7 @@ class NameMatcher extends PlantList{
         // override with some defaults if they haven't been set
         if(!isset($this->params->method)) $this->params->method = 'alpha';
         //if(!isset($this->params->includeDeprecated)) $this->params->includeDeprecated = false;
-        if(!isset($this->params->limit)) $this->params->limit = 100;
+        if(!isset($this->params->limit)) $this->params->limit = 30;
         if(!isset($this->params->classificationVersion)) $this->params->classificationVersion = WFO_DEFAULT_VERSION;
         if(!isset($this->params->checkHomonyms)) $this->params->checkHomonyms = false;
         if(!isset($this->params->checkRank)) $this->params->checkRank = false;
@@ -446,7 +446,7 @@ class NameMatcher extends PlantList{
 
                 $canonical_name = $response->parsedName->canonical_form;
                 $canonical_name = str_replace(' ', '\ ', $canonical_name);
-                $canonical_name = substr($canonical_name, 0, -1);
+                $already_in_results = array();
 
                 while(strlen($canonical_name) > 3){
 
@@ -467,18 +467,27 @@ class NameMatcher extends PlantList{
                         $n = str_replace('\\', '', $canonical_name);
                         $c = count($docs);
 
-                        $response->narrative[] = "Found $c candidates for '{$n}'";
+                        $response->narrative[] = "Found $c names for '{$n}'";
+
                         foreach ($docs as $doc) {
                             $doc->asName = true;
-                            $response->candidates[] = new TaxonRecord($doc);
+                            if(count($response->candidates) < $this->params->limit && !in_array($doc->wfo_id_s, $already_in_results)){
+                                $response->candidates[] = new TaxonRecord($doc);
+                                $already_in_results[] = $doc->wfo_id_s;
+                            }
                         }
-                        break; // we are out of here because we have stuff.
-                    }
 
-                    // go round again with a slightly shorter name
-                    $canonical_name = substr($canonical_name, 0, -1);
+                        if(count($response->candidates) >= $this->params->limit){
+                            // go round again with a slightly shorter name
+                            $response->narrative[] = "Got  {$this->params->limit} candidates so stopping search.";
+                            break;
+                        }else{
+                            $canonical_name = substr($canonical_name, 0, -1);
+                        }
+
+                    }
                 
-                } // while 
+                } // while still got > 3 letters
 
                 // if we only have a single candidate --- 
                 if(count($response->candidates) == 1 && @$this->params->acceptSingleCandidate){
