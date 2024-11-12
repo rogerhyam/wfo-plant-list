@@ -346,7 +346,6 @@ class NameMatcher extends PlantList{
             }
         }
 
-
         // if we have a single candidate and the input name doesn't have 
         // an authorstring then we assume that it is a match 
         if(count($response->candidates) == 1 && strlen($response->parsedName->author_string) == 0){
@@ -469,6 +468,7 @@ class NameMatcher extends PlantList{
 
                         $response->narrative[] = "Found $c names for '{$n}'";
 
+
                         foreach ($docs as $doc) {
                             $doc->asName = true;
                             if(count($response->candidates) < $this->params->limit && !in_array($doc->wfo_id_s, $already_in_results)){
@@ -476,16 +476,18 @@ class NameMatcher extends PlantList{
                                 $already_in_results[] = $doc->wfo_id_s;
                             }
                         }
-
+                    
                         if(count($response->candidates) >= $this->params->limit){
                             // go round again with a slightly shorter name
                             $response->narrative[] = "Got  {$this->params->limit} candidates so stopping search.";
                             break;
-                        }else{
-                            $canonical_name = substr($canonical_name, 0, -1);
                         }
 
+                    }else{
+                        $n = str_replace('\\', '', $canonical_name);
+                        $response->narrative[] = "Found no names for '{$n}'";
                     }
+                    $canonical_name = substr($canonical_name, 0, -1);
                 
                 } // while still got > 3 letters
 

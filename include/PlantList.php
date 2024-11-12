@@ -93,10 +93,16 @@ class PlantList{
     }
 
     public static function getSolrResponse($query){
+
         $solr_query_uri = SOLR_QUERY_URI . '/query';
         $response = PlantList::curlPostJson($solr_query_uri, json_encode($query));
-        $data = json_decode($response->body);
-        return $data;
+        if(isset($response->body)){
+            $data = json_decode($response->body);
+            return $data;
+        }else{
+            return null;
+        }
+
     }
 
     
