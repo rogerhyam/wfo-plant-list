@@ -124,6 +124,16 @@ $schema = new Schema([
                             'type' => Type::string(),
                             'description' => 'The name string to search on, including the author string.'
                         ],
+                        'fuzzyNameParts' => [
+                            'type' => Type::int(),
+                            'description' => "If an integer value greater than 0 is provided then it will be used as a maximum Levenshtein distance when matching words in the name. Each word parsed from a name (not forming part of the authors string or a rank) is checked against the index. If it doesn't exist then an attempt will be made to find a replacement word that is used in the index and that is within this Levenshtein distance. If a single, unambiguous word is found then that is used in place of the word provided. This helps increase matches when there are typographical/OCR errors of a few characters in complex words. It is recommended not to set this above 3.",
+                            'defaultValue' => 0
+                        ],
+                        'fuzzyAuthors' => [
+                            'type' => Type::int(),
+                            'description' => 'If an integer value greater than 0 is provided then it will be used as the maximum Levenshtein distance that two authors strings can be apart and still be considered to match. Unlike with fuzzy_names this is applied to the whole string not words within the string thus catching punctuation and spacing errors.',
+                            'defaultValue' => 0
+                        ],
                         'checkHomonyms' => [
                             'type' => Type::boolean(),
                             'description' => 'Consider matches to be ambiguous if there are other names with the same words but different author strings.',
@@ -142,7 +152,7 @@ $schema = new Schema([
                     ],
                 'resolve' => function($rootValue, $args, $context, $info) {
 
-                        $matcher = new NameMatcher((object)array('checkHomonyms' => $args['checkHomonyms'], 'checkRank' => $args['checkRank'], 'fallbackToGenus' => $args['fallbackToGenus'], 'method' => 'full'));
+                        $matcher = new NameMatcher((object)array('fuzzyNameParts' => $args['fuzzyNameParts'], 'fuzzyAuthors' => $args['fuzzyAuthors'],  'checkHomonyms' => $args['checkHomonyms'], 'checkRank' => $args['checkRank'], 'fallbackToGenus' => $args['fallbackToGenus'], 'method' => 'full'));
                         return $matcher->match($args['inputString']);
 
                     }

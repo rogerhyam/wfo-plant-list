@@ -26,6 +26,10 @@ class NameMatcher extends PlantList{
         if(!isset($this->params->checkHomonyms)) $this->params->checkHomonyms = false;
         if(!isset($this->params->checkRank)) $this->params->checkRank = false;
         if(!isset($this->params->acceptSingleCandidate)) $this->params->acceptSingleCandidate = false;
+
+        // fuzzy duck
+        if(!isset($this->params->fuzzyNameParts)) $this->params->fuzzyNameParts = 0;
+        if(!isset($this->params->fuzzyAuthors)) $this->params->fuzzyAuthors = 0;
     
     }
 
@@ -236,6 +240,71 @@ class NameMatcher extends PlantList{
 
         }
 
+        // We have the canonical word parts
+        // if we are in fuzzy mode then we replace where necessary
+        if($this->params->fuzzyNameParts > 0){
+
+            // work through each of the name parts and see if they
+            // occur appropriately in the index. If they don't then
+            // replace with something appropriate
+            for ($i=0; $i < count($canonical_parts); $i++) { 
+                $part = $canonical_parts[$i];
+
+                // look it up in the index
+                $query = array(
+                    'query' => 'name_string_s:' . $part, 
+                    'limit' => 10
+                );
+                $solr_response = PlantList::getSolrResponse($query);
+
+                if(isset($solr_response->response->numFound) && $solr_response->response->numFound > 0){
+                    $response->narrative[] = "'{$part}' is found in the index and therefore most likely a good name part.";
+                }else{
+                    $response->narrative[] = "'{$part}' is NOT found in the index and therefore most likely NOT a good name part.";
+                    $response->narrative[] = "Fuzzy searching for single candidate replacement.";
+
+                    $filters = array();
+                    $filters[] = 'classification_id_s:' . $this->params->classificationVersion;
+                    
+                    if($i == 0){
+                        // the first word can't be an epithet 
+                        $filters[] = '-genus_string_s:["" TO *]';
+                    }else{
+                        // subsequent words will always have at least genus part.
+                        $filters[] = 'genus_string_s:*';
+                    }
+
+                    $query = array(
+                        'query' => 'name_string_s:' . $part . '~' . $this->params->fuzzyNameParts, 
+                        'filter' => $filters,
+                        'limit' => 10
+                    );   
+
+                    $solr_response = PlantList::getSolrResponse($query);
+                    if(isset($solr_response->response->numFound) && $solr_response->response->numFound > 0){
+                        // check that we only have one word - not multiple variations
+                        $candidates = array();
+                        foreach($solr_response->response->docs as $doc){
+                            $candidates[] = $doc->name_string_s;
+                        }
+                        $candidates = array_unique($candidates);
+                        if(count($candidates) == 1){
+                            $canonical_parts[$i] = $solr_response->response->docs[0]->name_string_s;
+                            $response->narrative[] = "Found a single candidate replacement, '{$canonical_parts[$i]}', so swapping to it.";
+                        }else{
+                            $response->narrative[] = "Found multiple candidate replacements you might want to check: " . implode('; ', $candidates)  . '.';
+                        }
+
+                    }else{
+                        $response->narrative[] = "Not found a single candidate replacement.";
+                    }
+                }
+
+                
+            } // for each part
+
+        } // if fuzzy words
+
         // build the name out of the max three canonical parts
         $response->parsedName->canonical_form = implode(' ', $canonical_parts);
 
@@ -292,65 +361,87 @@ class NameMatcher extends PlantList{
         }
 
         // do we have a single one with a good author string?
-        foreach($response->candidates as $candidate){
 
-            //$response->narrative[] = "Checking candidates for authors string.";
+        if($this->params->checkHomonyms){
+            $response->narrative[] = "Check all homonyms is selected so not checking author strings.";
+        }else{
 
-            if($response->parsedName->author_string && $candidate->getAuthorsString() == $response->parsedName->author_string){
+            $response->narrative[] = "Looking for matching author strings.";
 
-                if($response->match && $response->match != $candidate){
-                    // we have found a second with good author strings!
-                    if($response->match->getRole() == 'deprecated' && $candidate->getRole() != 'deprecated'){
-                        // a good name over rules a deprecated one
-                        $response->match = $candidate;
-                        $response->narrative[] = "Deprecated name removed to reveal matched name.";
+            foreach($response->candidates as $candidate){
+
+                // are we in fuzzy author land?
+                if($this->params->fuzzyAuthors > 0){
+                    $lev = levenshtein($candidate->getAuthorsString(), $response->parsedName->author_string);
+                    $authors_match = $lev <=  $this->params->fuzzyAuthors;
+                    if ($authors_match){
+                        $response->narrative[] = "Fuzzy author match '{$candidate->getAuthorsString()}' with Levenshtein distance $lev";
                     }else{
-                        // we have two and one isn't deprecated so we can't decide
-                        // between them
-                        $response->match = null;
-                        $response->narrative[] = "No candidate has matching author string.";
-                        break;
+                        $response->narrative[] = "Fuzzy author do NOT match '{$candidate->getAuthorsString()}'. Levenshtein distance $lev";
                     }
                 }else{
-                    // this become the new match
-                    $response->match = $candidate;
-                    $response->narrative[] = "Found candidate ({$candidate->getWfoId()}) with matching author string so it becomes the match.";
+                    $authors_match = $candidate->getAuthorsString() == $response->parsedName->author_string;
                 }
-            }
-        }
 
-        // if the search string has an ex in it then look without the ex author
-        // second author is real one.
-
-        if(!$response->match && $response->parsedName->author_string){
-            if(strpos($response->parsedName->author_string, ' ex ') !== false){
-                $response->narrative[] = "Submitted authors contain ' ex '. Removing the ex and checking authors again.";
-                $ex_less_authors = $this->removeExAuthors($response->parsedName->author_string);
-                foreach($response->candidates as $candidate){
-                    if($candidate->getAuthorsString() == $ex_less_authors){
+                if($response->parsedName->author_string && $authors_match){
+    
+                    if($response->match && $response->match != $candidate){
+                        // we have found a second with good author strings!
+                        if($response->match->getRole() == 'deprecated' && $candidate->getRole() != 'deprecated'){
+                            // a good name over rules a deprecated one
+                            $response->match = $candidate;
+                            $response->narrative[] = "Deprecated name removed to reveal matched name.";
+                        }else{
+                            // we have two and one isn't deprecated so we can't decide
+                            // between them
+                            $response->match = null;
+                            $response->narrative[] = "No candidate has matching author string.";
+                            break;
+                        }
+                    }else{
+                        // this become the new match
                         $response->match = $candidate;
-                        $response->narrative[] = "Found matching authors when ex removed from submitted name.";
-                        break;
-                    }
-                }
-            }else{
-                $response->narrative[] = "Submitted authors do NOT contain ' ex '. Looking for match in candidates if their ex authors are removed.";
-                foreach($response->candidates as $candidate){
-                    $ex_less_authors = $this->removeExAuthors($candidate->getAuthorsString());
-                    if($response->parsedName->author_string == $ex_less_authors){
-                        $response->match = $candidate;
-                        $response->narrative[] = "Found matching authors when ex removed from candidate name.";
-                        break;
+                        $response->narrative[] = "Found candidate ({$candidate->getWfoId()}) with matching author string so it becomes the match.";
                     }
                 }
             }
-        }
+
+            // if the search string has an ex in it then look without the ex author
+            // second author is real one.
+            if(!$response->match && $response->parsedName->author_string){
+                if(strpos($response->parsedName->author_string, ' ex ') !== false){
+                    $response->narrative[] = "Submitted authors contain ' ex '. Removing the ex and checking authors again.";
+                    $ex_less_authors = $this->removeExAuthors($response->parsedName->author_string);
+                    foreach($response->candidates as $candidate){
+                        if($candidate->getAuthorsString() == $ex_less_authors){
+                            $response->match = $candidate;
+                            $response->narrative[] = "Found matching authors when ex removed from submitted name.";
+                            break;
+                        }
+                    }
+                }else{
+                    $response->narrative[] = "Submitted authors do NOT contain ' ex '. Looking for match in candidates if their ex authors are removed.";
+                    foreach($response->candidates as $candidate){
+                        $ex_less_authors = $this->removeExAuthors($candidate->getAuthorsString());
+                        if($response->parsedName->author_string == $ex_less_authors){
+                            $response->match = $candidate;
+                            $response->narrative[] = "Found matching authors when ex removed from candidate name.";
+                            break;
+                        }
+                    }
+                }
+            }
+
+        } // checking author strings
+
+       
+
+        
 
         // if we have a single candidate and the input name doesn't have 
         // an authorstring then we assume that it is a match 
         if(count($response->candidates) == 1 && strlen($response->parsedName->author_string) == 0){
             $response->match = $response->candidates[0];
-            $response->candidates = array();
             $response->narrative[] = "Only one candidate found ({$response->match->getWfoId()}) and no author string supplied so name becomes match.";
         }
 
@@ -364,7 +455,6 @@ class NameMatcher extends PlantList{
             if($response->candidates[0]->getRank() == $response->parsedName->rank){
                 $response->narrative[] = "The ranks are the same so making it a match regardless of any author string.";
                 $response->match = $response->candidates[0];
-                $response->candidates = array();
             }else{
                 $response->narrative[] = "The ranks are not the same ('{$response->candidates[0]->getRank()}' and '{$response->parsedName->rank}') so not a match.";
             }
@@ -376,12 +466,6 @@ class NameMatcher extends PlantList{
             // they want the ranks to match and they don't so demote it
             $response->match = null;
             $response->narrative[] = "Checked ranks and they didn't match.";
-        }
-
-        // they don't care about homonyms so we can scrub any candidates if we have a match
-        if($response->match && $response->candidates && !$this->params->checkHomonyms){
-            $response->candidates = array();
-            $response->narrative[] = "Homonyms (same name different authors) are considered OK and we have a match so removing candidates.";
         }
 
         // if we haven't found anything but they would be happy with a genus

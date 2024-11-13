@@ -42,6 +42,8 @@ if(isset($_GET['delete_data']) && $_GET['delete_data'] == 'true'){
 // they are updating some parameters
 $default_params = array(
     'name_col_index' => -1,
+    'fuzzy_names' => 0,
+    'fuzzy_authors' => 0,
     'interactive' => false,
     'homonyms' => false,
     'ranks' => false,
@@ -52,11 +54,14 @@ $default_params = array(
 if(!isset($_SESSION['matching_params'])) $_SESSION['matching_params'] = $default_params;
 
 if(isset($_GET['update_matching_params']) && $_GET['update_matching_params'] = 'true'){
+
+    $integer_params = array('name_col_index', 'fuzzy_names', 'fuzzy_authors');
+
     foreach ($default_params as $key => $value) {
 
-        // name_col_index is always a number
-        if(isset($_GET[$key]) && $key == 'name_col_index'){
-            $_SESSION['matching_params'][$key] = $_GET[$key];
+        // Some are intergers
+        if(isset($_GET[$key]) && in_array($key,$integer_params) ){
+            $_SESSION['matching_params'][$key] = intval($_GET[$key]);
         }else{
            // others are set to true/false
             if(isset($_GET[$key]) && $_GET[$key] = 'true'){
@@ -258,6 +263,8 @@ if(@$_GET['matching_mode']){
                 $config->checkHomonyms = $_SESSION['matching_params']['homonyms'];
                 $config->checkRank = $_SESSION['matching_params']['ranks'];
                 $config->acceptSingleCandidate = $_SESSION['matching_params']['accept_single_candidate'];
+                $config->fuzzyNameParts = $_SESSION['matching_params']['fuzzy_names'];
+                $config->fuzzyAuthors = $_SESSION['matching_params']['fuzzy_authors'];
 
                 $matcher = new NameMatcher($config);
 
@@ -465,6 +472,39 @@ if(file_exists($input_file_path)){
                 list of candidates. If this isn't selected then rows without unambiguous matches will be skipped.</td>
         </tr>
 
+        <tr>
+            <th style="text-align: right">Fuzzy names:</th>
+            <td style="text-align: center">
+                <select id="fuzzy_names" name="fuzzy_names" class="form-select">
+                    <option value="0" <?php echo @$_SESSION['matching_params']['fuzzy_names'] == 0 ? 'selected' : '';  ?> >Off</option>
+                    <option value="1" <?php echo @$_SESSION['matching_params']['fuzzy_names'] == 1 ? 'selected' : '';  ?> >1 character difference per word is permitted</option>
+                    <option value="2" <?php echo @$_SESSION['matching_params']['fuzzy_names'] == 2 ? 'selected' : '';  ?> >2 character differences per word are permitted</option>
+                    <option value="3" <?php echo @$_SESSION['matching_params']['fuzzy_names'] == 3 ? 'selected' : '';  ?> >3 character differences per word are permitted</option>
+                </select>    
+            </td>
+            <td>The maximum <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> 
+        when matching words in the name. Each word parsed from a name (not forming part of the authors string or a rank) is checked against the index. If it doesn't exist then an attempt will be made 
+    to find a replacement word that is used in the index and that is within this Levenshtein distance. If a single, unambiguous word is found then that is used in place of the word provided. 
+This helps increase matches when there are typographical/OCR errors of a few characters in complex words.</td>
+        </tr>
+
+        <tr>
+            <th style="text-align: right">Fuzzy authors:</th>
+            <td style="text-align: center">
+                <select id="fuzzy_authors" name="fuzzy_authors" class="form-select">
+                    <option value="0" <?php echo @$_SESSION['matching_params']['fuzzy_authors'] == 0 ? 'selected' : '';  ?> >Off</option>
+                    <option value="1" <?php echo @$_SESSION['matching_params']['fuzzy_authors'] == 1 ? 'selected' : '';  ?> >1 character difference in the string permitted</option>
+                    <option value="2" <?php echo @$_SESSION['matching_params']['fuzzy_authors'] == 2 ? 'selected' : '';  ?> >2 character differences in the string permitted</option>
+                    <option value="3" <?php echo @$_SESSION['matching_params']['fuzzy_authors'] == 3 ? 'selected' : '';  ?> >3 character differences in the string permitted</option>
+                    <option value="4" <?php echo @$_SESSION['matching_params']['fuzzy_authors'] == 4 ? 'selected' : '';  ?> >4 character differences in the string permitted</option>
+                    <option value="5" <?php echo @$_SESSION['matching_params']['fuzzy_authors'] == 5 ? 'selected' : '';  ?> >5 character differences in the string permitted</option>
+                </select>
+            </td>
+            <td>The maximum Levenshtein distance that two authors strings can be apart and still be considered to match. 
+            Unlike with fuzzy names this is applied to the whole string not words within the string thus catching punctuation and spacing errors.</td>
+        </tr>
+
+        
         <tr>
             <th style="text-align: right">Check homonyms:</th>
             <td style="text-align: center"><input type="checkbox" name="homonyms" value="true"

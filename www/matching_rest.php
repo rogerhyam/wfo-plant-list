@@ -16,13 +16,22 @@ if(@$_GET['input_string']){
     $checkHomonyms = @$_GET['check_homonyms'] == 'true' ? true : false;
     $checkRank = @$_GET['check_rank'] == 'true' ? true : false;
     $acceptSingleCandidate = @$_GET['accept_single_candidate'] == 'true' ? true : false;
+    
+    if(@$_GET['fuzzy_names']) $fuzzyNameParts = intval($_GET['fuzzy_names']);
+    else $fuzzyNameParts = 0;
+
+    if(@$_GET['fuzzy_authors']) $fuzzyAuthors = intval($_GET['fuzzy_authors']);
+    else $fuzzyAuthors = 0;
+
 
     $matcher = new NameMatcher(
         (object)array(
             'checkHomonyms' => $checkHomonyms,
             'checkRank' => $checkRank,
             'method' => 'full',
-            'acceptSingleCandidate' => $acceptSingleCandidate
+            'acceptSingleCandidate' => $acceptSingleCandidate,
+            'fuzzyNameParts' => $fuzzyNameParts,
+            'fuzzyAuthors' => $fuzzyAuthors
         ));
     $response = $matcher->match($inputString);
 
@@ -79,17 +88,65 @@ require_once('header.php');
     <p>
         Use this form to test how name strings are parsed and matched.
     </p>
-    <form>
+    <form class="row g-3">
         <input type="hidden" name="human" value="true" />
-        <input type="text" name="input_string" value="<?php echo @$_GET['input_string'] ?>" style="width: 30em" placeholder="Enter your name string here."/>
-        <input type="submit" /> <button onclick="event.preventDefault(); window.location='matching_rest.php';">Clear</button>
-        <br/>
-               Check Homonyms: <input type="checkbox" name="check_homonyms" <?php echo @$_GET['check_homonyms'] ? "checked" : "" ?> value="true" />
-               Check Rank: <input type="checkbox" name="check_rank" <?php echo @$_GET['check_rank'] ? "checked" : "" ?>  value="true" />
-               Accept Single Candidate: <input type="checkbox" name="accept_single_candidate" <?php echo @$_GET['accept_single_candidate'] ? "checked" : "" ?>  value="true" />
-           
+
+        <div class="col-12">
+            <label for="name_string" class="form-label">Name for matching</label>
+            <input id="name_string" type="text" class="form-control" name="input_string" value="<?php echo @$_GET['input_string'] ?>" placeholder="Enter your name string here."/>
+        </div>
+
+         <div class="col-md-6">
+            <label class="form-label" for="fuzzy_names">Fuzzy name matching</label>
+            <select id="fuzzy_names" name="fuzzy_names" class="form-select">
+                <option value="0" <?php echo @$_GET['fuzzy_names'] == 0 || !@$_GET['fuzzy_names'] ? 'selected' : '';  ?> >Off</option>
+                <option value="1" <?php echo @$_GET['fuzzy_names'] == 1 ? 'selected' : '';  ?> >1 character difference per word is permitted</option>
+                <option value="2" <?php echo @$_GET['fuzzy_names'] == 2 ? 'selected' : '';  ?> >2 character differences per word are permitted</option>
+                <option value="3" <?php echo @$_GET['fuzzy_names'] == 3 ? 'selected' : '';  ?> >3 character differences per word are permitted</option>
+            </select>                
+         </div>
+
+         <div class="col-md-6">
+            <label class="form-label" for="fuzzy_authors">Fuzzy author string matching</label>
+            <select id="fuzzy_authors" name="fuzzy_authors" class="form-select">
+                <option value="0" <?php echo @$_GET['fuzzy_authors'] == 0 || !@$_GET['fuzzy_authors'] ? 'selected' : '';  ?> >Off</option>
+                <option value="1" <?php echo @$_GET['fuzzy_authors'] == 1 ? 'selected' : '';  ?> >1 character difference in the string permitted</option>
+                <option value="2" <?php echo @$_GET['fuzzy_authors'] == 2 ? 'selected' : '';  ?> >2 character differences in the string permitted</option>
+                <option value="3" <?php echo @$_GET['fuzzy_authors'] == 3 ? 'selected' : '';  ?> >3 character differences in the string permitted</option>
+                <option value="4" <?php echo @$_GET['fuzzy_authors'] == 4 ? 'selected' : '';  ?> >4 character differences in the string permitted</option>
+                <option value="5" <?php echo @$_GET['fuzzy_authors'] == 5 ? 'selected' : '';  ?> >5 character differences in the string permitted</option>
+            </select>                
+         </div>
+
+
+        <div class="col-md-12">
+            <div class="form-check">
+                <input id="check_homonyms" type="checkbox" name="check_homonyms" <?php echo @$_GET['check_homonyms'] ? "checked" : "" ?> value="true" />
+                <label class="form-check-label" for="check_homonyms"><strong>All homonyms:</strong> Consider matches to be ambiguous if there are other names with the same words but different author strings.</label>
+            </div>
+         </div>
+
+         <div class="col-md-12">
+            <div class="form-check">
+                <input id="check_rank" type="checkbox" name="check_rank" <?php echo @$_GET['check_rank'] ? "checked" : "" ?>  value="true" />
+                <label class="form-check-label" for="check_rank"><strong>Check rank:</strong> Consider matches to be ambiguous if it is possible to estimate rank from the search string and the rank does not match that in the name record.</label>
+            </div>
+         </div>
+
+         <div class="col-md-12">
+            <div class="form-check">
+            <input id="accept_single_candidate" type="checkbox" name="accept_single_candidate" <?php echo @$_GET['accept_single_candidate'] ? "checked" : "" ?>  value="true" />
+                <label class="form-check-label" for="accept_single_candidate"><strong>Accept single candidate:</strong> If only a single candidate name is found that will be made the match, even if it isn't an exact match.</label>
+            </div>
+         </div>
+
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Match now</button>
+            <button type="submit" class="btn btn-outline-secondary" onclick="event.preventDefault(); window.location='matching_rest.php';">Clear form</button>
+        </div>
                
     </form>
+    <p></p>
 <?php 
 if($response){
     echo "<hr/>";
@@ -138,6 +195,12 @@ function render_list($ob){
 
 <ul>
     <li><strong>input_string</strong> The name string to be searched for. It should contain a single botanical name. This should include the authors of the name if available. It should be URL encoded.</li>
+    <li><strong>fuzzy_names</strong> If an integer value greater than 0 is provided then it will be used as a maximum <a href="https://en.wikipedia.org/wiki/Levenshtein_distance">Levenshtein distance</a> 
+        when matching words in the name. Each word parsed from a name (not forming part of the authors string or a rank) is checked against the index. If it doesn't exist then an attempt will be made 
+    to find a replacement word that is used in the index and that is within this Levenshtein distance. If a single, unambiguous word is found then that is used in place of the word provided. 
+This helps increase matches when there are typographical/OCR errors of a few characters in complex words. It is recommended not to set this above 3.</li>
+    <li><strong>fuzzy_authors</strong> If an integer value greater than 0 is provided then it will be used as the maximum Levenshtein distance that two authors strings can be apart and still be considered to match. 
+Unlike with fuzzy_names this is applied to the whole string not words within the string thus catching punctuation and spacing errors.</li>
     <li><strong>check_homonyms</strong> If present with the value "true" then homonyms will be checked for. If a single, exact match of name and author string is found but there are other names with the same letters but a different author strings present the match won't be considered unambiguous. </li>
     <li><strong>check_rank</strong> If present with the value "true" then the rank will be checked for. If a precise match of name and author string is found and it is possible to extract the rank from the name string but the rank isn't the same the match won't be considered unambiguous.</li>
     <li><strong>accept_single_candidate</strong> If present with the value "true" and only a single candidate name is found that will be made the match, even though it isn't an exact match.</li>
