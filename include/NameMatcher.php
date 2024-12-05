@@ -690,7 +690,7 @@ class NameMatcher extends PlantList{
         // we don't do hybrid symbols or other weirdness
         $cleaner = str_replace(' X ', '', $cleaner); // may use big X for hybrid  - we ignore
         $cleaner = str_replace(' x ', '', $cleaner); // may use big X for hybrid - we ignore
-        $cleaner = preg_replace('/[^A-Za-z\-. ]/', '', $cleaner); // any non-alpha character, hyphen or full stop (OK in abbreviated ranks) 
+        //$cleaner = preg_replace('/[^A-Za-z\-. ]/', '', $cleaner); // any non-alpha character, hyphen or full stop (OK in abbreviated ranks) 
         $cleaner = preg_replace('/\s\s+/', ' ', $cleaner); // double spaces
 
         return $cleaner;
