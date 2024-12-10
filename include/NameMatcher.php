@@ -664,6 +664,8 @@ class NameMatcher extends PlantList{
      */
     public function sanitizeNameString($dirty){
 
+        $cleaner = trim($dirty);
+
         /*
 
             60.7.  Diacritical signs are not used in scientific names. When names
@@ -675,7 +677,7 @@ class NameMatcher extends PlantList{
 
         */
 
-        $cleaner = str_replace('ä', 'ae', $dirty);
+        $cleaner = str_replace('ä', 'ae', $cleaner);
         $cleaner = str_replace('ö', 'oe', $cleaner);
         $cleaner = str_replace('ü', 'ue', $cleaner);
         $cleaner = str_replace('é', 'e', $cleaner);
