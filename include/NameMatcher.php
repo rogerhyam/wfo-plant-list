@@ -101,7 +101,7 @@ class NameMatcher extends PlantList{
         $parts = explode(" ", ucfirst($response->searchString));
 
         // there should be no parts that are just punctuation
-        $parts = preg_grep('/[a-zA-Z]+/', $parts);
+        $parts = preg_grep('/[a-zA-Z&]+/', $parts);
 
         // nothing starting with a - as it will break solr
         $parts = preg_grep('/^-/', $parts, PREG_GREP_INVERT);
