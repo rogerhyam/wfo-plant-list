@@ -103,7 +103,7 @@ class TaxonRecord extends PlantList{
                     'filter' => ['classification_id_s:' . WFO_DEFAULT_VERSION ],
                 );
                 $docs = PlantList::getSolrDocs($query);
-                if(count($docs) > 0){
+                if($docs && count($docs) > 0){
                     $this->solrDoc = $docs[0];
                 }
             }

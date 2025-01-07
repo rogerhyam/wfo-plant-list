@@ -40,7 +40,7 @@ class NameMatcher extends PlantList{
 
         $response = new class{};
         $response->inputString = $inputString; // raw string submitted
-        $response->searchString = $inputString;  // sanitized string we actually search on
+        $response->searchString = trim($inputString);  // sanitized string we actually search on
         $response->params = $this->params;
         $response->match = null;
         $response->candidates = array();
@@ -57,8 +57,6 @@ class NameMatcher extends PlantList{
             $response->searchString = trim(str_replace($symbol, '', $response->searchString));
         }
         */
-        
-        $response->searchString = $this->sanitizeNameString($response->searchString);
 
         switch ($this->params->method) {
             case 'alpha':
@@ -111,8 +109,8 @@ class NameMatcher extends PlantList{
         $authors = null;
 
         // the first word is always a taxon word
-        $canonical_parts[] = $parts[0];
-        $response->narrative[] = "The first word is always a name part word: '{$parts[0]}'";
+        $canonical_parts[] =  $this->sanitizeNameString($parts[0]);
+        $response->narrative[] = "The first word is always a name part word: '{$canonical_parts[0]}'";
         $final_word_part = 0;
 
         // look for subsequent parts
@@ -157,6 +155,9 @@ class NameMatcher extends PlantList{
                 $response->narrative[] = "Word starts with a capital when we have already had a name word starting with a lower case so part of author string: '$word'.";
             }else{
                     // Is the word a recognized name? 
+
+                    $word = $this->sanitizeNameString($word); // we can strip accents now
+
                     $query = array(
                         'query' => 'name_string_s:' . $word, 
                         'limit' => 0
