@@ -101,7 +101,16 @@ class TaxonNameType extends ObjectType
                             It is the point that glues the taxon concepts together.
                             The role is therefore the role in most recent, default classification.
                             If you need the role of the name in a previous classification you need to calculate it.",
-                        'resolve'=>function($record, $args, $context, $info) {return $record->getRole();}
+                        'args' => [
+                            'classificationId' => [
+                                'type' => Type::string(),
+                                'description' => 'Specify what we mean by "current" role. If we want to travel back in time we can pass the classification id (e.g. 2024-06) here and we will get the role in that classification.',
+                                'required' => false
+                            ]
+                            ],
+                            'resolve' => function($record, $args, $context, $info){
+                                return $record->getRole(@$args['classificationId']);
+                            }
                     ],
                     'rank' => [
                         'type' => new EnumType([
@@ -155,7 +164,7 @@ class TaxonNameType extends ObjectType
                             ]
                             ],
                             'resolve' => function($record, $args, $context, $info){
-                                return $record->getCurrentUsage($args['classificationId']);
+                                return $record->getCurrentUsage(@$args['classificationId']);
                             }
                     ],
                     'allUsages' => [

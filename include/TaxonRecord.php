@@ -600,9 +600,34 @@ class TaxonRecord extends PlantList{
     /**
      * Get the value of role
      */ 
-    public function getRole()
-    {
-        return $this->role;
+    public function getRole($classification_id = WFO_DEFAULT_VERSION){
+        
+        // simple if we are the current classification
+        if($this->getClassificationId() == $classification_id){
+            return $this->role;
+        }
+
+        // we are not the current classification so we need to calculate 
+        // the role in the previous classification
+
+        $placement = $this->getCurrentUsage($classification_id);
+        if($placement){
+            $place_name = $placement->getName();
+            if($place_name->getWfoId() == $this->getWfoId() 
+                || in_array($this->getWfoId(), $place_name->getWfoIdsDeduplicated()) 
+                ||in_array($place_name->getWfoId(), $this->getWfoIdsDeduplicated())
+                ){
+                    // we were the accepted name
+                    return 'accepted';
+                }else{
+                    return 'synonym';
+                }
+        }else{
+            // unplaced some how
+            return 'unplaced';
+        }
+
+
     }
 
     /**
