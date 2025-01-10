@@ -92,11 +92,15 @@ class TaxonNameType extends ObjectType
                     ],
                     'role' => [
                         'type' => Type::string(),
-                        'description' => "The role this name plays in the classification: 
+                        'description' => "The role this name plays in the MOST RECENT classification: 
                             accepted (placed as the accepted name of a taxon), 
                             synonym (placed as a synonym of a taxon), 
                             unplaced (a taxonomist hasn't yet to place the name in the taxonomy),
-                            deprecated (it isn't possible to place this name in the taxonomy - do not use)",
+                            deprecated (it isn't possible to place this name in the taxonomy - do not use).
+                            Note there is only one object for each name and this object is shared between classifications. 
+                            It is the point that glues the taxon concepts together.
+                            The role is therefore the role in most recent, default classification.
+                            If you need the role of the name in a previous classification you need to calculate it.",
                         'resolve'=>function($record, $args, $context, $info) {return $record->getRole();}
                     ],
                     'rank' => [
@@ -140,12 +144,26 @@ class TaxonNameType extends ObjectType
                     ],
                     'currentPreferredUsage' => [
                         'type' => TypeRegister::taxonConceptType(),
-                        'resolve' => function($record){
-                            return $record->getCurrentUsage();
-                        },
                         'description' => 'The TaxonConcept to which this TaxonName is assigned 
-                        (either as the accepted name or a synonym) in the currently preferred (most recent) version of the WFO classification. 
-                        If currentPreferredUsage.hasName.id != this.id then this name is a synonym otherwise it is the accepted name of the currentPreferredUsage TaxonConcept.'
+                        (either as the accepted name or a synonym) in the currently preferred (most recent if not defined in classificationId parameter) version of the WFO classification. 
+                        If currentPreferredUsage.hasName.id != this.id then this name is a synonym otherwise it is the accepted name of the currentPreferredUsage TaxonConcept.',
+                        'args' => [
+                            'classificationId' => [
+                                'type' => Type::string(),
+                                'description' => 'Specify what we mean by "current" usage. If we want to travel back in time we can pass the classification id (e.g. 2024-06) here and we will get the usage in that classification.',
+                                'required' => false
+                            ]
+                            ],
+                            'resolve' => function($record, $args, $context, $info){
+                                return $record->getCurrentUsage($args['classificationId']);
+                            }
+                    ],
+                    'allUsages' => [
+                        'type' => Type::listOf(TypeRegister::taxonConceptType()),
+                        'description' => 'All the taxon concepts to which this name has ever been assigned, either as the accepted name for that taxon or as a synonym.',
+                        'resolve' => function($record, $args, $context, $info){
+                            return $record->getUsages();
+                        }
                     ],
                     'hasAssociatedGenusName' => [
                         'type' => Type::listOf(TypeRegister::taxonNameType()),

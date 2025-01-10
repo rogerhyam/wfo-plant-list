@@ -113,7 +113,6 @@ class TaxonRecord extends PlantList{
 
         if(!$this->solrDoc) return; // failed to load.
 
-
         // customize on if we are a name or not
         if($this->isName ){
             $this->isName = true;
@@ -219,7 +218,8 @@ class TaxonRecord extends PlantList{
         if(!$this->usages){
             $query = array(
                 'query' => 'wfo_id_s:' . $this->getWfoId(),
-                'sort' => 'classification_id_s asc'
+                'sort' => 'classification_id_s asc',
+                'filter' => array('classification_id_s:[* TO *]')
             );
             $this->usages = $this->loadTaxonRecords($query, false);
         }
@@ -228,11 +228,11 @@ class TaxonRecord extends PlantList{
 
     }
 
-    public function getCurrentUsage(){
+    public function getCurrentUsage($in_classification = WFO_DEFAULT_VERSION){
 
         if(!$this->exists()) return null;
 
-        $current_me = new TaxonRecord($this->solrDoc->wfo_id_s . "-" . WFO_DEFAULT_VERSION);
+        $current_me = new TaxonRecord($this->solrDoc->wfo_id_s . "-" .  $in_classification);
         
         if(isset($current_me->solrDoc->accepted_id_s)){
             // we are a synonym - return the accepted name we belong to
