@@ -164,6 +164,7 @@ class TaxonNameType extends ObjectType
                             ]
                             ],
                             'resolve' => function($record, $args, $context, $info){
+                                //print_r($record);
                                 return $record->getCurrentUsage(@$args['classificationId']);
                             }
                     ],

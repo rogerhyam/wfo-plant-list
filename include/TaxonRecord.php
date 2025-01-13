@@ -110,9 +110,9 @@ class TaxonRecord extends PlantList{
 
         }
 
-
-        if(!$this->solrDoc) return; // failed to load.
-
+        if(!$this->solrDoc){
+            return; // failed to load.
+        } 
         // customize on if we are a name or not
         if($this->isName ){
             $this->isName = true;
@@ -231,6 +231,8 @@ class TaxonRecord extends PlantList{
     public function getCurrentUsage($in_classification = WFO_DEFAULT_VERSION){
 
         if(!$this->exists()) return null;
+
+        if(!$in_classification) $in_classification = WFO_DEFAULT_VERSION;
 
         $current_me = new TaxonRecord($this->solrDoc->wfo_id_s . "-" .  $in_classification);
         
@@ -538,7 +540,7 @@ class TaxonRecord extends PlantList{
      */ 
     public function getRank()
     {
-        return $this->rank;
+        return $this->rank;   
     }
 
     /**
