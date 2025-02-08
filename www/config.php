@@ -54,53 +54,56 @@ $facet_ids = array(
 // cached in the session and refreshed every
 // now and then.
 
-// the facets cache
-$facets_cache = @$_SESSION['facets_cache'];
+// we only do it if faceting is on
+if(WFO_FACET_BROWSE_ON){
 
-if(!$facets_cache || @$_GET['facet_cache_refresh'] == 'true'){
+    // the facets cache
+    $facets_cache = @$_SESSION['facets_cache'];
 
-    $facets_cache = array();
+    if(!$facets_cache || @$_GET['facet_cache_refresh'] == 'true'){
 
-    $query = array(
-        'query' => "kind_s:wfo-facet",
-        'limit' => 10000
-    );
-  
-    $docs  = PlantList::getSolrDocs($query);
-    foreach($docs as $doc){
-        $facets_cache[$doc->id] = json_decode($doc->json_t);
+        $facets_cache = array();
+
+        $query = array(
+            'query' => "kind_s:wfo-facet",
+            'limit' => 10000
+        );
+      
+        $docs  = PlantList::getSolrDocs($query);
+        foreach($docs as $doc){
+            $facets_cache[$doc->id] = json_decode($doc->json_t);
+        }
+
+        $_SESSION['facets_cache'] = $facets_cache;
+
+
     }
 
-    $_SESSION['facets_cache'] = $facets_cache;
 
+    // we do the same for sources of info
+    $sources_cache = @$_SESSION['sources_cache'];
 
-}
+    if(!$sources_cache || @$_GET['sources_cache_refresh'] == 'true'){
+        
+        $sources_cache = array();
 
+        $query = array(
+            'query' => "kind_s:wfo-facet-source",
+            'limit' => 10000
+        );
+      
+        $docs  = PlantList::getSolrDocs($query);
+      
+          foreach($docs as $doc){
+              $sources_cache[$doc->id] = json_decode($doc->json_t);
+          }
 
-// we do the same for sources of info
-$sources_cache = @$_SESSION['sources_cache'];
+          $_SESSION['sources_cache'] = $sources_cache;
 
-if(!$sources_cache || @$_GET['sources_cache_refresh'] == 'true'){
-    
-    $sources_cache = array();
+    }
 
-    $query = array(
-        'query' => "kind_s:wfo-facet-source",
-        'limit' => 10000
-    );
-  
-    $docs  = PlantList::getSolrDocs($query);
-    if($docs){
-   
-      foreach($docs as $doc){
-          $sources_cache[$doc->id] = json_decode($doc->json_t);
-      }
+} // end of facet browsing test
 
-      $_SESSION['sources_cache'] = $sources_cache;
-
-    }    
-
-}
 
 // used all over to generate guids
 function get_uri($taxon_id){
