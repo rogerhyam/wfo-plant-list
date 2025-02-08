@@ -90,12 +90,15 @@ if(!$sources_cache || @$_GET['sources_cache_refresh'] == 'true'){
     );
   
     $docs  = PlantList::getSolrDocs($query);
-    foreach($docs as $doc){
-        $sources_cache[$doc->id] = json_decode($doc->json_t);
-    }
+    if($docs){
+   
+      foreach($docs as $doc){
+          $sources_cache[$doc->id] = json_decode($doc->json_t);
+      }
 
-    $_SESSION['sources_cache'] = $sources_cache;
+      $_SESSION['sources_cache'] = $sources_cache;
 
+    }    
 
 }
 
