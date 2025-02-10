@@ -321,7 +321,7 @@ $ranks_table = array(
     "children" => array(), // permissible ranks for child taxa = none
     "abbreviation" => "unranked", // official abbreviation
     "plural" => "Unranked",
-    "aka" => array("unr.", "infraspec.") // alternative representations for import
+    "aka" => array("unr.", "infraspec.", "infrasec.", "infragen." ) // alternative representations for import
   )
 
 );
